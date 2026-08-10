@@ -8,7 +8,6 @@
 	import { withLocale } from '$lib/i18n/paths';
 	import {
 		aspirationTip,
-		backToMenuLabel,
 		heading,
 		intro,
 		pageDescription,
@@ -32,9 +31,6 @@
 	<div class="quick-actions" bind:clientHeight={barHeight}>
 		<Button href={withLocale(locale, '/learn/alphabet/quiz')} variant="primary">
 			{t(startQuizLabel)}
-		</Button>
-		<Button href={withLocale(locale, '/learn')} variant="secondary">
-			{t(backToMenuLabel)}
 		</Button>
 	</div>
 

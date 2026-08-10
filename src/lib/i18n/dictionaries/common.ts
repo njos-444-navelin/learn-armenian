@@ -29,3 +29,14 @@ export const continueLabel: Translated = {
 	en: 'Continue',
 	ru: 'Продолжить'
 };
+
+export const switchToLanguageLabel: Record<'en' | 'ru', Translated> = {
+	en: {
+		en: 'Switch to English',
+		ru: 'Переключить на английский'
+	},
+	ru: {
+		en: 'Switch to Russian',
+		ru: 'Переключить на русский'
+	}
+};

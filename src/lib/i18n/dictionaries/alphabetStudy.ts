@@ -29,8 +29,3 @@ export const startQuizLabel: Translated = {
 	en: 'Start quiz',
 	ru: 'Начать проверку'
 };
-
-export const backToMenuLabel: Translated = {
-	en: 'Back to lessons',
-	ru: 'Назад к урокам'
-};
