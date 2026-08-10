@@ -1,21 +1,31 @@
 import type { Translated } from '../types';
 
 export const pageTitle: Translated = {
-	en: 'Learn Armenian — lessons',
-	ru: 'Учи армянский — уроки'
+	en: 'Learn Armenian — choose a lesson',
+	ru: 'Учи армянский — выбери урок'
 };
 
 export const pageDescription: Translated = {
-	en: 'Armenian lessons are on their way.',
-	ru: 'Уроки армянского языка скоро появятся.'
+	en: 'Pick a lesson to start learning Armenian.',
+	ru: 'Выбери урок, чтобы начать изучать армянский язык.'
 };
 
 export const heading: Translated = {
-	en: 'Coming soon',
-	ru: 'Скоро здесь появятся уроки'
+	en: 'Choose a lesson',
+	ru: 'Выбери урок'
 };
 
-export const body: Translated = {
-	en: "We're building your first Armenian lessons. Check back soon.",
-	ru: 'Мы готовим первые уроки армянского языка. Загляните позже.'
+export const menuAriaLabel: Translated = {
+	en: 'Lessons',
+	ru: 'Уроки'
+};
+
+export const alphabetTrainerLabel: Translated = {
+	en: 'Alphabet trainer',
+	ru: 'Тренажёр алфавита'
+};
+
+export const moreToComeLabel: Translated = {
+	en: 'More to come',
+	ru: 'Скоро появится больше'
 };

@@ -4,8 +4,14 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import { getLocale, t } from '$lib/i18n/current';
 	import { withLocale } from '$lib/i18n/paths';
-	import { back } from '$lib/i18n/dictionaries/common';
-	import { body, heading, pageDescription, pageTitle } from '$lib/i18n/dictionaries/learn';
+	import {
+		alphabetTrainerLabel,
+		heading,
+		menuAriaLabel,
+		moreToComeLabel,
+		pageDescription,
+		pageTitle
+	} from '$lib/i18n/dictionaries/learn';
 
 	let locale = $derived(getLocale());
 </script>
@@ -14,16 +20,23 @@
 
 <PageShell>
 	<h1>{t(heading)}</h1>
-	<p class="body">{t(body)}</p>
 
-	<Button href={withLocale(locale, '/')} variant="secondary">
-		{t(back)}
-	</Button>
+	<nav aria-label={t(menuAriaLabel)}>
+		<Button href={withLocale(locale, '/learn/alphabet')} variant="primary">
+			{t(alphabetTrainerLabel)}
+		</Button>
+		<Button variant="secondary" disabled>
+			{t(moreToComeLabel)}
+		</Button>
+	</nav>
 </PageShell>
 
 <style>
-	.body {
-		color: var(--color-text-secondary);
-		font-size: var(--font-size-lg);
+	nav {
+		display: flex;
+		width: 100%;
+		flex-direction: column;
+		align-items: stretch;
+		gap: var(--space-3);
 	}
 </style>

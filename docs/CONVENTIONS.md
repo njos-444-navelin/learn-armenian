@@ -17,6 +17,17 @@ string literal directly into markup.
 
 Add new copy to a dictionary under `src/lib/i18n/dictionaries/`, grouped by
 page or feature — don't inline `Translated` object literals in components.
+Dynamic/interpolated text still applies: write a function that returns a
+`Translated` (see `progressLabel()` in
+[`dictionaries/alphabetTrainer.ts`](../src/lib/i18n/dictionaries/alphabetTrainer.ts)),
+not a template string built after resolving one language.
+
+`src/lib/i18n/dictionaries/` is for UI chrome copy (headings, labels, SEO
+text). Lesson *content* that happens to carry bilingual fields — e.g. the
+Armenian alphabet data in
+[`src/lib/content/alphabet.ts`](../src/lib/content/alphabet.ts) — lives under
+`src/lib/content/` instead, kept separate from UI copy as the set of lessons
+grows.
 
 **Scope exemptions:**
 - The PWA manifest (`vite.config.ts`) is a single build-time file that can't

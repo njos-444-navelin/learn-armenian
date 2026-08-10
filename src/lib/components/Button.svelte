@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
-	type Variant = 'primary' | 'secondary';
+	type Variant = 'primary' | 'secondary' | 'success' | 'error';
 
 	interface BaseProps {
 		variant?: Variant | undefined;
@@ -83,6 +83,24 @@
 
 	.secondary:hover:not(:disabled) {
 		background: var(--color-secondary-hover);
+	}
+
+	.success {
+		background: var(--color-success);
+		color: var(--color-on-success);
+	}
+
+	.success:hover:not(:disabled) {
+		background: var(--color-success-hover);
+	}
+
+	.error {
+		background: var(--color-error);
+		color: var(--color-on-error);
+	}
+
+	.error:hover:not(:disabled) {
+		background: var(--color-error-hover);
 	}
 
 	.button[aria-current='page'] {

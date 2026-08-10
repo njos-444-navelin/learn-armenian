@@ -1,0 +1,73 @@
+import type { Translated } from '../types';
+
+export const pageTitle: Translated = {
+	en: 'Learn Armenian — alphabet trainer',
+	ru: 'Учи армянский — тренажёр алфавита'
+};
+
+export const pageDescription: Translated = {
+	en: 'Learn the Armenian alphabet and quiz yourself on how each letter sounds.',
+	ru: 'Изучи армянский алфавит и проверь себя на произношении каждой буквы.'
+};
+
+export const heading: Translated = {
+	en: 'Alphabet trainer',
+	ru: 'Тренажёр алфавита'
+};
+
+export const question: Translated = {
+	en: 'What sound does this letter make?',
+	ru: 'Какой звук издаёт эта буква?'
+};
+
+export const nextLabel: Translated = {
+	en: 'Next',
+	ru: 'Далее'
+};
+
+export const restartLabel: Translated = {
+	en: 'Practice again',
+	ru: 'Повторить снова'
+};
+
+export const backToMenuLabel: Translated = {
+	en: 'Back to lessons',
+	ru: 'Назад к урокам'
+};
+
+export const correctAnswerHint: Translated = {
+	en: '(correct answer)',
+	ru: '(правильный ответ)'
+};
+
+export const incorrectAnswerHint: Translated = {
+	en: '(your answer, incorrect)',
+	ru: '(ваш ответ, неверно)'
+};
+
+export const correctFeedback: Translated = {
+	en: 'Correct!',
+	ru: 'Правильно!'
+};
+
+export const incorrectFeedback: Translated = {
+	en: 'Not quite — see the correct answer below.',
+	ru: 'Не совсем — правильный ответ ниже.'
+};
+
+export const completionHeading: Translated = {
+	en: "You've matched every letter!",
+	ru: 'Вы прошли все буквы!'
+};
+
+export const completionBody: Translated = {
+	en: 'Great work learning the Armenian alphabet. Practice again any time to keep it fresh.',
+	ru: 'Отличная работа с армянским алфавитом. Повторяйте в любое время, чтобы не забыть.'
+};
+
+export function progressLabel(mastered: number, total: number): Translated {
+	return {
+		en: `${mastered} / ${total} letters mastered`,
+		ru: `${mastered} из ${total} букв освоено`
+	};
+}
