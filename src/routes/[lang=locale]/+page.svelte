@@ -2,7 +2,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
 	import Seo from '$lib/components/Seo.svelte';
-	import { LOCALES } from '$lib/i18n/locale';
+	import { LOCALE_FLAGS, LOCALES } from '$lib/i18n/locale';
 	import { getLocale, t } from '$lib/i18n/current';
 	import { withLocale } from '$lib/i18n/paths';
 	import { languageNames, startLearning } from '$lib/i18n/dictionaries/common';
@@ -30,6 +30,7 @@
 				variant={option === locale ? 'primary' : 'secondary'}
 				ariaCurrent={option === locale ? 'page' : undefined}
 			>
+				<span aria-hidden="true">{LOCALE_FLAGS[option]}</span>
 				{t(languageNames[option])}
 			</Button>
 		{/each}

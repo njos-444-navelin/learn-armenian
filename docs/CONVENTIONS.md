@@ -18,10 +18,15 @@ string literal directly into markup.
 Add new copy to a dictionary under `src/lib/i18n/dictionaries/`, grouped by
 page or feature — don't inline `Translated` object literals in components.
 
-**Scope exemption:** the PWA manifest (`vite.config.ts`) is a single
-build-time file that can't be resolved per-request/per-locale, so its
-`name`/`short_name`/`description` are not run through the i18n system. This is
-the only exemption.
+**Scope exemptions:**
+- The PWA manifest (`vite.config.ts`) is a single build-time file that can't
+  be resolved per-request/per-locale, so its `name`/`short_name`/`description`
+  are not run through the i18n system.
+- Purely decorative glyphs that are identical in every language — e.g. the
+  locale flag emoji in [`LOCALE_FLAGS`](../src/lib/i18n/locale.ts) — aren't
+  translatable text, so they skip the dictionary system. They must always be
+  rendered `aria-hidden="true"` alongside a real translated label; they can
+  never be the only thing conveying the meaning.
 
 ## 2. No hardcoded colors
 
