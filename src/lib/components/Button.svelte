@@ -1,0 +1,91 @@
+<script lang="ts">
+	import type { Snippet } from 'svelte';
+
+	type Variant = 'primary' | 'secondary';
+
+	interface BaseProps {
+		variant?: Variant | undefined;
+		children: Snippet;
+	}
+
+	interface LinkProps extends BaseProps {
+		href: string;
+		ariaCurrent?: 'page' | undefined;
+	}
+
+	interface ActionProps extends BaseProps {
+		href?: undefined;
+		type?: 'button' | 'submit' | undefined;
+		disabled?: boolean | undefined;
+		onclick?: (() => void) | undefined;
+	}
+
+	type Props = LinkProps | ActionProps;
+
+	let { variant = 'primary', children, ...rest }: Props = $props();
+</script>
+
+{#if rest.href !== undefined}
+	<a class="button {variant}" href={rest.href} aria-current={rest.ariaCurrent}>
+		{@render children()}
+	</a>
+{:else}
+	<button
+		class="button {variant}"
+		type={rest.type ?? 'button'}
+		disabled={rest.disabled}
+		onclick={rest.onclick}
+	>
+		{@render children()}
+	</button>
+{/if}
+
+<style>
+	.button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+		min-height: var(--tap-target-min);
+		min-width: var(--tap-target-min);
+		padding: var(--space-3) var(--space-5);
+		border-radius: var(--radius-md);
+		border: 1px solid transparent;
+		font-family: var(--font-family-sans);
+		font-size: var(--font-size-md);
+		font-weight: 600;
+		text-decoration: none;
+		cursor: pointer;
+		transition:
+			background-color var(--transition-fast),
+			border-color var(--transition-fast);
+	}
+
+	.button:disabled {
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+
+	.primary {
+		background: var(--color-primary);
+		color: var(--color-on-primary);
+	}
+
+	.primary:hover:not(:disabled) {
+		background: var(--color-primary-hover);
+	}
+
+	.secondary {
+		background: var(--color-secondary);
+		color: var(--color-on-secondary);
+		border-color: var(--color-border);
+	}
+
+	.secondary:hover:not(:disabled) {
+		background: var(--color-secondary-hover);
+	}
+
+	.button[aria-current='page'] {
+		border-color: var(--color-primary);
+	}
+</style>

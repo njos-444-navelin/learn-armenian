@@ -19,8 +19,8 @@ export default defineConfig({
 			manifest: {
 				name: 'Learn Armenian',
 				short_name: 'Learn Armenian',
-				description: 'Learn Armenian',
-				lang: 'hy',
+				description: 'Learn Armenian from English or Russian',
+				lang: 'en',
 				start_url: '/',
 				scope: '/',
 				display: 'standalone',
