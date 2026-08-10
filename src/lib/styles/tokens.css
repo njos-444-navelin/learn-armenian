@@ -6,10 +6,14 @@
 	--color-text-secondary: #4b5165;
 	--color-border: #d7dbe6;
 
-	/* Color — brand (matches the PWA theme color) */
-	--color-primary: #0033a0;
-	--color-primary-hover: #00287d;
-	--color-on-primary: #ffffff;
+	/* Color — brand (matches the PWA theme color). A vibrant tangerine-orange
+	   in the spirit of the apricot stripe on the Armenian flag. Bright warm
+	   oranges never reach WCAG AA against white text, so — like many
+	   accessible amber/orange UIs — primary buttons use dark text instead
+	   (see --color-on-primary) rather than muddying the color to fit white. */
+	--color-primary: #ff7a1a;
+	--color-primary-hover: #e56a0f;
+	--color-on-primary: var(--color-text-primary);
 
 	/* Color — secondary actions */
 	--color-secondary: #f4f6fb;

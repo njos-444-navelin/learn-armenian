@@ -11,6 +11,11 @@
 	interface LinkProps extends BaseProps {
 		href: string;
 		ariaCurrent?: 'page' | undefined;
+		onclick?: (() => void) | undefined;
+		/** Forces a full page navigation instead of client-side routing — needed
+		 * when the destination has a different `<html lang>` than the current
+		 * page, since that attribute is only (re)stamped by the server. */
+		reload?: boolean | undefined;
 	}
 
 	interface ActionProps extends BaseProps {
@@ -26,7 +31,13 @@
 </script>
 
 {#if rest.href !== undefined}
-	<a class="button {variant}" href={rest.href} aria-current={rest.ariaCurrent}>
+	<a
+		class="button {variant}"
+		href={rest.href}
+		aria-current={rest.ariaCurrent}
+		onclick={rest.onclick}
+		data-sveltekit-reload={rest.reload ? '' : undefined}
+	>
 		{@render children()}
 	</a>
 {:else}
