@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Button from '$lib/components/Button.svelte';
+	import LetterList from '$lib/components/LetterList.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import { ALPHABET } from '$lib/content/alphabet';
@@ -25,16 +26,7 @@
 	<p class="intro">{t(intro)}</p>
 	<p class="tip">{t(aspirationTip)}</p>
 
-	<ul class="letters">
-		{#each ALPHABET as letter (letter.id)}
-			<li>
-				<span class="glyphs" lang="hy">{letter.uppercase} {letter.lowercase}</span>
-				<span class="voicing">{t(letter.voicing)}</span>
-			</li>
-		{/each}
-	</ul>
-
-	<div class="actions">
+	<div class="quick-actions">
 		<Button href={withLocale(locale, '/learn/alphabet/quiz')} variant="primary">
 			{t(startQuizLabel)}
 		</Button>
@@ -42,6 +34,10 @@
 			{t(backToMenuLabel)}
 		</Button>
 	</div>
+
+	<LetterList letters={ALPHABET} />
+
+	<div class="bottom-spacer" aria-hidden="true"></div>
 </PageShell>
 
 <style>
@@ -59,41 +55,26 @@
 		background: var(--color-surface);
 	}
 
-	.letters {
-		display: flex;
-		width: 100%;
-		flex-direction: column;
-		gap: var(--space-2);
-		margin: 0;
-		padding: 0;
-		list-style: none;
-		text-align: left;
-	}
-
-	.letters li {
-		display: flex;
-		align-items: center;
-		gap: var(--space-4);
-		padding: var(--space-3) var(--space-4);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
-	}
-
-	.glyphs {
-		flex-shrink: 0;
-		width: 4rem;
-		font-size: var(--font-size-xl);
-		font-weight: 700;
-	}
-
-	.voicing {
-		color: var(--color-text-secondary);
-	}
-
-	.actions {
+	.quick-actions {
+		position: fixed;
+		left: 50%;
+		bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+		transform: translateX(-50%);
 		display: flex;
 		flex-wrap: wrap;
-		gap: var(--space-3);
 		justify-content: center;
+		gap: var(--space-2);
+		max-width: calc(100vw - var(--space-4) * 2);
+		padding: var(--space-2);
+		background: var(--color-background);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		box-shadow: var(--shadow-sm);
+		z-index: 10;
+	}
+
+	.bottom-spacer {
+		width: 100%;
+		height: 5rem;
 	}
 </style>

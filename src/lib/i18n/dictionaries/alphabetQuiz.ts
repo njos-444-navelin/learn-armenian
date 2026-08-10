@@ -1,19 +1,12 @@
 import type { Translated } from '../types';
 
-export const pageTitle: Translated = {
-	en: 'Learn Armenian — alphabet quiz',
-	ru: 'Учи армянский — проверка алфавита'
-};
-
-export const pageDescription: Translated = {
-	en: 'Test yourself on the sounds of the Armenian alphabet.',
-	ru: 'Проверь себя на знании звуков армянского алфавита.'
-};
-
-export const heading: Translated = {
-	en: 'Alphabet quiz',
-	ru: 'Проверка алфавита'
-};
+/**
+ * Copy shared by every quiz mode (mode-selection's destinations, both the
+ * "entire alphabet" and "practice" pages) — the in-progress quiz UI and the
+ * "you matched every letter [in this pool]" completion screen. Each mode
+ * page owns its own `pageTitle`/`pageDescription`/`heading` instead, since
+ * those genuinely differ per route.
+ */
 
 export const question: Translated = {
 	en: 'What sound does this letter make?',
