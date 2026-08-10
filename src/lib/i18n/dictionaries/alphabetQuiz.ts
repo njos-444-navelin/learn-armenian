@@ -1,18 +1,18 @@
 import type { Translated } from '../types';
 
 export const pageTitle: Translated = {
-	en: 'Learn Armenian — alphabet trainer',
-	ru: 'Учи армянский — тренажёр алфавита'
+	en: 'Learn Armenian — alphabet quiz',
+	ru: 'Учи армянский — проверка алфавита'
 };
 
 export const pageDescription: Translated = {
-	en: 'Learn the Armenian alphabet and quiz yourself on how each letter sounds.',
-	ru: 'Изучи армянский алфавит и проверь себя на произношении каждой буквы.'
+	en: 'Test yourself on the sounds of the Armenian alphabet.',
+	ru: 'Проверь себя на знании звуков армянского алфавита.'
 };
 
 export const heading: Translated = {
-	en: 'Alphabet trainer',
-	ru: 'Тренажёр алфавита'
+	en: 'Alphabet quiz',
+	ru: 'Проверка алфавита'
 };
 
 export const question: Translated = {
@@ -30,9 +30,9 @@ export const restartLabel: Translated = {
 	ru: 'Повторить снова'
 };
 
-export const backToMenuLabel: Translated = {
-	en: 'Back to lessons',
-	ru: 'Назад к урокам'
+export const backToStudyLabel: Translated = {
+	en: 'Back to alphabet',
+	ru: 'Назад к алфавиту'
 };
 
 export const correctAnswerHint: Translated = {

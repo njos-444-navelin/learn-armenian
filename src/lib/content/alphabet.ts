@@ -16,11 +16,17 @@ export interface AlphabetLetter {
  * "capital + lowercase" pattern every other entry follows. A candidate for a
  * dedicated ligatures/digraphs lesson later, not an oversight here.
  *
- * Voicing text is a learner's approximation (comparisons to English/Russian
- * words), not IPA. Where Armenian draws a distinction English/Russian
- * speakers tend to miss — the tense/unaspirated vs. breathy/aspirated stop
- * pairs, and the two letters whose sound depends on position in a word —
- * the text calls it out explicitly instead of collapsing both to one sound.
+ * Voicing text is a learner's approximation, not IPA, and deliberately only
+ * compares each sound to words in the learner's own language (English for
+ * `en`, Russian for `ru`) — never to a third language the learner may not
+ * know. For the unaspirated/aspirated stop pairs, where one language's
+ * native pronunciation already matches Armenian and the other doesn't
+ * (English aspirates initial "k"/"p"/"t", Russian doesn't), the easy side
+ * just says "like your normal X"; the other side gets a simple physical
+ * self-test (a puff of air on the hand) instead of a foreign-word analogy —
+ * introduced once in the study page's tip, then referenced tersely per
+ * letter. The two letters whose sound depends on position in a word are
+ * called out explicitly instead of collapsing both to one sound.
  */
 export const ALPHABET: readonly AlphabetLetter[] = [
 	{
@@ -85,8 +91,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		uppercase: 'Թ',
 		lowercase: 'թ',
 		voicing: {
-			en: `a breathy, aspirated "t" — like the "t" in "top" said with a puff of air`,
-			ru: 'придыхательное «т» — как английское «t» в слове «top», с лёгким выдохом'
+			en: `like the "t" in "top" — a normal English "t"`,
+			ru: 'придыхательное «т» — с лёгким выдохом воздуха'
 		}
 	},
 	{
@@ -115,7 +121,7 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		uppercase: 'Խ',
 		lowercase: 'խ',
 		voicing: {
-			en: `a raspy "h", like the "ch" in Scottish "loch"`,
+			en: `a raspy, throat-clearing "h" sound`,
 			ru: 'гортанное «х», как в слове «хлеб», но более резкое'
 		}
 	},
@@ -124,8 +130,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		uppercase: 'Ծ',
 		lowercase: 'ծ',
 		voicing: {
-			en: `a sharp, unaspirated "ts" — no puff of air, like "ts" in "cats" said tensely`,
-			ru: 'резкое непридыхательное «ц», без выдоха'
+			en: `a sharp, unaspirated "ts" — no puff of air, like "ts" in "cats"`,
+			ru: 'как обычное русское «ц», без выдоха'
 		}
 	},
 	{
@@ -134,14 +140,14 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		lowercase: 'կ',
 		voicing: {
 			en: `a sharp, unaspirated "k" — no puff of air`,
-			ru: 'непридыхательное «к», без выдоха, как во французском'
+			ru: 'как обычное русское «к», без выдоха'
 		}
 	},
 	{
 		id: 'ho',
 		uppercase: 'Հ',
 		lowercase: 'հ',
-		voicing: { en: `like the "h" in "house"`, ru: 'лёгкое «х», как английское «h» в слове «house»' }
+		voicing: { en: `like the "h" in "house"`, ru: 'лёгкий, почти беззвучный выдох — мягче русского «х»' }
 	},
 	{
 		id: 'ja',
@@ -154,8 +160,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		uppercase: 'Ղ',
 		lowercase: 'ղ',
 		voicing: {
-			en: `a guttural "r", like the French "r" in "Paris"`,
-			ru: 'гортанное «р», как французское «r»'
+			en: `a soft, gargled sound made in the back of the throat`,
+			ru: 'мягкий гортанный звук, похожий на лёгкое полоскание горла'
 		}
 	},
 	{
@@ -164,7 +170,7 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		lowercase: 'ճ',
 		voicing: {
 			en: `a sharp, unaspirated "ch" — no puff of air`,
-			ru: 'непридыхательное «ч», без выдоха'
+			ru: 'как обычное русское «ч», без выдоха'
 		}
 	},
 	{
@@ -205,8 +211,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		uppercase: 'Չ',
 		lowercase: 'չ',
 		voicing: {
-			en: `a breathy, aspirated "ch" — like "ch" in "chair"`,
-			ru: 'придыхательное «ч», как английское «ch» в слове «chair»'
+			en: `like the "ch" in "chair" — a normal English "ch"`,
+			ru: 'придыхательное «ч» — с лёгким выдохом воздуха'
 		}
 	},
 	{
@@ -215,7 +221,7 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		lowercase: 'պ',
 		voicing: {
 			en: `a sharp, unaspirated "p" — no puff of air`,
-			ru: 'непридыхательное «п», без выдоха'
+			ru: 'как обычное русское «п», без выдоха'
 		}
 	},
 	{
@@ -229,8 +235,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		uppercase: 'Ռ',
 		lowercase: 'ռ',
 		voicing: {
-			en: `a strongly rolled, trilled "r", like in Spanish "perro"`,
-			ru: 'раскатистое «р», как в испанском «perro»'
+			en: `a strongly rolled "r" — flutter your tongue tip against the roof of your mouth`,
+			ru: 'раскатистое «р» — как русское протяжное «р-р-р», только более чёткое'
 		}
 	},
 	{
@@ -251,7 +257,7 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		lowercase: 'տ',
 		voicing: {
 			en: `a sharp, unaspirated "t" — no puff of air`,
-			ru: 'непридыхательное «т», без выдоха'
+			ru: 'как обычное русское «т», без выдоха'
 		}
 	},
 	{
@@ -259,8 +265,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		uppercase: 'Ր',
 		lowercase: 'ր',
 		voicing: {
-			en: `a soft, tapped "r", like the "r" in Spanish "pero"`,
-			ru: 'мягкое одноударное «р», как в испанском «pero»'
+			en: `a soft, quick "r" — like the "tt" in "butter" (American pronunciation)`,
+			ru: 'мягкое, лёгкое «р» — как обычное русское «р» в быстрой речи'
 		}
 	},
 	{
@@ -286,8 +292,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		uppercase: 'Փ',
 		lowercase: 'փ',
 		voicing: {
-			en: `a breathy, aspirated "p" — like "p" in "pot" said with a puff of air`,
-			ru: 'придыхательное «п», как английское «p» в слове «pot»'
+			en: `like the "p" in "pot" — a normal English "p"`,
+			ru: 'придыхательное «п» — с лёгким выдохом воздуха'
 		}
 	},
 	{
@@ -295,8 +301,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		uppercase: 'Ք',
 		lowercase: 'ք',
 		voicing: {
-			en: `a breathy, aspirated "k" — like "k" in "kit" said with a puff of air`,
-			ru: 'придыхательное «к», как английское «k» в слове «kit»'
+			en: `like the "k" in "kit" — a normal English "k"`,
+			ru: 'придыхательное «к» — с лёгким выдохом воздуха'
 		}
 	},
 	{
