@@ -17,6 +17,9 @@
 	} from '$lib/i18n/dictionaries/alphabetStudy';
 
 	let locale = $derived(getLocale());
+	// Reasonable single-row guess for the first paint; corrected the instant the
+	// real bar mounts and reports its height, so the spacer below is never a guess.
+	let barHeight = $state(72);
 </script>
 
 <Seo title={pageTitle} description={pageDescription} />
@@ -26,7 +29,7 @@
 	<p class="intro">{t(intro)}</p>
 	<p class="tip">{t(aspirationTip)}</p>
 
-	<div class="quick-actions">
+	<div class="quick-actions" bind:clientHeight={barHeight}>
 		<Button href={withLocale(locale, '/learn/alphabet/quiz')} variant="primary">
 			{t(startQuizLabel)}
 		</Button>
@@ -37,7 +40,7 @@
 
 	<LetterList letters={ALPHABET} />
 
-	<div class="bottom-spacer" aria-hidden="true"></div>
+	<div class="bottom-spacer" style="height: {barHeight + 24}px" aria-hidden="true"></div>
 </PageShell>
 
 <style>
@@ -57,14 +60,13 @@
 
 	.quick-actions {
 		position: fixed;
-		left: 50%;
+		left: var(--space-4);
+		right: var(--space-4);
 		bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
-		transform: translateX(-50%);
+		max-width: var(--measure);
+		margin-inline: auto;
 		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
 		gap: var(--space-2);
-		max-width: calc(100vw - var(--space-4) * 2);
 		padding: var(--space-2);
 		background: var(--color-background);
 		border: 1px solid var(--color-border);
@@ -73,8 +75,11 @@
 		z-index: 10;
 	}
 
+	.quick-actions :global(.button) {
+		flex: 1;
+	}
+
 	.bottom-spacer {
 		width: 100%;
-		height: 5rem;
 	}
 </style>

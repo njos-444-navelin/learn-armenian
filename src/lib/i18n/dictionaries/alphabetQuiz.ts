@@ -44,8 +44,8 @@ export const correctFeedback: Translated = {
 };
 
 export const incorrectFeedback: Translated = {
-	en: 'Not quite — see the correct answer below.',
-	ru: 'Не совсем — правильный ответ ниже.'
+	en: 'Not quite — see the correct answer above.',
+	ru: 'Не совсем — правильный ответ выше.'
 };
 
 export const completionHeading: Translated = {
