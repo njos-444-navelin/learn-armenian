@@ -4,7 +4,6 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import { LOCALE_FLAGS, LOCALES } from '$lib/i18n/locale';
 	import { getLocale, t } from '$lib/i18n/current';
-	import { setStoredLocale } from '$lib/i18n/preference';
 	import { withLocale } from '$lib/i18n/paths';
 	import { languageNames, startLearning } from '$lib/i18n/dictionaries/common';
 	import {
@@ -31,7 +30,6 @@
 				variant={option === locale ? 'primary' : 'secondary'}
 				ariaCurrent={option === locale ? 'page' : undefined}
 				reload
-				onclick={() => setStoredLocale(option)}
 			>
 				<span aria-hidden="true">{LOCALE_FLAGS[option]}</span>
 				{t(languageNames[option])}

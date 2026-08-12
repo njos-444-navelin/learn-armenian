@@ -23,11 +23,6 @@ export const restartLabel: Translated = {
 	ru: 'Повторить снова'
 };
 
-export const backToStudyLabel: Translated = {
-	en: 'Back to alphabet',
-	ru: 'Назад к алфавиту'
-};
-
 export const correctAnswerHint: Translated = {
 	en: '(correct answer)',
 	ru: '(правильный ответ)'

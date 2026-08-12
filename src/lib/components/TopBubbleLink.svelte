@@ -9,18 +9,16 @@
 		 * when the destination has a different `<html lang>` than the current
 		 * page, since that attribute is only (re)stamped by the server. */
 		fullReload?: boolean | undefined;
-		onclick?: (() => void) | undefined;
 		children: Snippet;
 	}
 
-	let { href, ariaLabel, side, fullReload, onclick, children }: Props = $props();
+	let { href, ariaLabel, side, fullReload, children }: Props = $props();
 </script>
 
 <a
 	class="bubble {side}"
 	{href}
 	aria-label={ariaLabel}
-	{onclick}
 	data-sveltekit-reload={fullReload ? '' : undefined}
 >
 	{@render children()}

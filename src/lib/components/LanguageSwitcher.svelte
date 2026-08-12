@@ -5,7 +5,6 @@
 	import { getLocale, t } from '$lib/i18n/current';
 	import { switchToLanguageLabel } from '$lib/i18n/dictionaries/common';
 	import { withLocale, withoutLocale } from '$lib/i18n/paths';
-	import { setStoredLocale } from '$lib/i18n/preference';
 
 	let currentLocale = $derived(getLocale());
 	let otherLocale = $derived(LOCALES.find((locale) => locale !== currentLocale));
@@ -20,7 +19,6 @@
 		ariaLabel={t(switchToLanguageLabel[otherLocale])}
 		side="right"
 		fullReload
-		onclick={() => setStoredLocale(otherLocale)}
 	>
 		<span aria-hidden="true">{LOCALE_FLAGS[otherLocale]}</span>
 	</TopBubbleLink>

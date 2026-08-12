@@ -2,7 +2,6 @@
 	import Button from '$lib/components/Button.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
 	import Seo from '$lib/components/Seo.svelte';
-	import { backToStudyLabel } from '$lib/i18n/dictionaries/alphabetQuiz';
 	import {
 		allModeDescription,
 		allModeLabel,
@@ -36,10 +35,6 @@
 			{t(allModeLabel)}
 		</Button>
 	</div>
-
-	<Button href={withLocale(locale, '/learn/alphabet')} variant="secondary">
-		{t(backToStudyLabel)}
-	</Button>
 </PageShell>
 
 <style>

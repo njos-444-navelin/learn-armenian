@@ -9,7 +9,11 @@ export interface AlphabetLetter {
 
 /**
  * The 38 letters of the modern Armenian alphabet (Ա–Ֆ). The traditional 36
- * letters of the Mesrop Mashtots alphabet plus Օ/օ and Ֆ/ֆ, added later.
+ * letters of the Mesrop Mashtots alphabet plus Օ/օ and Ֆ/ֆ, added later, and
+ * ՈՒ/ու (the /u/ digraph) counted as one of them: modern Armenian has no
+ * standalone letter "ւ" — it's written with two characters but taught and
+ * alphabetized as a single letter, and the `u` entry below says so directly
+ * rather than describing it as "Ո combined with a separate Ւ".
  *
  * Deliberately excludes the և ligature ("yev"): it has no distinct uppercase
  * form of its own (ԵՎ is used instead), which would break the uniform
@@ -134,7 +138,7 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		lowercase: 'ծ',
 		voicing: {
 			en: `"ts", unaspirated — no puff of air, like in "cats"`,
-			ru: '«ц» — как обычное русское, без выдоха'
+			ru: '«ц», без придыхания — твёрже и резче обычного русского «ц» (которое звучит с лёгким выдохом)'
 		}
 	},
 	{
@@ -150,7 +154,7 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'ho',
 		uppercase: 'Հ',
 		lowercase: 'հ',
-		voicing: { en: `"h" — as in "house"`, ru: '«х», очень лёгкое — почти беззвучный выдох, мягче обычного русского «х»' }
+		voicing: { en: `"h" — as in "house"`, ru: '«х», очень лёгкое — почти беззвучный выдох, без хрипа (в отличие от Խ)' }
 	},
 	{
 		id: 'ja',
@@ -173,7 +177,7 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		lowercase: 'ճ',
 		voicing: {
 			en: `"ch", unaspirated — no puff of air`,
-			ru: '«ч» — как обычное русское, без выдоха'
+			ru: '«ч», без придыхания — твёрже и резче обычного русского «ч» (которое звучит с лёгким выдохом)'
 		}
 	},
 	{
@@ -224,7 +228,7 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		lowercase: 'պ',
 		voicing: {
 			en: `"p", unaspirated — no puff of air`,
-			ru: '«п» — как обычное русское, без выдоха'
+			ru: '«п», без придыхания — твёрже и резче обычного русского «п»'
 		}
 	},
 	{
@@ -260,7 +264,7 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		lowercase: 'տ',
 		voicing: {
 			en: `"t", unaspirated — no puff of air`,
-			ru: '«т» — как обычное русское, без выдоха'
+			ru: '«т», без придыхания — твёрже и резче обычного русского «т»'
 		}
 	},
 	{
@@ -282,12 +286,12 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		}
 	},
 	{
-		id: 'hiwn',
-		uppercase: 'Ւ',
-		lowercase: 'ւ',
+		id: 'u',
+		uppercase: 'ՈՒ',
+		lowercase: 'ու',
 		voicing: {
-			en: `"oo" — rarely stands alone; mostly seen combined with Ո as "ու", as in "moon"`,
-			ru: '«у» — почти не встречается отдельно; обычно входит в сочетание «ու», которое звучит как в слове «улица»'
+			en: `"oo" — as in "moon". Written with two characters, but treated as a single letter in the modern alphabet — there's no separate standalone "ւ".`,
+			ru: '«у» — как в слове «улица». Пишется двумя знаками, но в современном алфавите считается одной буквой — отдельной буквы «ւ» не существует.'
 		}
 	},
 	{

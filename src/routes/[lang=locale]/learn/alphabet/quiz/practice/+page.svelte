@@ -5,14 +5,8 @@
 	import PageShell from '$lib/components/PageShell.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import { ALPHABET, type AlphabetLetter } from '$lib/content/alphabet';
-	import { getLocale, t } from '$lib/i18n/current';
-	import { withLocale } from '$lib/i18n/paths';
-	import {
-		backToStudyLabel,
-		completionBody,
-		completionHeading,
-		restartLabel
-	} from '$lib/i18n/dictionaries/alphabetQuiz';
+	import { t } from '$lib/i18n/current';
+	import { completionBody, completionHeading, restartLabel } from '$lib/i18n/dictionaries/alphabetQuiz';
 	import {
 		blockHeading,
 		blockIntro,
@@ -33,7 +27,6 @@
 
 	const blocks = chunk(ALPHABET, BLOCK_SIZE);
 
-	let locale = $derived(getLocale());
 	let blockIndex = $state(0);
 	let phase = $state<'intro' | 'quiz'>('intro');
 
@@ -74,14 +67,9 @@
 	{:else}
 		<h1>{t(completionHeading)}</h1>
 		<p>{t(completionBody)}</p>
-		<div class="actions">
-			<Button variant="primary" onclick={restart}>
-				{t(restartLabel)}
-			</Button>
-			<Button href={withLocale(locale, '/learn/alphabet')} variant="secondary">
-				{t(backToStudyLabel)}
-			</Button>
-		</div>
+		<Button variant="primary" onclick={restart}>
+			{t(restartLabel)}
+		</Button>
 	{/if}
 </PageShell>
 
@@ -89,12 +77,5 @@
 	.intro {
 		color: var(--color-text-secondary);
 		font-size: var(--font-size-lg);
-	}
-
-	.actions {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--space-3);
-		justify-content: center;
 	}
 </style>
