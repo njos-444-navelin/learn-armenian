@@ -49,6 +49,7 @@
 		{/if}
 
 		<form method="POST" action="?/login" use:enhance>
+			<h2>{t(signInButton)}</h2>
 			<label>
 				{t(emailLabel)}
 				<input
@@ -56,7 +57,29 @@
 					name="email"
 					required
 					autocomplete="email"
-					value={form?.email ?? ''}
+					value={form?.action === 'login' ? (form?.email ?? '') : ''}
+				/>
+			</label>
+			<label>
+				{t(passwordLabel)}
+				<input type="password" name="password" required autocomplete="current-password" />
+			</label>
+			{#if form?.errorCode && form.action === 'login'}
+				<p class="error" role="alert">{errorMessage(form.errorCode)}</p>
+			{/if}
+			<Button type="submit" variant="primary">{t(signInButton)}</Button>
+		</form>
+
+		<form method="POST" action="?/signup" use:enhance>
+			<h2>{t(signUpButton)}</h2>
+			<label>
+				{t(emailLabel)}
+				<input
+					type="email"
+					name="email"
+					required
+					autocomplete="email"
+					value={form?.action === 'signup' ? (form?.email ?? '') : ''}
 				/>
 			</label>
 			<label>
@@ -65,17 +88,14 @@
 					type="password"
 					name="password"
 					required
-					autocomplete="current-password"
+					autocomplete="new-password"
 					minlength="6"
 				/>
 			</label>
-			{#if form?.errorCode && (form.action === 'login' || form.action === 'signup')}
+			{#if form?.errorCode && form.action === 'signup'}
 				<p class="error" role="alert">{errorMessage(form.errorCode)}</p>
 			{/if}
-			<div class="actions">
-				<Button type="submit" variant="primary">{t(signInButton)}</Button>
-				<Button type="submit" formaction="?/signup" variant="secondary">{t(signUpButton)}</Button>
-			</div>
+			<Button type="submit" variant="secondary">{t(signUpButton)}</Button>
 		</form>
 
 		<form method="POST" action="?/magiclink" use:enhance>
@@ -104,6 +124,11 @@
 		max-width: 20rem;
 	}
 
+	h2 {
+		margin: 0;
+		font-size: var(--font-size-lg);
+	}
+
 	label {
 		display: flex;
 		flex-direction: column;
@@ -120,12 +145,6 @@
 		border-radius: var(--radius-sm);
 		font-size: var(--font-size-md);
 		font-family: var(--font-family-sans);
-	}
-
-	.actions {
-		display: flex;
-		gap: var(--space-3);
-		flex-wrap: wrap;
 	}
 
 	.error {

@@ -20,7 +20,6 @@
 	interface ActionProps extends BaseProps {
 		href?: undefined;
 		type?: 'button' | 'submit' | undefined;
-		formaction?: string | undefined;
 		disabled?: boolean | undefined;
 		onclick?: (() => void) | undefined;
 	}
@@ -43,7 +42,6 @@
 	<button
 		class="button {variant}"
 		type={rest.type ?? 'button'}
-		formaction={rest.formaction}
 		disabled={rest.disabled}
 		onclick={rest.onclick}
 	>
