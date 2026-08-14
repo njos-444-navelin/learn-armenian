@@ -11,15 +11,6 @@ export const actions: Actions = {
 		return { action: 'login' as const, success: true };
 	},
 
-	signup: async ({ request, locals: { supabase } }) => {
-		const formData = await request.formData();
-		const email = String(formData.get('email') ?? '');
-		const password = String(formData.get('password') ?? '');
-		const { error } = await supabase.auth.signUp({ email, password });
-		if (error) return fail(400, { action: 'signup' as const, email, errorCode: error.code });
-		return { action: 'signup' as const, success: true };
-	},
-
 	magiclink: async ({ request, locals: { supabase } }) => {
 		const formData = await request.formData();
 		const email = String(formData.get('email') ?? '');

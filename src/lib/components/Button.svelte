@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import Spinner from './Spinner.svelte';
 
 	type Variant = 'primary' | 'secondary' | 'success' | 'error';
 
@@ -21,6 +22,10 @@
 		href?: undefined;
 		type?: 'button' | 'submit' | undefined;
 		disabled?: boolean | undefined;
+		/** Shows a spinner and forces `disabled` — see Conventions #8. Set this
+		 * whenever the button's `onclick`/form action is in flight; never leave
+		 * an async action with no visible pending state. */
+		loading?: boolean | undefined;
 		onclick?: (() => void) | undefined;
 	}
 
@@ -42,9 +47,13 @@
 	<button
 		class="button {variant}"
 		type={rest.type ?? 'button'}
-		disabled={rest.disabled}
+		disabled={rest.disabled || rest.loading}
+		aria-busy={rest.loading ? 'true' : undefined}
 		onclick={rest.onclick}
 	>
+		{#if rest.loading}
+			<Spinner />
+		{/if}
 		{@render children()}
 	</button>
 {/if}

@@ -24,8 +24,25 @@ export const magicLinkButton: Translated = {
 };
 
 export const magicLinkHint: Translated = {
-	en: 'For an existing account only — use "Create account" above if you’re new.',
-	ru: 'Только для существующего аккаунта — для нового используйте «Создать аккаунт» выше.'
+	en: 'For an existing account only — new here? Register below.',
+	ru: 'Только для существующего аккаунта — впервые здесь? Зарегистрируйтесь ниже.'
+};
+
+export const registerPrompt: Translated = { en: 'New here?', ru: 'Впервые здесь?' };
+
+export const hasAccountPrompt: Translated = {
+	en: 'Already have an account?',
+	ru: 'Уже есть аккаунт?'
+};
+
+export const registerPageTitle: Translated = {
+	en: 'Create account — Learn Armenian',
+	ru: 'Создать аккаунт — Учи армянский'
+};
+
+export const registerPageDescription: Translated = {
+	en: 'Create an account to save your progress.',
+	ru: 'Создайте аккаунт, чтобы сохранять прогресс.'
 };
 
 export const magicLinkSent: Translated = {

@@ -1,8 +1,11 @@
 # Authentication
 
-Sign-in/sign-up lives at `/account` (locale-prefixed: `/en/account`,
-`/ru/account`), reachable from the user-menu popover in the top-right corner
-of every page (`src/lib/components/UserMenu.svelte`). It's backed by
+Sign-in lives at `/account` (locale-prefixed: `/en/account`, `/ru/account`),
+reachable from the user-menu popover in the top-right corner of every page
+(`src/lib/components/UserMenu.svelte`). Sign-up is a separate page,
+`/account/register`, linked from the bottom of `/account` — the sign-in page
+is deliberately the default landing spot and doesn't also try to sell
+registration; see Design decisions. It's backed by
 [Supabase Auth](https://supabase.com/docs/guides/auth) via
 [`@supabase/ssr`](https://www.npmjs.com/package/@supabase/ssr), supporting
 email+password (sign-up and sign-in) and a magic-link fallback (sign-in only,
@@ -35,8 +38,11 @@ Request flow, in order:
    when the session changes, so `claims` stays current without a full reload
    after sign-in/sign-out.
 5. **`src/routes/[lang=locale]/account/+page.server.ts`** — the `login`,
-   `signup`, `magiclink`, and `logout` form actions, each a thin wrapper
-   around `locals.supabase.auth.*`.
+   `magiclink`, and `logout` form actions, each a thin wrapper around
+   `locals.supabase.auth.*`. The `signup` action lives on the separate
+   **`src/routes/[lang=locale]/account/register/+page.server.ts`**, whose
+   `load` also redirects to `/account` if `claims` is already non-null (no
+   point showing a registration form to someone already signed in).
 6. **`src/routes/auth/confirm/+server.ts`** — the magic-link landing route.
    Verifies the emailed token (`verifyOtp({ token_hash, type })`) and
    redirects. Lives outside the `[lang=locale]` prefix by design (see the
@@ -109,6 +115,13 @@ retroactively to an already-built deploy.
 
 ## Design decisions
 
+- **Sign-up is a separate page (`/account/register`), not a section on the
+  sign-in page.** `/account` is the default, most-visited case (an existing
+  user coming back) and shouldn't have to look past a registration form to
+  find it. `/account/register` links back to `/account` ("Already have an
+  account?"), and `/account` links to it ("New here?") — see
+  `hasAccountPrompt`/`registerPrompt` in
+  [`dictionaries/account.ts`](../src/lib/i18n/dictionaries/account.ts).
 - **Magic link is sign-in only, not sign-up** (`shouldCreateUser: false` in
   the `magiclink` action). Password sign-up is the only account-creation
   path, so no account ever ends up without a password set.
@@ -118,3 +131,10 @@ retroactively to an already-built deploy.
   for why — in short, a shared password field can't correctly declare both
   `autocomplete="current-password"` and `autocomplete="new-password"`, which
   breaks password-manager-generated passwords on sign-up.
+- **Every form on this page shows a spinner and keeps your input on screen
+  while the request is in flight**, instead of `use:enhance`'s default
+  behavior of silently clearing the form. See
+  [Conventions §8](CONVENTIONS.md#8-async-actions-always-show-their-pending-state)
+  — this is the general pattern for any async action in the app, not just
+  auth, and the anti-pattern it fixes is worth reading if you're adding a
+  new form anywhere.

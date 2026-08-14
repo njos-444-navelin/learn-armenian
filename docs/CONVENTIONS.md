@@ -99,3 +99,33 @@ assistance on sign-up. If a page needs both flows, give each its own
 submit actions — see
 [`[lang=locale]/account/+page.svelte`](../src/routes/[lang=locale]/account/+page.svelte)
 and [`docs/AUTH.md`](AUTH.md#design-decisions).
+
+## 8. Async actions always show their pending state
+
+The app's current state must always be visible — never leave the user
+guessing whether their click registered. Any button that triggers a network
+request (a form submission, a fetch-backed action) must, for the duration of
+that request:
+
+- Show a spinner — use [`Spinner.svelte`](../src/lib/components/Spinner.svelte)
+  via `Button`'s `loading` prop, not a one-off loading indicator.
+- Be disabled — `Button`'s `loading` prop forces this automatically (and sets
+  `aria-busy`), but pass `disabled` on other buttons on the page too while
+  one action is pending, so the user can't fire a second overlapping request.
+
+See the `submitAction()` helper in
+[`[lang=locale]/account/+page.svelte`](../src/routes/[lang=locale]/account/+page.svelte)
+for the pattern: a `pending` state set before the request and cleared in a
+`finally` after it, wired to every submit button on the page via `loading`/
+`disabled`.
+
+**Anti-pattern, treat as a bug: don't let inputs go blank while a request is
+in flight.** SvelteKit's `use:enhance`, when not given a custom submit
+function, resets the `<form>` on any non-redirect action response. On a page
+like `/account`, that meant the email/password you'd just typed visibly
+vanished a moment after clicking "Sign in" — before anything else on screen
+explained why. It reads as data loss, not a state change, and it's worse
+than showing nothing at all. The `submitAction()` helper above fixes this by
+passing `update({ reset: false })`, which also means a *failed* submission
+correctly leaves your input in place to fix, rather than making you retype
+everything.

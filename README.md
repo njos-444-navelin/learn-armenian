@@ -78,7 +78,8 @@ src/
     [lang=locale]/          # everything the learner sees lives under a locale
       +page.svelte          # language picker / entry point
       learn/+page.svelte    # "start learning" destination
-      account/               # sign in / sign up / sign out
+      account/               # sign in (default) — email/password + magic link
+      account/register/      # sign up, linked from the sign-in page
   lib/
     i18n/                  # locale, dictionaries, and the t()/getLocale() helpers
     styles/tokens.css      # design tokens (the only place colors are defined)
