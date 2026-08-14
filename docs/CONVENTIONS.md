@@ -85,3 +85,17 @@ reuse these standard widths so breakpoints don't multiply ad hoc: `480px`
 Interactive elements must meet the `--tap-target-min` (44px) minimum size —
 see `Button.svelte`. Before calling new UI done, check it at a small phone
 width (~375px), a tablet width (~768px), and a widescreen width (~1920px).
+
+## 7. Auth/password forms use single-purpose `autocomplete` values
+
+A password `<input>` must declare exactly one `autocomplete` value describing
+its actual purpose: `"new-password"` for account creation, `"current-password"`
+for signing in. A field can't correctly serve both — password managers
+(Proton Pass, 1Password, browser built-ins, ...) decide whether to offer to
+*generate* a password based on this attribute alone, so a shared sign-in/
+sign-up form with one ambiguous password field silently breaks that
+assistance on sign-up. If a page needs both flows, give each its own
+`<form>` with its own password field rather than sharing one field across two
+submit actions — see
+[`[lang=locale]/account/+page.svelte`](../src/routes/[lang=locale]/account/+page.svelte)
+and [`docs/AUTH.md`](AUTH.md#design-decisions).

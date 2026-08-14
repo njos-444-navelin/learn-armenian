@@ -85,6 +85,17 @@ src/
     components/            # shared, reusable UI (Button, Seo, PageShell, UserMenu, ...)
 ```
 
+## Authentication
+
+Sign-in/sign-up (`/account`) runs on Supabase Auth via `@supabase/ssr` —
+email+password plus a magic-link fallback. Most of what makes it actually
+work is Supabase dashboard configuration that lives outside this repo (email
+confirmation settings, the magic-link email template, Site URL/Redirect
+URLs), not just code. See [`docs/AUTH.md`](docs/AUTH.md) for the full
+architecture, the exact dashboard checklist, and gotchas already hit once
+(and fixed) — read it before touching anything under `src/hooks.server.ts`,
+`src/routes/auth/`, or `src/routes/[lang=locale]/account/`.
+
 ## Internationalization
 
 Every locale is a real, crawlable route (`/en`, `/ru`) rather than client-only
