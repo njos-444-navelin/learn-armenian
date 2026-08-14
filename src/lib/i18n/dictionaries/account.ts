@@ -1,8 +1,9 @@
+import { brandName } from './common';
 import type { Translated } from '../types';
 
 export const pageTitle: Translated = {
-	en: 'Account — Learn Armenian',
-	ru: 'Аккаунт — Учи армянский'
+	en: `Account — ${brandName}`,
+	ru: `Аккаунт — ${brandName}`
 };
 
 export const pageDescription: Translated = {
@@ -36,8 +37,8 @@ export const hasAccountPrompt: Translated = {
 };
 
 export const registerPageTitle: Translated = {
-	en: 'Create account — Learn Armenian',
-	ru: 'Создать аккаунт — Учи армянский'
+	en: `Create account — ${brandName}`,
+	ru: `Создать аккаунт — ${brandName}`
 };
 
 export const registerPageDescription: Translated = {
@@ -120,8 +121,8 @@ export const authErrorMessages: Record<string, Translated> = {
 
 // Change password
 export const changePasswordPageTitle: Translated = {
-	en: 'Change password — Learn Armenian',
-	ru: 'Изменить пароль — Учи армянский'
+	en: `Change password — ${brandName}`,
+	ru: `Изменить пароль — ${brandName}`
 };
 
 export const changePasswordPageDescription: Translated = {
@@ -142,8 +143,8 @@ export const changePasswordSuccess: Translated = {
 
 // Change email
 export const changeEmailPageTitle: Translated = {
-	en: 'Change email — Learn Armenian',
-	ru: 'Изменить email — Учи армянский'
+	en: `Change email — ${brandName}`,
+	ru: `Изменить email — ${brandName}`
 };
 
 export const changeEmailPageDescription: Translated = {
@@ -153,15 +154,22 @@ export const changeEmailPageDescription: Translated = {
 
 export const changeEmailButton: Translated = { en: 'Change email', ru: 'Изменить email' };
 
+export const newEmailLabel: Translated = { en: 'New email', ru: 'Новый email' };
+
 export const changeEmailSuccess: Translated = {
 	en: "Check both your old and new email address — we've sent a confirmation link to each. The change won't take effect until you confirm from both.",
 	ru: 'Проверьте старый и новый адреса почты — на оба отправлена ссылка для подтверждения. Изменение вступит в силу только после подтверждения с обоих адресов.'
 };
 
+export const sameEmailError: Translated = {
+	en: "That's already your current email address.",
+	ru: 'Это уже текущий email вашего аккаунта.'
+};
+
 // Delete account
 export const deletePageTitle: Translated = {
-	en: 'Delete account — Learn Armenian',
-	ru: 'Удалить аккаунт — Учи армянский'
+	en: `Delete account — ${brandName}`,
+	ru: `Удалить аккаунт — ${brandName}`
 };
 
 export const deletePageDescription: Translated = {

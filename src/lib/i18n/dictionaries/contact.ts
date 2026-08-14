@@ -1,10 +1,11 @@
+import { brandName } from './common';
 import type { Translated } from '../types';
 
 export const heading: Translated = { en: 'Contact us', ru: 'Связаться с нами' };
 
 export const pageTitle: Translated = {
-	en: 'Contact us — Learn Armenian',
-	ru: 'Связаться с нами — Учи армянский'
+	en: `Contact us — ${brandName}`,
+	ru: `Связаться с нами — ${brandName}`
 };
 
 export const pageDescription: Translated = {

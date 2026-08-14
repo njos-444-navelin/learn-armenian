@@ -38,6 +38,16 @@ grows.
   translatable text, so they skip the dictionary system. They must always be
   rendered `aria-hidden="true"` alongside a real translated label; they can
   never be the only thing conveying the meaning.
+- The app's own name, `brandName` in
+  [`dictionaries/common.ts`](../src/lib/i18n/dictionaries/common.ts), is a
+  plain string, not a `Translated`. Unlike a language name (a real word that
+  differs per language — see "English"/"Russian" above), a product's own
+  brand name is a proper noun that conventionally stays as-is in every
+  locale (the literal Russian translation read as unintentionally blunt/rude
+  as a title). Every page's `pageTitle` should build its brand-including
+  suffix/prefix from this constant (e.g. `` `${brandName} — choose a lesson` ``)
+  rather than hand-writing "Learn Armenian" — that's what keeps a future
+  page's title from silently reintroducing a translated brand name.
 
 ## 2. No hardcoded colors
 

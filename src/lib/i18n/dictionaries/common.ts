@@ -1,9 +1,10 @@
 import type { Translated } from '../types';
 
-export const brandName: Translated = {
-	en: 'Learn Armenian',
-	ru: 'Учи армянский'
-};
+/** Not a `Translated` — the app's name is a proper noun and isn't
+ * translated (same reasoning as `LOCALE_FLAGS` in `locale.ts` and
+ * `supportEmail` in `dictionaries/contact.ts`), so this is the same
+ * literal string in every locale. See Conventions §1. */
+export const brandName = 'Learn Armenian';
 
 export const skipToContent: Translated = {
 	en: 'Skip to main content',

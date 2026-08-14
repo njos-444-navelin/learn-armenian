@@ -9,8 +9,9 @@
 		changeEmailPageTitle,
 		changeEmailPageDescription,
 		changeEmailButton,
-		emailLabel,
+		newEmailLabel,
 		changeEmailSuccess,
+		sameEmailError,
 		authErrorMessages,
 		genericAuthError
 	} from '$lib/i18n/dictionaries/account';
@@ -32,6 +33,7 @@
 	};
 
 	function errorMessage(code: string | undefined) {
+		if (code === 'same_email') return t(sameEmailError);
 		return code !== undefined ? t(authErrorMessages[code] ?? genericAuthError) : undefined;
 	}
 </script>
@@ -43,7 +45,7 @@
 
 	<form method="POST" action="?/changeEmail" use:enhance={submitChangeEmail}>
 		<AuthField
-			label={emailLabel}
+			label={newEmailLabel}
 			type="email"
 			name="email"
 			autocomplete="email"

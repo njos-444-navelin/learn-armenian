@@ -8,9 +8,13 @@ export const load: PageServerLoad = ({ locals: { claims }, params }) => {
 
 export const actions: Actions = {
 	changeEmail: async ({ request, params, locals: { supabase, claims } }) => {
-		requireSignedIn(claims, params.lang);
+		const verified = requireSignedIn(claims, params.lang);
 		const formData = await request.formData();
 		const email = String(formData.get('email') ?? '');
+
+		if (verified.email !== undefined && email.trim().toLowerCase() === verified.email.toLowerCase()) {
+			return fail(400, { action: 'changeEmail' as const, email, errorCode: 'same_email' });
+		}
 
 		const { error } = await supabase.auth.updateUser({ email });
 		if (error) return fail(400, { action: 'changeEmail' as const, email, errorCode: error.code });

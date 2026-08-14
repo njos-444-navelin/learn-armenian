@@ -1,8 +1,9 @@
+import { brandName } from './common';
 import type { Translated } from '../types';
 
 export const pageTitle: Translated = {
-	en: 'Learn Armenian — alphabet quiz',
-	ru: 'Учи армянский — проверка алфавита'
+	en: `${brandName} — alphabet quiz`,
+	ru: `${brandName} — проверка алфавита`
 };
 
 export const pageDescription: Translated = {
