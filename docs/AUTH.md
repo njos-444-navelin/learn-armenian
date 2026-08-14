@@ -143,6 +143,33 @@ not wired into `hooks.server.ts` — a missing key breaks only that one
 feature, not the whole site. Find it in Supabase's dashboard under
 Settings → API → "service_role" key.
 
+## Testing against the live project
+
+Local dev (`npm run dev`) and production point at the **same Supabase
+project** — there's no separate local/staging backend. Any account created
+while testing sign-up, magic link, or the account-management pages is a
+real row in `auth.users` on the live project, not a throwaway.
+
+**Claude: delete every test account you create before finishing a task
+that involved testing an auth flow.** Don't leave them for the user to find
+later. In order of preference:
+
+1. If you were already testing `/account/delete`, use it as the cleanup
+   step — sign in as the test account, submit its own email there. Verifies
+   the real feature and cleans up in one action.
+2. Otherwise, use the admin API directly with `SUPABASE_SERVICE_ROLE_KEY`
+   (the same credential `src/lib/server/supabaseAdmin.ts` uses) — a short
+   throwaway Node script with `@supabase/supabase-js`'s `createClient`,
+   `auth.admin.listUsers()` to find the account by email, then
+   `auth.admin.deleteUser(id)`. Load the key from `.env` (it's not exposed
+   through `$env/dynamic/private` outside the SvelteKit dev server, so a
+   standalone script needs to read `.env` itself).
+
+**Only delete accounts you created this session, identified by email.**
+Never delete an account you didn't create or aren't certain is a test
+artifact — check `auth.users` (via `listUsers()`) first if there's any
+doubt, and never touch the project owner's own account.
+
 ## Known gotchas
 
 - **`@supabase/ssr`'s cookie writer can call the `setAll` handler more than

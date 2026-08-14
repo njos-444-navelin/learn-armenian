@@ -29,7 +29,6 @@
 				href={withLocale(option, '/')}
 				variant={option === locale ? 'primary' : 'secondary'}
 				ariaCurrent={option === locale ? 'page' : undefined}
-				reload
 			>
 				<span aria-hidden="true">{LOCALE_FLAGS[option]}</span>
 				{t(languageNames[option])}
