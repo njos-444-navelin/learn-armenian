@@ -3,17 +3,17 @@ import type { Translated } from '../types';
 
 export const pageTitle: Translated = {
 	en: `${brandName} — choose a lesson`,
-	ru: `${brandName} — выбери урок`
+	ru: `${brandName} — выберите урок`
 };
 
 export const pageDescription: Translated = {
 	en: 'Pick a lesson to start learning Armenian.',
-	ru: 'Выбери урок, чтобы начать изучать армянский язык.'
+	ru: 'Выберите урок, чтобы начать изучать армянский язык.'
 };
 
 export const heading: Translated = {
 	en: 'Choose a lesson',
-	ru: 'Выбери урок'
+	ru: 'Выберите урок'
 };
 
 export const menuAriaLabel: Translated = {

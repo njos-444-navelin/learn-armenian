@@ -30,7 +30,7 @@ export const correctAnswerHint: Translated = {
 
 export const incorrectAnswerHint: Translated = {
 	en: '(your answer, incorrect)',
-	ru: '(ваш ответ, неверно)'
+	ru: '(Ваш ответ, неверно)'
 };
 
 export const correctFeedback: Translated = {

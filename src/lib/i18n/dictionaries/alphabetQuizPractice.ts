@@ -8,12 +8,12 @@ export const pageTitle: Translated = {
 
 export const pageDescription: Translated = {
 	en: 'Learn and quiz yourself on the Armenian alphabet a few letters at a time.',
-	ru: 'Изучай и проверяй себя на армянском алфавите по несколько букв за раз.'
+	ru: 'Изучайте и проверяйте себя на армянском алфавите по несколько букв за раз.'
 };
 
 export const blockIntro: Translated = {
 	en: 'Study these letters, then quiz yourself on them.',
-	ru: 'Изучи эти буквы, а затем проверь себя на них.'
+	ru: 'Изучите эти буквы, а затем проверьте себя на них.'
 };
 
 export const quizBlockLabel: Translated = {

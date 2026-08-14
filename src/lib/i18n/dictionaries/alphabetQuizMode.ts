@@ -3,17 +3,17 @@ import type { Translated } from '../types';
 
 export const pageTitle: Translated = {
 	en: `${brandName} — choose a quiz mode`,
-	ru: `${brandName} — выбери режим проверки`
+	ru: `${brandName} — выберите режим проверки`
 };
 
 export const pageDescription: Translated = {
 	en: "Choose how you'd like to be quizzed on the Armenian alphabet.",
-	ru: 'Выбери, как ты хочешь проверить свои знания армянского алфавита.'
+	ru: 'Выберите, как Вы хотите проверить свои знания армянского алфавита.'
 };
 
 export const heading: Translated = {
 	en: 'Choose a quiz mode',
-	ru: 'Выбери режим проверки'
+	ru: 'Выберите режим проверки'
 };
 
 export const practiceModeLabel: Translated = {
@@ -23,7 +23,7 @@ export const practiceModeLabel: Translated = {
 
 export const practiceModeDescription: Translated = {
 	en: 'Learn a few letters at a time, then get quizzed on just those before moving on to the next few.',
-	ru: 'Изучай по несколько букв за раз, затем проверяй только их, прежде чем переходить к следующим.'
+	ru: 'Изучайте по несколько букв за раз, затем проверяйте только их, прежде чем переходить к следующим.'
 };
 
 export const allModeLabel: Translated = {
@@ -33,5 +33,5 @@ export const allModeLabel: Translated = {
 
 export const allModeDescription: Translated = {
 	en: 'Get quizzed on all 38 letters at once.',
-	ru: 'Проверь себя сразу на всех 38 буквах.'
+	ru: 'Проверьте себя сразу на всех 38 буквах.'
 };

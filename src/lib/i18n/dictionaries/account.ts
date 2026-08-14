@@ -163,7 +163,7 @@ export const changeEmailSuccess: Translated = {
 
 export const sameEmailError: Translated = {
 	en: "That's already your current email address.",
-	ru: 'Это уже текущий email вашего аккаунта.'
+	ru: 'Это уже текущий email Вашего аккаунта.'
 };
 
 // Delete account
@@ -181,7 +181,7 @@ export const deleteAccountButton: Translated = { en: 'Delete account', ru: 'Уд
 
 export const deleteWarning: Translated = {
 	en: 'This permanently deletes your account and all associated data. This cannot be undone.',
-	ru: 'Это действие безвозвратно удалит ваш аккаунт и все связанные данные. Отменить это будет невозможно.'
+	ru: 'Это действие безвозвратно удалит Ваш аккаунт и все связанные данные. Отменить это будет невозможно.'
 };
 
 export const deleteConfirmEmailLabel: Translated = {
@@ -191,7 +191,7 @@ export const deleteConfirmEmailLabel: Translated = {
 
 export const emailMismatchError: Translated = {
 	en: "That doesn't match your account's email.",
-	ru: 'Введённый email не совпадает с email вашего аккаунта.'
+	ru: 'Введённый email не совпадает с email Вашего аккаунта.'
 };
 
 export const backToAccount: Translated = { en: 'Back to account', ru: 'Назад к аккаунту' };

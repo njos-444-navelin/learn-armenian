@@ -8,7 +8,7 @@ export const pageTitle: Translated = {
 
 export const pageDescription: Translated = {
 	en: 'Test yourself on the sounds of the Armenian alphabet.',
-	ru: 'Проверь себя на знании звуков армянского алфавита.'
+	ru: 'Проверьте себя на знании звуков армянского алфавита.'
 };
 
 export const heading: Translated = {

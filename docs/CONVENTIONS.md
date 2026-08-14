@@ -171,3 +171,40 @@ or replayed POST to the action from a signed-out session. See
 `requireSignedIn()` in
 [`src/lib/server/authGuard.ts`](../src/lib/server/authGuard.ts), called from
 both places on every route under `account/` that requires a session.
+
+## 9. Russian UI text uses the formal register (вы, not ты)
+
+Every Russian string that addresses the user — an instruction, a button
+label, an imperative, a question — uses the formal/polite **вы**-form, never
+the informal **ты**-form. The informal register reads as presumptuous or
+blunt from an app to a stranger; it's only appropriate between people who
+already know each other. Concretely:
+
+- Imperative verbs take the **вы**-conjugation: `Выберите` (not `Выбери`),
+  `Изучайте` (not `Изучай`), `Проверьте` (not `Проверь`), `Не торопитесь`
+  (not `Не торопись`). This is the single most common mistake — the
+  informal imperative is shorter and easier to reach for by default, so
+  double-check every verb addressed to the user.
+- Second-person pronouns and possessives are **вы/ваш** (not **ты/твой**),
+  and their oblique forms **вас/вам/вами** (not **тебя/тебе/тобой**).
+- Second-person verb conjugations use the **вы**-ending: `хотите` (not
+  `хочешь`).
+
+**`Вы`/`Ваш` (and oblique forms `Вас`/`Вам`/`Вами`) are always capitalized**,
+wherever they fall in a sentence — not just at the start. This is the
+traditional, textbook convention for the polite form of address in Russian,
+and the one this app follows throughout: `Вы`, never `вы`. Don't lowercase
+it just because it's mid-sentence (e.g. "как Вы хотите", "Ваш аккаунт") —
+that's a different, more casual house style some software adopts, but it's
+not the one used here.
+
+This does **not** apply to infinitive-form verbs (`Проверить себя`,
+`Продолжить`, `Начать обучение`) — infinitives don't inflect for person, so
+they're register-neutral and are the normal convention for button labels
+regardless of this rule.
+
+If you're unsure whether a verb form is formal, check it against a known-
+correct example already in the dictionaries (e.g. `Войдите`/`Создайте` in
+[`dictionaries/account.ts`](../src/lib/i18n/dictionaries/account.ts)) rather
+than guessing — the ты/вы conjugation difference is often a single
+letter/syllable and easy to get wrong by ear.
