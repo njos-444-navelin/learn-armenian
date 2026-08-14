@@ -1,28 +1,45 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
-	interface Props {
-		href: string;
+	interface BaseProps {
 		ariaLabel: string;
 		side: 'left' | 'right';
-		/** Forces a full page navigation instead of client-side routing — needed
-		 * when the destination has a different `<html lang>` than the current
-		 * page, since that attribute is only (re)stamped by the server. */
-		fullReload?: boolean | undefined;
 		children: Snippet;
 	}
 
-	let { href, ariaLabel, side, fullReload, children }: Props = $props();
+	interface LinkProps extends BaseProps {
+		href: string;
+	}
+
+	interface TriggerProps extends BaseProps {
+		href?: undefined;
+		onclick: () => void;
+		ariaExpanded: boolean;
+		ariaControls?: string | undefined;
+	}
+
+	type Props = LinkProps | TriggerProps;
+
+	let { ariaLabel, side, children, ...rest }: Props = $props();
 </script>
 
-<a
-	class="bubble {side}"
-	{href}
-	aria-label={ariaLabel}
-	data-sveltekit-reload={fullReload ? '' : undefined}
->
-	{@render children()}
-</a>
+{#if rest.href !== undefined}
+	<a class="bubble {side}" href={rest.href} aria-label={ariaLabel}>
+		{@render children()}
+	</a>
+{:else}
+	<button
+		type="button"
+		class="bubble {side}"
+		aria-label={ariaLabel}
+		aria-haspopup="true"
+		aria-expanded={rest.ariaExpanded}
+		aria-controls={rest.ariaControls}
+		onclick={rest.onclick}
+	>
+		{@render children()}
+	</button>
+{/if}
 
 <style>
 	.bubble {
@@ -38,8 +55,10 @@
 		border: 1px solid var(--color-border);
 		box-shadow: var(--shadow-sm);
 		font-size: var(--font-size-lg);
+		font-family: inherit;
 		text-decoration: none;
 		color: var(--color-text-primary);
+		cursor: pointer;
 		z-index: 20;
 	}
 

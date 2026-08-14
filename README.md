@@ -43,8 +43,13 @@ values:
 | `PUBLIC_SUPABASE_URL`        | Your Supabase project URL             |
 | `PUBLIC_SUPABASE_ANON_KEY`   | Your Supabase project's anon/public key |
 
-The app builds and runs without these set — see
-[`src/lib/supabase/client.ts`](src/lib/supabase/client.ts).
+The app builds without these set, but requires them at runtime — every
+request creates a server-side Supabase client (see
+[`src/hooks.server.ts`](src/hooks.server.ts)) for the sign-in/sign-up flow
+under `/account`, so a deploy with these unset will fail on every route, not
+just auth ones. Set them in your deploy platform's environment variables too
+(e.g. Netlify's Site configuration → Environment variables), for both
+Production and Deploy Previews.
 
 ## Building
 
@@ -59,18 +64,25 @@ with `npm run check`.
 
 ```
 src/
-  hooks.server.ts          # resolves the current locale, sets <html lang>
+  hooks.server.ts          # resolves the current locale, sets <html lang>,
+                            # and wires up the request-scoped Supabase client
   params/locale.ts         # route param matcher for /en, /ru
   routes/
+    +layout.server.ts      # exposes the signed-in user's claims to every page
+    +layout.ts             # isomorphic Supabase client (browser + SSR)
     +page.server.ts        # "/" -> redirects to /en or /ru by Accept-Language
+    account/+page.server.ts # "/account" -> redirects to /en/account or /ru/account
+    auth/
+      confirm/+server.ts   # verifies magic-link emails, then redirects
+      error/+page.server.ts # failed-verification landing, redirects to /account
     [lang=locale]/          # everything the learner sees lives under a locale
       +page.svelte          # language picker / entry point
       learn/+page.svelte    # "start learning" destination
+      account/               # sign in / sign up / sign out
   lib/
     i18n/                  # locale, dictionaries, and the t()/getLocale() helpers
     styles/tokens.css      # design tokens (the only place colors are defined)
-    components/            # shared, reusable UI (Button, Seo, PageShell, ...)
-    supabase/client.ts     # Supabase client
+    components/            # shared, reusable UI (Button, Seo, PageShell, UserMenu, ...)
 ```
 
 ## Internationalization

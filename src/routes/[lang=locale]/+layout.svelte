@@ -1,8 +1,8 @@
 <script lang="ts">
 	import BackButton from '$lib/components/BackButton.svelte';
-	import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
+	import UserMenu from '$lib/components/UserMenu.svelte';
 	import { skipToContent } from '$lib/i18n/dictionaries/common';
-	import { t } from '$lib/i18n/current';
+	import { getLocale, t } from '$lib/i18n/current';
 	import type { Snippet } from 'svelte';
 
 	interface Props {
@@ -10,12 +10,17 @@
 	}
 
 	let { children }: Props = $props();
+	let locale = $derived(getLocale());
+
+	$effect(() => {
+		document.documentElement.lang = locale;
+	});
 </script>
 
 <a class="skip-link" href="#main">{t(skipToContent)}</a>
 
 <BackButton />
-<LanguageSwitcher />
+<UserMenu />
 
 {@render children()}
 
