@@ -100,6 +100,21 @@ submit actions — see
 [`[lang=locale]/account/+page.svelte`](../src/routes/[lang=locale]/account/+page.svelte)
 and [`docs/AUTH.md`](AUTH.md#design-decisions).
 
+**A `current-password` + `new-password` pair in the same form (a change-
+password form) needs a `username`/`email` field too, even if the app
+already knows it from the session and never reads the field's value.**
+Confirmed directly from
+[Chromium's own password-form guidance](https://www.chromium.org/developers/design-documents/create-amazing-password-forms/):
+password managers use that field to know *which* saved credential a new
+password belongs to (a site can have more than one account) — without it,
+some autofill implementations (confirmed: Proton Pass on iOS) will autofill
+the `current-password` field but silently decline to suggest a generated
+password for `new-password`, since they can't tell what account they'd be
+generating one for. Add a real `<input>` (not `type="hidden"` — some
+autofill parsers skip those), visually hidden via CSS `display: none`, with
+`autocomplete="username"` and `value` set to the known email — see
+[`account/change-password/+page.svelte`](../src/routes/[lang=locale]/account/change-password/+page.svelte).
+
 ## 8. Async actions always show their pending state
 
 The app's current state must always be visible — never leave the user

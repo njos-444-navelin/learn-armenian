@@ -89,6 +89,7 @@ src/
       account/change-password/ # requires a session
       account/change-email/    # requires a session, sends confirmation email(s)
       account/delete/          # requires a session, uses the service-role key
+      account/contact/         # static support info, no session required
   lib/
     i18n/                  # locale, dictionaries, and the t()/getLocale() helpers
     styles/tokens.css      # design tokens (the only place colors are defined)

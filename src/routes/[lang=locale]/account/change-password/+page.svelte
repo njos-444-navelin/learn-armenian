@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { page } from '$app/state';
 	import AuthField from '$lib/components/AuthField.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
@@ -20,6 +21,7 @@
 
 	let { form }: { form: ActionData } = $props();
 	let pending = $state(false);
+	let email = $derived(page.data.claims?.email ?? '');
 
 	/** Reset the (sensitive) password fields only once the change has
 	 * actually succeeded; on failure keep `reset:false` per Conventions #8
@@ -46,6 +48,18 @@
 	<h1>{t(changePasswordButton)}</h1>
 
 	<form method="POST" action="?/changePassword" use:enhance={submitChangePassword}>
+		<!-- Not read by the action (the server already knows the signed-in
+		     user's email) — password managers need it anyway to know which
+		     saved credential a new password belongs to. See Conventions #8. -->
+		<input
+			class="visually-hidden-field"
+			type="email"
+			name="username"
+			autocomplete="username"
+			value={email}
+			tabindex="-1"
+			aria-hidden="true"
+		/>
 		<AuthField
 			label={currentPasswordLabel}
 			type="password"
@@ -83,5 +97,11 @@
 	.error {
 		color: var(--color-error);
 		font-size: var(--font-size-sm);
+	}
+
+	/* A real, visually-hidden <input> rather than type="hidden" — some
+	   password manager autofill parsers skip type="hidden" fields entirely. */
+	.visually-hidden-field {
+		display: none;
 	}
 </style>

@@ -175,6 +175,12 @@ Settings → API → "service_role" key.
   for why — in short, a shared password field can't correctly declare both
   `autocomplete="current-password"` and `autocomplete="new-password"`, which
   breaks password-manager-generated passwords on sign-up.
+- **`change-password` includes a hidden `username`/email field even though
+  the action never reads it** — confirmed necessary, not just theoretical:
+  Proton Pass on iOS would autofill the current-password field but decline
+  to suggest a generated new password without it. See
+  [Conventions §7](CONVENTIONS.md#7-authpassword-forms-use-single-purpose-autocomplete-values)
+  for the full reasoning and source.
 - **Every form on this page shows a spinner and keeps your input on screen
   while the request is in flight**, instead of `use:enhance`'s default
   behavior of silently clearing the form. See

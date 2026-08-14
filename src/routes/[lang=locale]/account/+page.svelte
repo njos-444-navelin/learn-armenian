@@ -27,6 +27,7 @@
 		authErrorMessages,
 		genericAuthError
 	} from '$lib/i18n/dictionaries/account';
+	import { heading as contactHeading } from '$lib/i18n/dictionaries/contact';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import type { ActionData } from './$types';
 
@@ -38,6 +39,7 @@
 	let registerHref = $derived(withLocale(getLocale(), '/account/register'));
 	let changePasswordHref = $derived(withLocale(getLocale(), '/account/change-password'));
 	let changeEmailHref = $derived(withLocale(getLocale(), '/account/change-email'));
+	let contactHref = $derived(withLocale(getLocale(), '/account/contact'));
 	let deleteAccountHref = $derived(withLocale(getLocale(), '/account/delete'));
 
 	type FormAction = 'login' | 'magiclink' | 'logout';
@@ -74,6 +76,7 @@
 		<nav class="account-actions">
 			<Button href={changePasswordHref} variant="secondary">{t(changePasswordButton)}</Button>
 			<Button href={changeEmailHref} variant="secondary">{t(changeEmailButton)}</Button>
+			<Button href={contactHref} variant="secondary">{t(contactHeading)}</Button>
 			<Button href={deleteAccountHref} variant="error">{t(deleteAccountButton)}</Button>
 		</nav>
 		<form method="POST" action="?/logout" use:enhance={submitAction('logout')}>
