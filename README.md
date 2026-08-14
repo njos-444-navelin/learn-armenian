@@ -38,18 +38,24 @@ build/preview — `vite dev` intentionally skips them so HMR isn't disrupted.
 Copy [`.env.example`](.env.example) to `.env` and fill in your Supabase project's
 values:
 
-| Variable                    | Description                          |
+| Variable                     | Description                          |
 | ---------------------------- | ------------------------------------- |
 | `PUBLIC_SUPABASE_URL`        | Your Supabase project URL             |
 | `PUBLIC_SUPABASE_ANON_KEY`   | Your Supabase project's anon/public key |
+| `SUPABASE_SERVICE_ROLE_KEY`  | **Secret** — used only by the delete-account feature ([`src/lib/server/supabaseAdmin.ts`](src/lib/server/supabaseAdmin.ts)) to remove a user server-side. Deliberately has no `PUBLIC_` prefix — never expose it client-side, never paste it anywhere but your own `.env`/deploy config. |
 
-The app builds without these set, but requires them at runtime — every
-request creates a server-side Supabase client (see
+The two `PUBLIC_SUPABASE_*` vars build without being set, but are required
+at runtime — every request creates a server-side Supabase client (see
 [`src/hooks.server.ts`](src/hooks.server.ts)) for the sign-in/sign-up flow
 under `/account`, so a deploy with these unset will fail on every route, not
 just auth ones. Set them in your deploy platform's environment variables too
 (e.g. Netlify's Site configuration → Environment variables), for both
 Production and Deploy Previews.
+
+`SUPABASE_SERVICE_ROLE_KEY` is different: it's optional for the app to
+*run*. If it's unset, every route except delete-account works normally —
+delete-account fails gracefully with an error message instead of crashing
+(see `getSupabaseAdmin()`'s error handling).
 
 ## Building
 
@@ -80,10 +86,15 @@ src/
       learn/+page.svelte    # "start learning" destination
       account/               # sign in (default) — email/password + magic link
       account/register/      # sign up, linked from the sign-in page
+      account/change-password/ # requires a session
+      account/change-email/    # requires a session, sends confirmation email(s)
+      account/delete/          # requires a session, uses the service-role key
   lib/
     i18n/                  # locale, dictionaries, and the t()/getLocale() helpers
     styles/tokens.css      # design tokens (the only place colors are defined)
     components/            # shared, reusable UI (Button, Seo, PageShell, UserMenu, ...)
+    server/                # server-only helpers (SvelteKit enforces this boundary at
+                            # build time) — auth guard, service-role admin client
 ```
 
 ## Authentication

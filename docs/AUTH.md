@@ -43,10 +43,22 @@ Request flow, in order:
    **`src/routes/[lang=locale]/account/register/+page.server.ts`**, whose
    `load` also redirects to `/account` if `claims` is already non-null (no
    point showing a registration form to someone already signed in).
-6. **`src/routes/auth/confirm/+server.ts`** — the magic-link landing route.
-   Verifies the emailed token (`verifyOtp({ token_hash, type })`) and
-   redirects. Lives outside the `[lang=locale]` prefix by design (see the
-   dashboard config below — the email template hardcodes this path).
+6. **`src/routes/auth/confirm/+server.ts`** — the magic-link (and email-
+   change) landing route. Verifies the emailed token
+   (`verifyOtp({ token_hash, type })`) and redirects. Lives outside the
+   `[lang=locale]` prefix by design (see the dashboard config below — the
+   email templates hardcode this path).
+7. **`account/change-password`, `account/change-email`, `account/delete`**
+   — each a `load` + single named action, requiring a signed-in user via
+   [`src/lib/server/authGuard.ts`](../src/lib/server/authGuard.ts)'s
+   `requireSignedIn()`, called in *both* `load` and the action itself (see
+   Design decisions for why the second call is required, not redundant).
+   `delete`'s action additionally uses
+   [`src/lib/server/supabaseAdmin.ts`](../src/lib/server/supabaseAdmin.ts),
+   a lazily-created admin client authenticated via
+   `SUPABASE_SERVICE_ROLE_KEY`, to call `auth.admin.deleteUser()` — there is
+   no self-service "delete my own account" method in the regular client
+   SDK.
 
 `src/routes/account/+page.server.ts` and `src/routes/auth/error/+page.server.ts`
 are locale-negotiation redirect stubs, the same pattern as the root
@@ -87,6 +99,29 @@ through in the Supabase dashboard for the project this app points at
    emails/hour on the free tier. Fine for normal traffic, but repeated
    sign-up/magic-link testing burns through it fast — set up custom SMTP
    before doing that kind of testing.
+6. **Authentication → Emails → Templates → Change Email Address** —
+   replace the template body with:
+   ```html
+   <p><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/account">Confirm email change</a></p>
+   ```
+   Same token-hash/PKCE pattern as the Magic Link template — deliberately
+   `type=email` here too, matching what the Magic Link template already
+   uses successfully in production (not `type=email_change`, which is a
+   valid enum value in the SDK's types but unverified against this
+   project's actual GoTrue behavior via the token-hash path). If a real
+   test shows `type=email` doesn't verify for this template specifically,
+   switch this one template to `type=email_change` — no code change needed,
+   `src/routes/auth/confirm/+server.ts` is fully generic over `type`.
+7. **Authentication → Providers → Email → "Secure password change"** —
+   confirm this is **OFF** (the default). Leave it off: turning it on adds
+   an emailed-OTP reauthentication step to `updateUser({password})` for
+   sessions older than 24h, which the change-password page doesn't build
+   for — it has its own, independent old-password check instead.
+8. **Authentication → Providers → Email → "Secure Email Change"** —
+   confirm this is **ON** (the default). With it on, `updateUser({email})`
+   requires confirmation from *both* the old and new address before the
+   change applies — this app's change-email page assumes that and says so
+   in its success message.
 
 ## Environment variables
 
@@ -98,6 +133,15 @@ client on every request, which throws if they're unset — a deploy missing
 them 500s on every route, not just auth ones. Set them in Netlify (or
 whichever host) *and* trigger a fresh deploy — env var changes don't apply
 retroactively to an already-built deploy.
+
+`SUPABASE_SERVICE_ROLE_KEY` is different — see the
+[README](../README.md#environment-variables) for details. It's secret
+(never `PUBLIC_`-prefixed), and unlike the two vars above it's only used
+lazily inside the delete-account action
+([`src/lib/server/supabaseAdmin.ts`](../src/lib/server/supabaseAdmin.ts)),
+not wired into `hooks.server.ts` — a missing key breaks only that one
+feature, not the whole site. Find it in Supabase's dashboard under
+Settings → API → "service_role" key.
 
 ## Known gotchas
 
@@ -138,3 +182,22 @@ retroactively to an already-built deploy.
   — this is the general pattern for any async action in the app, not just
   auth, and the anti-pattern it fixes is worth reading if you're adding a
   new form anywhere.
+- **Delete-account is the one feature backed by a privileged `service_role`
+  client**, created lazily inside its action rather than wired into
+  `hooks.server.ts` like the anon key. Deliberate asymmetry: the anon key
+  is required at runtime because auth is core to every page; the
+  service-role key is required only for one rarely-used, high-stakes
+  action, so a missing/misconfigured key should degrade that one feature
+  (a friendly error) rather than 500 the whole site.
+- **Change-password verifies the old password via a real
+  `signInWithPassword` call**, not Supabase's built-in reauthentication-
+  nonce flow (gated by the "Secure password change" dashboard toggle, off
+  by default — see the checklist above). That flow emails an OTP and is a
+  different, opt-in mechanism; our own check is independent and works
+  regardless of that setting.
+- **Every action on `change-password`/`change-email`/`delete` calls the
+  shared `requireSignedIn()` guard both in `load` and again at the top of
+  the action itself** — not redundant. SvelteKit runs a page's action
+  before `load` re-runs to render the result, so a `load`-only guard
+  doesn't protect a direct/replayed POST to the action from a signed-out
+  session.

@@ -6,6 +6,9 @@
 
 	interface BaseProps {
 		variant?: Variant | undefined;
+		/** Pulses a glow around the button — reserved for rare, high-stakes
+		 * confirm actions (e.g. delete account). Pair with variant="error". */
+		glow?: boolean | undefined;
 		children: Snippet;
 	}
 
@@ -37,6 +40,7 @@
 {#if rest.href !== undefined}
 	<a
 		class="button {variant}"
+		class:glow={rest.glow}
 		href={rest.href}
 		aria-current={rest.ariaCurrent}
 		data-sveltekit-reload={rest.reload ? '' : undefined}
@@ -46,6 +50,7 @@
 {:else}
 	<button
 		class="button {variant}"
+		class:glow={rest.glow}
 		type={rest.type ?? 'button'}
 		disabled={rest.disabled || rest.loading}
 		aria-busy={rest.loading ? 'true' : undefined}
@@ -123,5 +128,19 @@
 
 	.button[aria-current='page'] {
 		border-color: var(--color-primary);
+	}
+
+	.glow {
+		animation: button-glow-pulse 1.6s ease-in-out infinite;
+	}
+
+	@keyframes button-glow-pulse {
+		0%,
+		100% {
+			box-shadow: 0 0 0 0 var(--color-error-glow);
+		}
+		50% {
+			box-shadow: 0 0 16px 6px var(--color-error-glow);
+		}
 	}
 </style>

@@ -84,6 +84,26 @@ export const emailRateLimitError: Translated = {
 	ru: 'Слишком много писем отправлено — подождите немного и попробуйте снова.'
 };
 
+export const samePasswordError: Translated = {
+	en: 'Your new password must be different from your current one.',
+	ru: 'Новый пароль должен отличаться от текущего.'
+};
+
+export const weakPasswordError: Translated = {
+	en: 'That password is too weak — use at least 6 characters.',
+	ru: 'Пароль слишком слабый. Используйте не менее 6 символов.'
+};
+
+export const emailExistsError: Translated = {
+	en: 'That email address is already in use by another account.',
+	ru: 'Этот email уже используется другим аккаунтом.'
+};
+
+export const overRequestRateLimitError: Translated = {
+	en: 'Too many attempts — please wait a bit before trying again.',
+	ru: 'Слишком много попыток — подождите немного и попробуйте снова.'
+};
+
 /** Maps Supabase's stable `AuthError.code` to translated copy; unmapped
  * codes fall back to `genericAuthError`. Extend as new codes are hit in
  * practice (trigger each error once, check `error.code`). */
@@ -91,5 +111,79 @@ export const authErrorMessages: Record<string, Translated> = {
 	invalid_credentials: invalidCredentialsError,
 	user_already_exists: userAlreadyExistsError,
 	email_address_invalid: emailAddressInvalidError,
-	over_email_send_rate_limit: emailRateLimitError
+	over_email_send_rate_limit: emailRateLimitError,
+	same_password: samePasswordError,
+	weak_password: weakPasswordError,
+	email_exists: emailExistsError,
+	over_request_rate_limit: overRequestRateLimitError
 };
+
+// Change password
+export const changePasswordPageTitle: Translated = {
+	en: 'Change password — Learn Armenian',
+	ru: 'Изменить пароль — Учи армянский'
+};
+
+export const changePasswordPageDescription: Translated = {
+	en: 'Change your account password.',
+	ru: 'Измените пароль своего аккаунта.'
+};
+
+export const changePasswordButton: Translated = { en: 'Change password', ru: 'Изменить пароль' };
+
+export const currentPasswordLabel: Translated = { en: 'Current password', ru: 'Текущий пароль' };
+
+export const newPasswordLabel: Translated = { en: 'New password', ru: 'Новый пароль' };
+
+export const changePasswordSuccess: Translated = {
+	en: 'Your password has been changed.',
+	ru: 'Пароль успешно изменён.'
+};
+
+// Change email
+export const changeEmailPageTitle: Translated = {
+	en: 'Change email — Learn Armenian',
+	ru: 'Изменить email — Учи армянский'
+};
+
+export const changeEmailPageDescription: Translated = {
+	en: "Change your account's email address.",
+	ru: 'Измените email своего аккаунта.'
+};
+
+export const changeEmailButton: Translated = { en: 'Change email', ru: 'Изменить email' };
+
+export const changeEmailSuccess: Translated = {
+	en: "Check both your old and new email address — we've sent a confirmation link to each. The change won't take effect until you confirm from both.",
+	ru: 'Проверьте старый и новый адреса почты — на оба отправлена ссылка для подтверждения. Изменение вступит в силу только после подтверждения с обоих адресов.'
+};
+
+// Delete account
+export const deletePageTitle: Translated = {
+	en: 'Delete account — Learn Armenian',
+	ru: 'Удалить аккаунт — Учи армянский'
+};
+
+export const deletePageDescription: Translated = {
+	en: 'Permanently delete your account.',
+	ru: 'Безвозвратно удалите свой аккаунт.'
+};
+
+export const deleteAccountButton: Translated = { en: 'Delete account', ru: 'Удалить аккаунт' };
+
+export const deleteWarning: Translated = {
+	en: 'This permanently deletes your account and all associated data. This cannot be undone.',
+	ru: 'Это действие безвозвратно удалит ваш аккаунт и все связанные данные. Отменить это будет невозможно.'
+};
+
+export const deleteConfirmEmailLabel: Translated = {
+	en: 'Type your email to confirm',
+	ru: 'Введите свой email для подтверждения'
+};
+
+export const emailMismatchError: Translated = {
+	en: "That doesn't match your account's email.",
+	ru: 'Введённый email не совпадает с email вашего аккаунта.'
+};
+
+export const backToAccount: Translated = { en: 'Back to account', ru: 'Назад к аккаунту' };

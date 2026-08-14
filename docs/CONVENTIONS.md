@@ -129,3 +129,20 @@ than showing nothing at all. The `submitAction()` helper above fixes this by
 passing `update({ reset: false })`, which also means a *failed* submission
 correctly leaves your input in place to fix, rather than making you retype
 everything.
+
+**Exception:** a *confirmed-successful* one-time submission of sensitive
+credentials (e.g. a password change) may reset its own fields on success —
+clearing them is the safer default once the operation is done and there's
+nothing left to fix. The anti-pattern above is specifically about clearing
+on failure/no explanation; `reset: result.type === 'success'` (see
+[`account/change-password/+page.svelte`](../src/routes/[lang=locale]/account/change-password/+page.svelte))
+is not a violation of this rule.
+
+**Related, separate concern:** a route whose `load` redirects unauthenticated
+visitors away must repeat that same guard at the top of every action on that
+route, not just in `load`. SvelteKit runs a POST's action before `load`
+re-runs to render the result, so a `load`-only guard doesn't stop a direct
+or replayed POST to the action from a signed-out session. See
+`requireSignedIn()` in
+[`src/lib/server/authGuard.ts`](../src/lib/server/authGuard.ts), called from
+both places on every route under `account/` that requires a session.

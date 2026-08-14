@@ -23,6 +23,7 @@
 	/* Color — feedback & interaction */
 	--color-error: #b3261e;
 	--color-error-hover: #8f1e18;
+	--color-error-glow: rgb(179 38 30 / 0.5); /* button-glow-pulse keyframe; same red as --color-error */
 	--color-on-error: #ffffff;
 	--color-success: #1c7a42;
 	--color-success-hover: #156134;

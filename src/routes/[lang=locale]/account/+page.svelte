@@ -20,6 +20,9 @@
 		magicLinkSent,
 		signOutButton,
 		signedInAs,
+		changePasswordButton,
+		changeEmailButton,
+		deleteAccountButton,
 		authErrorGeneric,
 		authErrorMessages,
 		genericAuthError
@@ -33,6 +36,9 @@
 	let signedIn = $derived(claims !== null);
 	let authErrorFromLink = $derived(page.url.searchParams.get('authError') !== null);
 	let registerHref = $derived(withLocale(getLocale(), '/account/register'));
+	let changePasswordHref = $derived(withLocale(getLocale(), '/account/change-password'));
+	let changeEmailHref = $derived(withLocale(getLocale(), '/account/change-email'));
+	let deleteAccountHref = $derived(withLocale(getLocale(), '/account/delete'));
 
 	type FormAction = 'login' | 'magiclink' | 'logout';
 	let pending = $state<FormAction | null>(null);
@@ -65,6 +71,11 @@
 	{#if signedIn && claims !== null}
 		<h1>{t(signedInAs)}</h1>
 		<p>{claims.email}</p>
+		<nav class="account-actions">
+			<Button href={changePasswordHref} variant="secondary">{t(changePasswordButton)}</Button>
+			<Button href={changeEmailHref} variant="secondary">{t(changeEmailButton)}</Button>
+			<Button href={deleteAccountHref} variant="error">{t(deleteAccountButton)}</Button>
+		</nav>
 		<form method="POST" action="?/logout" use:enhance={submitAction('logout')}>
 			<Button
 				type="submit"
@@ -156,5 +167,13 @@
 	.register-prompt {
 		font-size: var(--font-size-sm);
 		color: var(--color-text-secondary);
+	}
+
+	.account-actions {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-3);
+		width: 100%;
+		max-width: 20rem;
 	}
 </style>
