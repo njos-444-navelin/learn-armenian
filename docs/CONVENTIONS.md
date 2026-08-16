@@ -178,6 +178,20 @@ which self-corrects the next time that word comes up for review. Don't reach
 for this exception elsewhere by default; it applies specifically to writes
 that are both this cheap to redo and this inexpensive to lose.
 
+**Exception:** persisting a signed-in user's chosen UI language (the locale
+buttons on [`[lang=locale]/+page.svelte`](../src/routes/[lang=locale]/+page.svelte)
+and the switch-language link in
+[`UserMenu.svelte`](../src/lib/components/UserMenu.svelte), both via
+[`persistPreferredLocale()`](../src/lib/i18n/persistPreferredLocale.ts)) is
+the same shape: the click navigates immediately, the write to
+`user_preferences` happens in the background, and a failure shows an error
+toast with no rollback — there's nothing to roll back to, since the user is
+already on the new locale's page by the time the write could fail. The write
+is one row, keyed by `user_id`, and simply retries itself next time the user
+picks a language (or lands back on the picker, per the redirect logic in
+[`[lang=locale]/+page.server.ts`](../src/routes/[lang=locale]/+page.server.ts)),
+so losing it costs nothing beyond being asked again once.
+
 **Related, separate concern:** a route whose `load` redirects unauthenticated
 visitors away must repeat that same guard at the top of every action on that
 route, not just in `load`. SvelteKit runs a POST's action before `load`

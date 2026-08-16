@@ -66,3 +66,8 @@ export const cancelLabel: Translated = {
 	en: 'Cancel',
 	ru: 'Отмена'
 };
+
+export const preferredLocaleSaveFailedMessage: Translated = {
+	en: "Couldn't save your language preference — try switching again later.",
+	ru: 'Не удалось сохранить Ваш выбор языка — попробуйте переключить его снова позже.'
+};

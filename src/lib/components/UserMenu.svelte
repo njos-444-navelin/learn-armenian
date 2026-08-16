@@ -4,6 +4,7 @@
 	import { LOCALE_FLAGS, LOCALES } from '$lib/i18n/locale';
 	import { getLocale, t } from '$lib/i18n/current';
 	import { withLocale, withoutLocale } from '$lib/i18n/paths';
+	import { persistPreferredLocale } from '$lib/i18n/persistPreferredLocale';
 	import {
 		account,
 		switchLanguage,
@@ -76,7 +77,11 @@
 	<div class="backdrop" onclick={close} aria-hidden="true"></div>
 	<div class="panel" id="user-menu-panel">
 		{#if otherLocale !== undefined && switchHref !== undefined}
-			<a href={switchHref} aria-label={t(switchToLanguageLabel[otherLocale])}>
+			<a
+				href={switchHref}
+				aria-label={t(switchToLanguageLabel[otherLocale])}
+				onclick={signedIn ? () => persistPreferredLocale(otherLocale) : undefined}
+			>
 				{t(switchLanguage)}
 				<span aria-hidden="true">{LOCALE_FLAGS[currentLocale]}/{LOCALE_FLAGS[otherLocale]}</span>
 			</a>

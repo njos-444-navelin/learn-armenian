@@ -15,6 +15,12 @@
 	interface LinkProps extends BaseProps {
 		href: string;
 		ariaCurrent?: 'page' | undefined;
+		/** Fires alongside the browser's normal navigation — doesn't (and
+		 * can't) block or cancel it. For side effects that should happen
+		 * "on the way out", like the fire-and-forget writes in
+		 * persistPreferredLocale.ts, not for anything the click should wait
+		 * on. */
+		onclick?: (() => void) | undefined;
 	}
 
 	interface ActionProps extends BaseProps {
@@ -34,7 +40,13 @@
 </script>
 
 {#if rest.href !== undefined}
-	<a class="button {variant}" class:glow={rest.glow} href={rest.href} aria-current={rest.ariaCurrent}>
+	<a
+		class="button {variant}"
+		class:glow={rest.glow}
+		href={rest.href}
+		aria-current={rest.ariaCurrent}
+		onclick={rest.onclick}
+	>
 		{@render children()}
 	</a>
 {:else}
