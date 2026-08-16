@@ -26,6 +26,11 @@ export const alphabetTrainerLabel: Translated = {
 	ru: 'Тренажёр алфавита'
 };
 
+export const vocabularyTrainerLabel: Translated = {
+	en: 'Vocabulary trainer',
+	ru: 'Тренажёр слов'
+};
+
 export const moreToComeLabel: Translated = {
 	en: 'More to come',
 	ru: 'Скоро появится больше'

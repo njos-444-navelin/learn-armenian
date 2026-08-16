@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
+	import Toast from '$lib/components/Toast.svelte';
 	import { pwaInfo } from 'virtual:pwa-info';
 	import { onMount } from 'svelte';
 	import { invalidate } from '$app/navigation';
@@ -30,3 +31,5 @@
 </svelte:head>
 
 {@render children()}
+
+<Toast />

@@ -2,18 +2,20 @@
 	import Button from '$lib/components/Button.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
 	import Seo from '$lib/components/Seo.svelte';
+	import VocabularyTrainer from '$lib/components/VocabularyTrainer.svelte';
 	import { getLocale, t } from '$lib/i18n/current';
 	import { withLocale } from '$lib/i18n/paths';
 	import {
-		alphabetTrainerLabel,
+		browseTopicsLabel,
 		heading,
-		menuAriaLabel,
-		moreToComeLabel,
+		noDecksAddedHeading,
+		noDecksAddedMessage,
 		pageDescription,
-		pageTitle,
-		vocabularyTrainerLabel
-	} from '$lib/i18n/dictionaries/learn';
+		pageTitle
+	} from '$lib/i18n/dictionaries/vocabularyTraining';
+	import type { PageData } from './$types';
 
+	let { data }: { data: PageData } = $props();
 	let locale = $derived(getLocale());
 </script>
 
@@ -22,25 +24,20 @@
 <PageShell>
 	<h1>{t(heading)}</h1>
 
-	<nav aria-label={t(menuAriaLabel)}>
-		<Button href={withLocale(locale, '/learn/alphabet')} variant="primary">
-			{t(alphabetTrainerLabel)}
-		</Button>
+	{#if data.hasAddedDecks}
+		<VocabularyTrainer initialQueue={data.queue} />
+	{:else}
+		<h2>{t(noDecksAddedHeading)}</h2>
+		<p>{t(noDecksAddedMessage)}</p>
 		<Button href={withLocale(locale, '/learn/vocabulary')} variant="primary">
-			{t(vocabularyTrainerLabel)}
+			{t(browseTopicsLabel)}
 		</Button>
-		<Button variant="secondary" disabled>
-			{t(moreToComeLabel)}
-		</Button>
-	</nav>
+	{/if}
 </PageShell>
 
 <style>
-	nav {
-		display: flex;
-		width: 100%;
-		flex-direction: column;
-		align-items: stretch;
-		gap: var(--space-3);
+	h2 {
+		margin: 0;
+		font-size: var(--font-size-lg);
 	}
 </style>

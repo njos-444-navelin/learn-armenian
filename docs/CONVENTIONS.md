@@ -163,6 +163,21 @@ on failure/no explanation; `reset: result.type === 'success'` (see
 [`account/change-password/+page.svelte`](../src/routes/[lang=locale]/account/change-password/+page.svelte))
 is not a violation of this rule.
 
+**Exception:** grading a card in
+[`VocabularyTrainer.svelte`](../src/lib/components/VocabularyTrainer.svelte)
+is deliberately optimistic — the queue advances the instant a grade button is
+clicked, with no spinner and no disabled wait, before the `POST` has even
+resolved. This is a considered exception, not an oversight: the write is
+low-stakes (one row in `user_vocabulary_progress`) and idempotent (regrading
+the same word just upserts the same row again), so blocking a fast flashcard
+session on a round-trip for every single card would cost real feel for no
+correctness benefit. A failed write shows an error toast (see
+[`Toast.svelte`](../src/lib/components/Toast.svelte)) instead of a spinner,
+and the UI does **not** roll back — the unsaved grade simply never persisted,
+which self-corrects the next time that word comes up for review. Don't reach
+for this exception elsewhere by default; it applies specifically to writes
+that are both this cheap to redo and this inexpensive to lose.
+
 **Related, separate concern:** a route whose `load` redirects unauthenticated
 visitors away must repeat that same guard at the top of every action on that
 route, not just in `load`. SvelteKit runs a POST's action before `load`
@@ -202,6 +217,31 @@ This does **not** apply to infinitive-form verbs (`Проверить себя`,
 `Продолжить`, `Начать обучение`) — infinitives don't inflect for person, so
 they're register-neutral and are the normal convention for button labels
 regardless of this rule.
+
+## 10. Vocabulary decks are code-split and always capitalized
+
+Two rules for [`src/lib/content/vocabulary/`](../src/lib/content/vocabulary/):
+
+- **Never import a file under `decks/*.ts` directly.** The whole point of
+  giving each deck its own file is that a learner who opens one deck never
+  downloads another deck's words — go through `loadDeckWords()` in
+  [`loadDeck.ts`](../src/lib/content/vocabulary/loadDeck.ts), which uses
+  `import.meta.glob` so Vite keeps each deck in its own chunk, fetched only
+  when that deck's page is visited.
+  [`catalog.ts`](../src/lib/content/vocabulary/catalog.ts) (deck ids and
+  titles only, no words) is the one file in here that's safe to import from
+  anywhere, e.g. the topic list.
+- **Every word's `armenian` field is capitalized** (e.g. `Ուշ`, not `ուշ`),
+  even where normal running Armenian text would use lowercase. Deliberate,
+  not a typo to "fix": capital letters look different enough from lowercase
+  that a learner still shaky on the alphabet gets extra reading practice on
+  them just by browsing the vocabulary list.
+- **`translation` is capitalized too, in both `en` and `ru`** (e.g. `{ en:
+  'Hi', ru: 'Привет' }`, not `{ en: 'hi', ru: 'привет' }`) — a word and its
+  translation should match in this respect, so a capitalized Armenian
+  headword doesn't sit next to a lowercase English/Russian one. Applies to
+  `translation` specifically, not `note` (already ordinary sentence-cased
+  prose, capitalized for its own reason).
 
 If you're unsure whether a verb form is formal, check it against a known-
 correct example already in the dictionaries (e.g. `Войдите`/`Создайте` in

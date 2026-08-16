@@ -10,6 +10,7 @@
 		switchToLanguageLabel,
 		userMenuLabel
 	} from '$lib/i18n/dictionaries/common';
+	import { trainVocabularyMenuLabel } from '$lib/i18n/dictionaries/vocabularyTraining';
 
 	let open = $state(false);
 
@@ -21,6 +22,7 @@
 			: undefined
 	);
 	let accountHref = $derived(withLocale(currentLocale, '/account'));
+	let trainVocabularyHref = $derived(withLocale(currentLocale, '/learn/vocabulary/train'));
 	let signedIn = $derived(page.data.claims !== null);
 
 	function close() {
@@ -78,6 +80,9 @@
 				{t(switchLanguage)}
 				<span aria-hidden="true">{LOCALE_FLAGS[currentLocale]}/{LOCALE_FLAGS[otherLocale]}</span>
 			</a>
+		{/if}
+		{#if signedIn}
+			<a href={trainVocabularyHref} onclick={close}>{t(trainVocabularyMenuLabel)}</a>
 		{/if}
 		<a href={accountHref} onclick={close}>{t(account)}</a>
 	</div>

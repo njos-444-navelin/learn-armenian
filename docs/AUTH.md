@@ -69,7 +69,11 @@ email) still lands on the right `/en/account` or `/ru/account`.
 
 None of this is set by code or by running the app — it has to be clicked
 through in the Supabase dashboard for the project this app points at
-(`PUBLIC_SUPABASE_URL`). Do all of these:
+(`PUBLIC_SUPABASE_URL`). Unlike schema/migration work (see
+[README § Database schema and Supabase management](../README.md#database-schema-and-supabase-management)),
+none of it is reachable through the Supabase MCP server either — there's no
+MCP tool for auth provider settings or email templates — so this checklist
+still needs a human with dashboard access. Do all of these:
 
 1. **Authentication → Providers → Email** — turn **"Confirm email" OFF**.
    The sign-up form assumes this: it expects `signUp` to return a live
@@ -167,8 +171,13 @@ later. In order of preference:
 
 **Only delete accounts you created this session, identified by email.**
 Never delete an account you didn't create or aren't certain is a test
-artifact — check `auth.users` (via `listUsers()`) first if there's any
-doubt, and never touch the project owner's own account.
+artifact — check `auth.users` (via `listUsers()`, or a read-only
+`execute_sql` query through the Supabase MCP server) first if there's any
+doubt, and never touch the project owner's own account. Prefer the MCP
+query for checking, since it needs no service-role key — but still perform
+the actual deletion through option 1 or 2 above, not a raw `DELETE` via
+MCP's `execute_sql`, since the admin API (and the app's own delete-account
+feature) handle Auth's related cleanup that a direct table delete wouldn't.
 
 ## Known gotchas
 

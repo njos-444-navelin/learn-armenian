@@ -28,7 +28,27 @@
 	--color-success: #1c7a42;
 	--color-success-hover: #156134;
 	--color-on-success: #ffffff;
+	--color-success-surface: #e6f4ea; /* subtle tint for "already added" cards */
 	--color-focus-ring: #f2a800;
+
+	/* Color — vocabulary trainer grade buttons (Conventions: kept as their
+	   own tokens, not aliased to --color-error/--color-success, so a future
+	   change to form-validation red/green can't silently reshade these). */
+	--color-grade-again: #b3261e;
+	--color-grade-again-hover: #8f1e18;
+	--color-on-grade-again: #ffffff;
+	--color-grade-hard: #a15c00;
+	--color-grade-hard-hover: #7f4a00;
+	--color-on-grade-hard: #ffffff;
+	--color-grade-good: #1c7a42;
+	--color-grade-good-hover: #156134;
+	--color-on-grade-good: #ffffff;
+	--color-grade-easy: #1a56db;
+	--color-grade-easy-hover: #1543ad;
+	--color-on-grade-easy: #ffffff;
+
+	/* Color — modal backdrop overlay */
+	--color-backdrop: rgb(0 0 0 / 0.5);
 
 	/* Spacing scale */
 	--space-1: 0.25rem;

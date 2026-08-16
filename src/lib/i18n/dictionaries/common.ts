@@ -56,3 +56,13 @@ export const userMenuLabel: Translated = {
 	en: 'Account menu',
 	ru: 'Меню аккаунта'
 };
+
+export const closeLabel: Translated = {
+	en: 'Close',
+	ru: 'Закрыть'
+};
+
+export const cancelLabel: Translated = {
+	en: 'Cancel',
+	ru: 'Отмена'
+};
