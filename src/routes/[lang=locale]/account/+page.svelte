@@ -36,6 +36,18 @@
 	let claims = $derived(page.data.claims);
 	let signedIn = $derived(claims !== null);
 	let authErrorFromLink = $derived(page.url.searchParams.get('authError') !== null);
+	/** A form's `action="?/login"` resolves relative to the current URL, and
+	 * a query-only relative reference *replaces* the whole query string
+	 * rather than appending to it — so a plain `?/login` would silently
+	 * drop `?next=...` before the POST ever happens, and requireSignedIn()'s
+	 * resume-after-login (see docs/AUTH.md) would never see it server-side.
+	 * SvelteKit recognizes any query key that starts with `/` as the action
+	 * name regardless of what else is in the query string, so re-attaching
+	 * `next` here (when present) is enough to carry it through. */
+	let loginActionHref = $derived.by(() => {
+		const next = page.url.searchParams.get('next');
+		return next !== null ? `?next=${encodeURIComponent(next)}&/login` : '?/login';
+	});
 	let registerHref = $derived(withLocale(getLocale(), '/account/register'));
 	let changePasswordHref = $derived(withLocale(getLocale(), '/account/change-password'));
 	let changeEmailHref = $derived(withLocale(getLocale(), '/account/change-email'));
@@ -94,7 +106,7 @@
 			<p class="error" role="alert">{t(authErrorGeneric)}</p>
 		{/if}
 
-		<form method="POST" action="?/login" use:enhance={submitAction('login')}>
+		<form method="POST" action={loginActionHref} use:enhance={submitAction('login')}>
 			<h2>{t(signInButton)}</h2>
 			<AuthField
 				label={emailLabel}

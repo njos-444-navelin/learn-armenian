@@ -65,6 +65,83 @@ are locale-negotiation redirect stubs, the same pattern as the root
 `+page.server.ts` — they exist so a locale-less `/account` link (e.g. from an
 email) still lands on the right `/en/account` or `/ru/account`.
 
+## Resuming a gated action after sign-in
+
+Clicking a signed-in-only action (e.g. "Add to my collection" on a
+vocabulary deck) while signed out used to just strand the visitor on
+`/account` — sign in, then navigate back, then repeat the action from
+scratch. `requireSignedIn()`'s optional `resume` argument (see
+[`authGuard.ts`](../src/lib/server/authGuard.ts)) fixes this for
+**password sign-in only**: it redirects to `/account?next=<page>?resume=<action>`
+instead of a bare `/account`, and the `login` action redirects back to that
+validated `next` on success — landing the visitor back on the original page
+with `?resume=<action>` in the URL, which that page's own client code
+recognizes and uses to replay the action automatically. The one current user
+is `addToCollection` on
+[`[deckId]/+page.svelte`](../src/routes/[lang=locale]/learn/vocabulary/[deckId]/+page.svelte).
+
+**The moving parts, end to end:**
+
+1. A gated action (e.g. `addToCollection` in
+   [`[deckId]/+page.server.ts`](../src/routes/[lang=locale]/learn/vocabulary/[deckId]/+page.server.ts))
+   calls `requireSignedIn(claims, params.lang, { url, action: 'addToCollection' })`
+   instead of the plain two-argument form.
+2. `requireSignedIn` redirects to
+   `/account?next=%2Fen%2Flearn%2Fvocabulary%2Fgreetings%3Fresume%3DaddToCollection`
+   — `next` is the original page's path plus `?resume=<action>`, URL-encoded
+   as a single query value.
+3. `account/+page.server.ts`'s `login` action, on a successful
+   `signInWithPassword`, reads `next` back off the query string and — only
+   if `isSafeInternalPath(next)` passes (see
+   [`paths.ts`](../src/lib/i18n/paths.ts)) — redirects there instead of
+   falling through to the normal "stay on `/account`" success response.
+   **This check is load-bearing, not defensive boilerplate**: `next` arrives
+   via a query string a visitor can freely edit, so redirecting to it
+   unchecked would be an open redirect. `isSafeInternalPath` only accepts a
+   single leading `/` (rejecting a `//host/...` protocol-relative URL or any
+   absolute `https://...` value) followed by a real locale segment.
+
+   **Gotcha, already fixed but easy to reintroduce:** the login `<form>`'s
+   `action` attribute can't just be the usual `?/login` here. A query-only
+   relative reference resolves against — and *replaces* — the current page's
+   whole query string, so a plain `?/login` while sitting on
+   `/account?next=...` would silently drop `next` before the POST even
+   happens, and the server never sees it. `loginActionHref` in
+   [`account/+page.svelte`](../src/routes/[lang=locale]/account/+page.svelte)
+   re-attaches `next` (`?next=...&/login`) whenever it's present —
+   SvelteKit recognizes any query key starting with `/` as the action name
+   regardless of what else is in the query string, so this round-trips
+   correctly. Any other form/link on a page that both reads a query param
+   *and* needs that param to survive its own submission has to do the same.
+4. The visitor lands back on
+   `/en/learn/vocabulary/greetings?resume=addToCollection`, signed in. That
+   page's own `$effect` checks `page.url.searchParams.get('resume')` against
+   the action id(s) it knows how to replay, and if it matches (and the
+   action hasn't already happened, e.g. `!added`), calls
+   `addForm.requestSubmit()` on the exact same `<form use:enhance>` a real
+   click would've submitted — so the replay reuses all of the existing
+   submit/pending/toast logic instead of duplicating it. A `resumeHandled`
+   flag ensures this fires at most once, and the `resume` param is stripped
+   via `replaceState()` right after so a refresh or back-navigation doesn't
+   replay it again.
+
+**Password sign-in only.** The magic-link flow's landing page is fixed by
+the Supabase dashboard's Magic Link email template (`next=/account` is a
+hardcoded literal, required for the PKCE token-hash verification — see the
+dashboard checklist below), not something this app can override
+per-request. A magic-link sign-in reached via `requireSignedIn`'s `resume`
+option therefore just lands on the bare account page, same as if `resume`
+had never been passed — a deliberate gap, not a bug: extending it would
+mean reworking that dashboard template to carry a dynamic redirect, not
+worth it for what's currently a single button.
+
+**Adding this to a new gated action:** pick a short, unique `action` id,
+pass `{ url, action }` to `requireSignedIn` in the action that needs it, and
+add an `$effect` on the corresponding page that recognizes that id and
+re-triggers the same form/button a real click would. Nothing else in this
+pipeline needs to change — `next`/`resume` and the open-redirect check are
+already generic.
+
 ## Required Supabase dashboard configuration
 
 None of this is set by code or by running the app — it has to be clicked

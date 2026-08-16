@@ -35,8 +35,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, claims 
 };
 
 export const actions: Actions = {
-	addToCollection: async ({ params, locals: { supabase, claims } }) => {
-		const verified = requireSignedIn(claims, params.lang);
+	addToCollection: async ({ params, url, locals: { supabase, claims } }) => {
+		const verified = requireSignedIn(claims, params.lang, { url, action: 'addToCollection' });
 
 		const deck = VOCABULARY_CATALOG.find((candidate) => candidate.id === params.deckId);
 		if (deck === undefined) {

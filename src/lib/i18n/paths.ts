@@ -1,4 +1,4 @@
-import { LOCALES, type Locale } from './locale';
+import { isLocale, LOCALES, type Locale } from './locale';
 
 /** Prefixes an absolute pathname with a locale segment, e.g. `withLocale('ru', '/learn')` -> `/ru/learn`. */
 export function withLocale(locale: Locale, pathname: string): string {
@@ -18,6 +18,20 @@ export function withoutLocale(pathname: string): string {
 		}
 	}
 	return pathname;
+}
+
+/**
+ * True for a same-origin, locale-prefixed app path (`/en/...`, `/ru/...`) —
+ * never for an absolute URL, a protocol-relative `//host/...` path, or a
+ * bare `/account` with no locale segment. Use this to validate any path
+ * that arrives as user-controllable input (e.g. a `next` query param) before
+ * redirecting to it — see `requireSignedIn()`'s `resume` option in
+ * [`authGuard.ts`](../server/authGuard.ts), the only current caller.
+ */
+export function isSafeInternalPath(path: string): boolean {
+	if (!path.startsWith('/') || path.startsWith('//')) return false;
+	const [, lang] = path.split('/');
+	return lang !== undefined && isLocale(lang);
 }
 
 /**

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { replaceState } from '$app/navigation';
+	import { page } from '$app/state';
 	import Button from '$lib/components/Button.svelte';
 	import FloatingActionBar from '$lib/components/FloatingActionBar.svelte';
 	import Modal from '$lib/components/Modal.svelte';
@@ -38,6 +40,28 @@
 	let pending = $state(false);
 	let removing = $state(false);
 	let showRemoveModal = $state(false);
+	let addForm = $state<HTMLFormElement | undefined>(undefined);
+
+	/**
+	 * Replays "Add to my collection" after a signed-out visitor gets sent to
+	 * sign in and back — see requireSignedIn()'s `resume` option and the
+	 * "resume after login" section in docs/AUTH.md. `resumeHandled` guards
+	 * this to fire at most once per page load, set before `requestSubmit()`
+	 * so a re-run of this effect (e.g. from `pending` changing as the
+	 * replayed submit starts) can never double-submit.
+	 */
+	let resumeHandled = $state(false);
+	$effect(() => {
+		if (resumeHandled) return;
+		if (page.url.searchParams.get('resume') !== 'addToCollection') return;
+		if (page.data.claims === null || added) return;
+		resumeHandled = true;
+		addForm?.requestSubmit();
+
+		const url = new URL(page.url);
+		url.searchParams.delete('resume');
+		replaceState(url, page.state);
+	});
 
 	function submitAdd(): SubmitFunction {
 		return () => {
@@ -88,7 +112,7 @@
 				{t(addedToCollectionLabel)}
 			</Button>
 		{:else}
-			<form method="POST" action="?/addToCollection" use:enhance={submitAdd()}>
+			<form method="POST" action="?/addToCollection" use:enhance={submitAdd()} bind:this={addForm}>
 				<Button type="submit" variant="primary" loading={pending} disabled={pending}>
 					{t(addToCollectionLabel)}
 				</Button>
