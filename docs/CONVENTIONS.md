@@ -248,3 +248,19 @@ correct example already in the dictionaries (e.g. `Войдите`/`Создай
 [`dictionaries/account.ts`](../src/lib/i18n/dictionaries/account.ts)) rather
 than guessing — the ты/вы conjugation difference is often a single
 letter/syllable and easy to get wrong by ear.
+
+## 11. Every vocabulary word ships with a pronunciation audio file
+
+Every `VocabularyWord` (in any file under
+[`src/lib/content/vocabulary/decks/`](../src/lib/content/vocabulary/decks/))
+must have a matching pre-generated audio clip at
+`static/audio/vocabulary/<deckId>/<wordId>.m4a` — the path
+[`wordAudioSrc()`](../src/lib/content/vocabulary/audio.ts) derives and the
+"loudspeaker" button (`SpeakerButton.svelte`) plays. There is no "missing
+audio" UI state — a word added without its clip just fails silently to play
+when tapped.
+
+See [`docs/VOCABULARY_AUDIO.md`](VOCABULARY_AUDIO.md) for the storage/
+encoding decisions and, most importantly, the exact steps to generate and
+save a new word's clip — **follow that checklist for every new word**, in
+the same change that adds the word to its deck file.

@@ -4,7 +4,9 @@
 	import { fade } from 'svelte/transition';
 	import { enhance } from '$app/forms';
 	import Button from './Button.svelte';
+	import SpeakerButton from './SpeakerButton.svelte';
 	import { fitText } from '$lib/actions/fitText';
+	import { wordAudioSrc } from '$lib/content/vocabulary/audio';
 	import type { TrainingCard } from '$lib/content/vocabulary/training';
 	import { getLocale, t } from '$lib/i18n/current';
 	import { withLocale } from '$lib/i18n/paths';
@@ -91,6 +93,17 @@
 		now = new Date();
 	}
 
+	/** The card is a `div[role=button]`, not a native `<button>`, precisely so
+	 * it can contain a real nested `<button>` (the speaker) — a `<button>`
+	 * can't validly contain interactive content. That trades away the
+	 * native element's built-in Enter/Space activation, so it's replicated
+	 * here. */
+	function handleCardKeydown(event: KeyboardEvent): void {
+		if (event.key !== 'Enter' && event.key !== ' ') return;
+		event.preventDefault();
+		flip();
+	}
+
 	/** Moves any `waiting` card whose due time has arrived into `activeQueue`,
 	 * soonest-due first, and refreshes `now` regardless (keeps the "next card
 	 * in Xmin" countdown and the flipped card's interval previews live). */
@@ -163,18 +176,23 @@
 	<div class="card-slot">
 		<div class="card-clip">
 			{#key `${current.deckId}:${current.word.id}`}
-				<button
-					type="button"
+				<div
 					class="card"
 					class:flipped
+					role="button"
+					tabindex="0"
 					onclick={flip}
+					onkeydown={handleCardKeydown}
 					aria-label={t(flipButtonLabel(flipped))}
 					in:cardEnter
 					out:fade={{ duration: 150 }}
 				>
 					<div class="card-inner">
 						<div class="face front">
-							<span class="word" lang="hy" use:fitText>{current.word.armenian}</span>
+							<span class="word-row">
+								<span class="word" lang="hy" use:fitText>{current.word.armenian}</span>
+								<SpeakerButton src={wordAudioSrc(current.deckId, current.word.id)} />
+							</span>
 						</div>
 						<div class="face back">
 							<span class="word" use:fitText>{t(current.word.translation)}</span>
@@ -186,7 +204,7 @@
 							{/if}
 						</div>
 					</div>
-				</button>
+				</div>
 			{/key}
 		</div>
 	</div>
@@ -261,9 +279,6 @@
 		position: absolute;
 		inset: 1rem;
 		perspective: 1200px;
-		background: none;
-		border: none;
-		padding: 0;
 		cursor: pointer;
 	}
 
@@ -297,6 +312,19 @@
 
 	.face.back {
 		transform: rotateY(180deg);
+	}
+
+	.word-row {
+		display: flex;
+		min-width: 0;
+		max-width: 100%;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+	}
+
+	.word-row .word {
+		min-width: 0;
 	}
 
 	.word {

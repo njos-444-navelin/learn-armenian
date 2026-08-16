@@ -7,6 +7,7 @@
 	import { getLocale, t } from '$lib/i18n/current';
 	import { withLocale } from '$lib/i18n/paths';
 	import {
+		catalogGrowingMessage,
 		decksMenuAriaLabel,
 		heading,
 		pageDescription,
@@ -29,6 +30,8 @@
 		<VocabularyDeckList decks={data.decks} {addedDeckIds} />
 	</nav>
 
+	<p class="catalog-note">{t(catalogGrowingMessage)}</p>
+
 	{#if addedDeckIds.size > 0}
 		<FloatingActionBar>
 			<Button href={withLocale(locale, '/learn/vocabulary/train')} variant="primary">
@@ -42,5 +45,11 @@
 	nav {
 		display: flex;
 		width: 100%;
+	}
+
+	.catalog-note {
+		margin: 0;
+		color: var(--color-text-secondary);
+		font-size: var(--font-size-sm);
 	}
 </style>

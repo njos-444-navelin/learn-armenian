@@ -1,20 +1,26 @@
 <script lang="ts">
+	import SpeakerButton from './SpeakerButton.svelte';
+	import { wordAudioSrc } from '$lib/content/vocabulary/audio';
 	import type { VocabularyWord } from '$lib/content/vocabulary/types';
 	import { registerLabels } from '$lib/i18n/dictionaries/vocabulary';
 	import { t } from '$lib/i18n/current';
 
 	interface Props {
+		deckId: string;
 		words: readonly VocabularyWord[];
 	}
 
-	let { words }: Props = $props();
+	let { deckId, words }: Props = $props();
 </script>
 
 <ul class="words">
 	{#each words as word (word.id)}
 		<li>
 			<div class="row">
-				<span class="armenian" lang="hy">{word.armenian}</span>
+				<span class="armenian-group">
+					<span class="armenian" lang="hy">{word.armenian}</span>
+					<SpeakerButton src={wordAudioSrc(deckId, word.id)} />
+				</span>
 				<span class="translation">
 					{t(word.translation)}
 					{#if word.register !== undefined}
@@ -52,6 +58,12 @@
 		flex-wrap: wrap;
 		align-items: baseline;
 		gap: var(--space-3);
+	}
+
+	.armenian-group {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
 	}
 
 	.armenian {

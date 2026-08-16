@@ -101,11 +101,16 @@ src/
     styles/tokens.css      # design tokens (the only place colors are defined)
     components/            # shared, reusable UI (Button, Seo, PageShell, UserMenu, ...)
     content/vocabulary/    # vocabulary deck data (code, not DB) — see Conventions §10
+                            # audio.ts derives each word's pronunciation clip path —
+                            # see docs/VOCABULARY_AUDIO.md
     srs/scheduler.ts       # pure spaced-repetition algorithm, shared client + server
     actions/               # Svelte actions (e.g. fitText — shrink text to fit one line)
     stores/                # cross-component reactive state (e.g. toasts.svelte.ts)
     server/                # server-only helpers (SvelteKit enforces this boundary at
                             # build time) — auth guard, service-role admin client
+static/
+  audio/vocabulary/        # pre-generated pronunciation clips, one per word — see
+                            # docs/VOCABULARY_AUDIO.md
 ```
 
 ## Authentication
@@ -149,6 +154,13 @@ Again/Hard/Good/Easy, Anki-style.
   pending-state rule — see
   [Conventions §8's exception note](docs/CONVENTIONS.md#8-async-actions-always-show-their-pending-state)
   for why.
+- **Every word has a pre-generated pronunciation clip**, played by the
+  "loudspeaker" button next to its Armenian text
+  ([`SpeakerButton.svelte`](src/lib/components/SpeakerButton.svelte)). Files
+  are static assets, not Supabase-hosted — see
+  [`docs/VOCABULARY_AUDIO.md`](docs/VOCABULARY_AUDIO.md) for the storage/
+  encoding rationale and, importantly, **the checklist for voicing a newly
+  added word** — there's no fallback for a missing clip.
 
 ## Database schema and Supabase management
 

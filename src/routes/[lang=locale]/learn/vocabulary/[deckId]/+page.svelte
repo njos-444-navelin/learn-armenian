@@ -80,7 +80,7 @@
 <PageShell>
 	<h1>{t(data.deck.title)}</h1>
 
-	<VocabularyWordList words={data.words} />
+	<VocabularyWordList deckId={data.deck.id} words={data.words} />
 
 	<FloatingActionBar>
 		{#if added}

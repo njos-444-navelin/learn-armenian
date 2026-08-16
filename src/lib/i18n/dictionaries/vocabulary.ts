@@ -29,6 +29,22 @@ export const addedBadgeLabel: Translated = {
 	ru: 'Добавлено'
 };
 
+export const catalogGrowingMessage: Translated = {
+	en: 'New topics are added regularly — check back often.',
+	ru: 'Новые темы добавляются регулярно — заглядывайте почаще.'
+};
+
+// --- Shared between the deck page and the trainer card ---
+
+/** Aria-label for the pronunciation button next to a word's Armenian text —
+ * see `SpeakerButton.svelte`. Kept generic rather than interpolating the
+ * word itself: a screen reader would otherwise have to attempt Armenian
+ * script pronunciation on every single row of a word list. */
+export const playPronunciationLabel: Translated = {
+	en: 'Play pronunciation',
+	ru: 'Прослушать произношение'
+};
+
 // --- Deck page (/learn/vocabulary/[deckId]) ---
 
 export function deckPageTitle(deckTitle: Translated): Translated {
