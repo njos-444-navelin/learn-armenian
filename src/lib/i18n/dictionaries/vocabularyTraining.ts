@@ -10,10 +10,12 @@ export const trainVocabularyMenuLabel: Translated = {
 };
 
 /** Announced by screen readers alongside the (purely visual) notification
- * dot shown when the learner has words due for review. */
-export const wordsToReviewHint: Translated = {
-	en: 'Words are due for review',
-	ru: 'Есть слова для повторения'
+ * dot shown when the learner has words due for review or never-studied
+ * words waiting in a deck they've added — see the `hasWordsToPractice`
+ * check in the locale layout's server load. */
+export const wordsToPracticeHint: Translated = {
+	en: 'Words are ready to practice',
+	ru: 'Есть слова для практики'
 };
 
 // --- Training page (/learn/vocabulary/train) ---

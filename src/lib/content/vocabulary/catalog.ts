@@ -11,5 +11,9 @@ export const VOCABULARY_CATALOG: readonly VocabularyDeck[] = [
 	{
 		id: 'greetings',
 		title: { en: 'Greetings', ru: 'Приветствия' }
+	},
+	{
+		id: 'verbs-1',
+		title: { en: 'Essential verbs (pt. 1)', ru: 'Основные глаголы (часть 1)' }
 	}
 ];

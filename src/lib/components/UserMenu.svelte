@@ -13,7 +13,7 @@
 	} from '$lib/i18n/dictionaries/common';
 	import {
 		trainVocabularyMenuLabel,
-		wordsToReviewHint
+		wordsToPracticeHint
 	} from '$lib/i18n/dictionaries/vocabularyTraining';
 
 	let open = $state(false);
@@ -28,9 +28,9 @@
 	let accountHref = $derived(withLocale(currentLocale, '/account'));
 	let trainVocabularyHref = $derived(withLocale(currentLocale, '/learn/vocabulary/train'));
 	let signedIn = $derived(page.data.claims !== null);
-	let hasWordsToReview = $derived(signedIn && page.data.hasWordsToReview === true);
+	let hasWordsToPractice = $derived(signedIn && page.data.hasWordsToPractice === true);
 	let userMenuAriaLabel = $derived(
-		hasWordsToReview ? `${t(userMenuLabel)}: ${t(wordsToReviewHint)}` : t(userMenuLabel)
+		hasWordsToPractice ? `${t(userMenuLabel)}: ${t(wordsToPracticeHint)}` : t(userMenuLabel)
 	);
 
 	function close() {
@@ -41,7 +41,7 @@
 <TopBubbleLink
 	ariaLabel={userMenuAriaLabel}
 	side="right"
-	badge={hasWordsToReview}
+	badge={hasWordsToPractice}
 	onclick={() => (open = !open)}
 	ariaExpanded={open}
 	ariaControls="user-menu-panel"
@@ -98,12 +98,12 @@
 			<a href={trainVocabularyHref} onclick={close}>
 				<span class="label">
 					{t(trainVocabularyMenuLabel)}
-					{#if hasWordsToReview}
+					{#if hasWordsToPractice}
 						<span class="badge-dot" aria-hidden="true"></span>
 					{/if}
 				</span>
-				{#if hasWordsToReview}
-					<span class="sr-only">{t(wordsToReviewHint)}</span>
+				{#if hasWordsToPractice}
+					<span class="sr-only">{t(wordsToPracticeHint)}</span>
 				{/if}
 			</a>
 		{/if}
@@ -162,8 +162,8 @@
 
 	.badge-dot {
 		position: absolute;
-		top: -0.05rem;
-		right: -0.5rem;
+		top: 0.075rem;
+		right: -0.75rem;
 		width: 0.375rem;
 		height: 0.375rem;
 		border-radius: 50%;

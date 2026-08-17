@@ -86,14 +86,17 @@
 		position: absolute;
 		/* Centers the dot on the ring itself at its top-right (45°) point —
 		   for a circle of diameter --tap-target-min (2.75rem), that point
-		   sits 0.1rem in from the button's outer edge on both axes. `top`/
-		   `right` here are relative to the button's *padding* box though
-		   (its border sits outside that), so the button's own 1px border
-		   is subtracted back out to land exactly on the ring. */
-		top: calc(0.1rem - 1px);
-		right: calc(0.1rem - 1px);
-		width: 0.6rem;
-		height: 0.6rem;
+		   sits 0.4rem in from the button's outer edge on both axes (minus
+		   its own 1px border, since `top`/`right` are relative to the
+		   button's *padding* box while the border sits outside that).
+		   `top`/`right` position the dot's own edge, not its center, so
+		   they're offset back by half the dot's size to keep that center
+		   fixed as the dot's size changes — here that pushes them negative,
+		   letting the (now bigger) dot overhang the ring slightly. */
+		top: calc(0.4rem - 1px - 0.4125rem);
+		right: calc(0.4rem - 1px - 0.4125rem);
+		width: 0.825rem;
+		height: 0.825rem;
 		border-radius: 50%;
 		background: var(--color-notification);
 		border: 2px solid var(--color-background);
