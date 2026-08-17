@@ -31,6 +31,12 @@
 	--color-success-surface: #e6f4ea; /* subtle tint for "already added" cards */
 	--color-focus-ring: #f2a800;
 
+	/* Color — "has pending vocabulary reviews" notification dot on the
+	   account menu. A light blue reads clearly as "new/waiting" without
+	   being confused for the brand orange (primary actions), the red/green
+	   error/success pair, or feeling as loud as a fully saturated blue. */
+	--color-notification: #8fb8f6;
+
 	/* Color — vocabulary trainer grade buttons (Conventions: kept as their
 	   own tokens, not aliased to --color-error/--color-success, so a future
 	   change to form-validation red/green can't silently reshade these). */

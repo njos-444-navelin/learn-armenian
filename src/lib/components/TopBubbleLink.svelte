@@ -4,6 +4,8 @@
 	interface BaseProps {
 		ariaLabel: string;
 		side: 'left' | 'right';
+		/** Shows a small notification dot on the button's top-right corner. */
+		badge?: boolean;
 		children: Snippet;
 	}
 
@@ -20,12 +22,15 @@
 
 	type Props = LinkProps | TriggerProps;
 
-	let { ariaLabel, side, children, ...rest }: Props = $props();
+	let { ariaLabel, side, badge = false, children, ...rest }: Props = $props();
 </script>
 
 {#if rest.href !== undefined}
 	<a class="bubble {side}" href={rest.href} aria-label={ariaLabel}>
 		{@render children()}
+		{#if badge}
+			<span class="badge-dot" aria-hidden="true"></span>
+		{/if}
 	</a>
 {:else}
 	<button
@@ -38,6 +43,9 @@
 		onclick={rest.onclick}
 	>
 		{@render children()}
+		{#if badge}
+			<span class="badge-dot" aria-hidden="true"></span>
+		{/if}
 	</button>
 {/if}
 
@@ -72,5 +80,22 @@
 
 	.right {
 		right: calc(var(--space-4) + env(safe-area-inset-right));
+	}
+
+	.badge-dot {
+		position: absolute;
+		/* Centers the dot on the ring itself at its top-right (45°) point —
+		   for a circle of diameter --tap-target-min (2.75rem), that point
+		   sits 0.1rem in from the button's outer edge on both axes. `top`/
+		   `right` here are relative to the button's *padding* box though
+		   (its border sits outside that), so the button's own 1px border
+		   is subtracted back out to land exactly on the ring. */
+		top: calc(0.1rem - 1px);
+		right: calc(0.1rem - 1px);
+		width: 0.6rem;
+		height: 0.6rem;
+		border-radius: 50%;
+		background: var(--color-notification);
+		border: 2px solid var(--color-background);
 	}
 </style>

@@ -11,7 +11,10 @@
 		switchToLanguageLabel,
 		userMenuLabel
 	} from '$lib/i18n/dictionaries/common';
-	import { trainVocabularyMenuLabel } from '$lib/i18n/dictionaries/vocabularyTraining';
+	import {
+		trainVocabularyMenuLabel,
+		wordsToReviewHint
+	} from '$lib/i18n/dictionaries/vocabularyTraining';
 
 	let open = $state(false);
 
@@ -25,6 +28,10 @@
 	let accountHref = $derived(withLocale(currentLocale, '/account'));
 	let trainVocabularyHref = $derived(withLocale(currentLocale, '/learn/vocabulary/train'));
 	let signedIn = $derived(page.data.claims !== null);
+	let hasWordsToReview = $derived(signedIn && page.data.hasWordsToReview === true);
+	let userMenuAriaLabel = $derived(
+		hasWordsToReview ? `${t(userMenuLabel)}: ${t(wordsToReviewHint)}` : t(userMenuLabel)
+	);
 
 	function close() {
 		open = false;
@@ -32,8 +39,9 @@
 </script>
 
 <TopBubbleLink
-	ariaLabel={t(userMenuLabel)}
+	ariaLabel={userMenuAriaLabel}
 	side="right"
+	badge={hasWordsToReview}
 	onclick={() => (open = !open)}
 	ariaExpanded={open}
 	ariaControls="user-menu-panel"
@@ -87,7 +95,17 @@
 			</a>
 		{/if}
 		{#if signedIn}
-			<a href={trainVocabularyHref} onclick={close}>{t(trainVocabularyMenuLabel)}</a>
+			<a href={trainVocabularyHref} onclick={close}>
+				<span class="label">
+					{t(trainVocabularyMenuLabel)}
+					{#if hasWordsToReview}
+						<span class="badge-dot" aria-hidden="true"></span>
+					{/if}
+				</span>
+				{#if hasWordsToReview}
+					<span class="sr-only">{t(wordsToReviewHint)}</span>
+				{/if}
+			</a>
 		{/if}
 		<a href={accountHref} onclick={close}>{t(account)}</a>
 	</div>
@@ -136,5 +154,19 @@
 
 	.panel a:hover {
 		background: var(--color-surface);
+	}
+
+	.label {
+		position: relative;
+	}
+
+	.badge-dot {
+		position: absolute;
+		top: -0.05rem;
+		right: -0.5rem;
+		width: 0.375rem;
+		height: 0.375rem;
+		border-radius: 50%;
+		background: var(--color-notification);
 	}
 </style>

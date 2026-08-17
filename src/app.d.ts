@@ -14,6 +14,7 @@ declare global {
 		}
 		interface PageData {
 			claims: JwtPayload | null;
+			hasWordsToReview?: boolean;
 		}
 		// interface PageState {}
 		// interface Platform {}

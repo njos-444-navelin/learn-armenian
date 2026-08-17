@@ -9,6 +9,13 @@ export const trainVocabularyMenuLabel: Translated = {
 	ru: 'Тренировать слова'
 };
 
+/** Announced by screen readers alongside the (purely visual) notification
+ * dot shown when the learner has words due for review. */
+export const wordsToReviewHint: Translated = {
+	en: 'Words are due for review',
+	ru: 'Есть слова для повторения'
+};
+
 // --- Training page (/learn/vocabulary/train) ---
 
 export const pageTitle: Translated = {
