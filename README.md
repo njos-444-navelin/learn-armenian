@@ -84,6 +84,8 @@ src/
     +layout.ts             # isomorphic Supabase client (browser + SSR)
     +page.server.ts        # "/" -> redirects to /en or /ru by Accept-Language
     account/+page.server.ts # "/account" -> redirects to /en/account or /ru/account
+    api/preferred-locale/+server.ts # persists a signed-in user's chosen UI
+                            # language; fire-and-forget, see Conventions §8
     auth/
       confirm/+server.ts   # verifies magic-link emails, then redirects
       error/+page.server.ts # failed-verification landing, redirects to /account
@@ -105,6 +107,8 @@ src/
                             # see docs/VOCABULARY_AUDIO.md
     srs/scheduler.ts       # pure spaced-repetition algorithm, shared client + server
     actions/               # Svelte actions (e.g. fitText — shrink text to fit one line)
+    forms/                 # shared form-submission helpers (e.g. the pending-state
+                            # wrapper used by the account/ pages, see Conventions §8)
     stores/                # cross-component reactive state (e.g. toasts.svelte.ts)
     server/                # server-only helpers (SvelteKit enforces this boundary at
                             # build time) — auth guard, service-role admin client
@@ -218,6 +222,14 @@ The site **auto-deploys from this repo's GitLab remote**
 Netlify picks up every push the normal way, so merging/pushing to the
 production branch is enough on its own; nothing needs to be manually
 triggered for an ordinary change to go live.
+
+**There is no CI pipeline gating that deploy** — no `.gitlab-ci.yml` in this
+repo, and no automated test suite to run one against (see
+[Building](#building); `npm run check` is the only automated check that
+exists, and nothing runs it on push). A push straight to the production
+branch goes live on the next Netlify build with nothing in between catching
+a type error, a broken build, or a regression — run `npm run check` (and
+ideally `npm run build`) locally before pushing.
 
 Through the MCP connector, Claude can — instead of asking the human to click
 through the Netlify dashboard:

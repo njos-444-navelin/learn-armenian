@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import AuthField from '$lib/components/AuthField.svelte';
+	import AuthForm from '$lib/components/AuthForm.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import FormError from '$lib/components/FormError.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
 	import Seo from '$lib/components/Seo.svelte';
+	import { createPendingSubmit } from '$lib/forms/pendingSubmit.svelte';
 	import { t } from '$lib/i18n/current';
 	import {
 		changeEmailPageTitle,
@@ -15,22 +17,11 @@
 		authErrorMessages,
 		genericAuthError
 	} from '$lib/i18n/dictionaries/account';
-	import type { SubmitFunction } from '@sveltejs/kit';
 	import type { ActionData } from './$types';
 
 	let { form }: { form: ActionData } = $props();
-	let pending = $state(false);
 
-	const submitChangeEmail: SubmitFunction = () => {
-		pending = true;
-		return async ({ update }) => {
-			try {
-				await update({ reset: false });
-			} finally {
-				pending = false;
-			}
-		};
-	};
+	const pendingSubmit = createPendingSubmit();
 
 	function errorMessage(code: string | undefined) {
 		if (code === 'same_email') return t(sameEmailError);
@@ -43,7 +34,7 @@
 <PageShell>
 	<h1>{t(changeEmailButton)}</h1>
 
-	<form method="POST" action="?/changeEmail" use:enhance={submitChangeEmail}>
+	<AuthForm action="?/changeEmail" submit={pendingSubmit.submit}>
 		<AuthField
 			label={newEmailLabel}
 			type="email"
@@ -52,28 +43,18 @@
 			value={form?.email ?? ''}
 		/>
 		{#if form?.errorCode}
-			<p class="error" role="alert">{errorMessage(form.errorCode)}</p>
+			<FormError message={errorMessage(form.errorCode) ?? ''} />
 		{/if}
 		{#if form?.success}
 			<p role="status">{t(changeEmailSuccess)}</p>
 		{/if}
-		<Button type="submit" variant="primary" loading={pending} disabled={pending}>
+		<Button
+			type="submit"
+			variant="primary"
+			loading={pendingSubmit.pending}
+			disabled={pendingSubmit.pending}
+		>
 			{t(changeEmailButton)}
 		</Button>
-	</form>
+	</AuthForm>
 </PageShell>
-
-<style>
-	form {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-3);
-		width: 100%;
-		max-width: 20rem;
-	}
-
-	.error {
-		color: var(--color-error);
-		font-size: var(--font-size-sm);
-	}
-</style>

@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import AuthField from '$lib/components/AuthField.svelte';
+	import AuthForm from '$lib/components/AuthForm.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import FormError from '$lib/components/FormError.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import { getLocale, t } from '$lib/i18n/current';
@@ -91,7 +92,7 @@
 			<Button href={contactHref} variant="secondary">{t(contactHeading)}</Button>
 			<Button href={deleteAccountHref} variant="error">{t(deleteAccountButton)}</Button>
 		</nav>
-		<form method="POST" action="?/logout" use:enhance={submitAction('logout')}>
+		<AuthForm action="?/logout" submit={submitAction('logout')}>
 			<Button
 				type="submit"
 				variant="secondary"
@@ -100,13 +101,13 @@
 			>
 				{t(signOutButton)}
 			</Button>
-		</form>
+		</AuthForm>
 	{:else}
 		{#if authErrorFromLink}
-			<p class="error" role="alert">{t(authErrorGeneric)}</p>
+			<FormError message={t(authErrorGeneric)} />
 		{/if}
 
-		<form method="POST" action={loginActionHref} use:enhance={submitAction('login')}>
+		<AuthForm action={loginActionHref} submit={submitAction('login')}>
 			<h2>{t(signInButton)}</h2>
 			<AuthField
 				label={emailLabel}
@@ -117,7 +118,7 @@
 			/>
 			<AuthField label={passwordLabel} type="password" name="password" autocomplete="current-password" />
 			{#if form?.errorCode && form.action === 'login'}
-				<p class="error" role="alert">{errorMessage(form.errorCode)}</p>
+				<FormError message={errorMessage(form.errorCode) ?? ''} />
 			{/if}
 			<Button
 				type="submit"
@@ -127,9 +128,9 @@
 			>
 				{t(signInButton)}
 			</Button>
-		</form>
+		</AuthForm>
 
-		<form method="POST" action="?/magiclink" use:enhance={submitAction('magiclink')}>
+		<AuthForm action="?/magiclink" submit={submitAction('magiclink')}>
 			<AuthField label={emailLabel} type="email" name="email" autocomplete="email" />
 			<Button
 				type="submit"
@@ -144,9 +145,9 @@
 				<p role="status">{t(magicLinkSent)}</p>
 			{/if}
 			{#if form?.errorCode && form.action === 'magiclink'}
-				<p class="error" role="alert">{errorMessage(form.errorCode)}</p>
+				<FormError message={errorMessage(form.errorCode) ?? ''} />
 			{/if}
-		</form>
+		</AuthForm>
 
 		<p class="register-prompt">
 			{t(registerPrompt)}
@@ -156,22 +157,9 @@
 </PageShell>
 
 <style>
-	form {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-3);
-		width: 100%;
-		max-width: 20rem;
-	}
-
 	h2 {
 		margin: 0;
 		font-size: var(--font-size-lg);
-	}
-
-	.error {
-		color: var(--color-error);
-		font-size: var(--font-size-sm);
 	}
 
 	.hint {

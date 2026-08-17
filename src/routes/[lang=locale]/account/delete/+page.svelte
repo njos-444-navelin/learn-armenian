@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import AuthField from '$lib/components/AuthField.svelte';
+	import AuthForm from '$lib/components/AuthForm.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import FormError from '$lib/components/FormError.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
 	import Seo from '$lib/components/Seo.svelte';
+	import { createPendingSubmit } from '$lib/forms/pendingSubmit.svelte';
 	import { getLocale, t } from '$lib/i18n/current';
 	import { withLocale } from '$lib/i18n/paths';
 	import {
@@ -17,23 +19,12 @@
 		authErrorMessages,
 		genericAuthError
 	} from '$lib/i18n/dictionaries/account';
-	import type { SubmitFunction } from '@sveltejs/kit';
 	import type { ActionData } from './$types';
 
 	let { form }: { form: ActionData } = $props();
-	let pending = $state(false);
 	let accountHref = $derived(withLocale(getLocale(), '/account'));
 
-	const submitDelete: SubmitFunction = () => {
-		pending = true;
-		return async ({ update }) => {
-			try {
-				await update({ reset: false });
-			} finally {
-				pending = false;
-			}
-		};
-	};
+	const pendingSubmit = createPendingSubmit();
 
 	function errorMessage(code: string | undefined) {
 		if (code === 'email_mismatch') return t(emailMismatchError);
@@ -47,34 +38,27 @@
 	<h1>{t(deleteAccountButton)}</h1>
 	<p class="warning">{t(deleteWarning)}</p>
 
-	<form method="POST" action="?/deleteAccount" use:enhance={submitDelete}>
+	<AuthForm action="?/deleteAccount" submit={pendingSubmit.submit}>
 		<AuthField label={deleteConfirmEmailLabel} type="email" name="email" autocomplete="email" />
 		{#if form?.errorCode}
-			<p class="error" role="alert">{errorMessage(form.errorCode)}</p>
+			<FormError message={errorMessage(form.errorCode) ?? ''} />
 		{/if}
-		<Button type="submit" variant="error" glow loading={pending} disabled={pending}>
+		<Button
+			type="submit"
+			variant="error"
+			glow
+			loading={pendingSubmit.pending}
+			disabled={pendingSubmit.pending}
+		>
 			{t(deleteAccountButton)}
 		</Button>
-	</form>
+	</AuthForm>
 
 	<a href={accountHref}>{t(backToAccount)}</a>
 </PageShell>
 
 <style>
-	form {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-3);
-		width: 100%;
-		max-width: 20rem;
-	}
-
 	.warning {
 		color: var(--color-text-secondary);
-	}
-
-	.error {
-		color: var(--color-error);
-		font-size: var(--font-size-sm);
 	}
 </style>
