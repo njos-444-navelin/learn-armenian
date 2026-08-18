@@ -59,6 +59,10 @@
 		border-color: var(--color-primary);
 	}
 
+	.title {
+		text-align: start;
+	}
+
 	.badge {
 		flex-shrink: 0;
 		padding: var(--space-1) var(--space-3);
