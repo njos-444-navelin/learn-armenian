@@ -92,12 +92,51 @@
 	}
 
 	.primary {
+		position: relative;
 		background: var(--color-primary);
 		color: var(--color-on-primary);
+		box-shadow: var(--shadow-sm);
+		transition:
+			background-color var(--transition-fast),
+			border-color var(--transition-fast),
+			box-shadow var(--transition-fast),
+			transform var(--transition-fast);
+	}
+
+	/* Extends the hoverable area past the bottom edge by more than the hover
+	 * lift (2px), so a cursor approaching from below stays "inside" once the
+	 * button rises — without this, the edge retreats out from under the
+	 * cursor and hover/lift oscillates. Moves with the button since it's a
+	 * transformed descendant, so the buffer travels with the lift. */
+	.primary::after {
+		content: '';
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		height: 6px;
 	}
 
 	.primary:hover:not(:disabled) {
 		background: var(--color-primary-hover);
+		box-shadow: var(--shadow-md);
+		transform: translateY(-2px);
+	}
+
+	.primary:active:not(:disabled) {
+		box-shadow: var(--shadow-sm);
+		transform: translateY(0);
+	}
+
+	.primary:disabled {
+		box-shadow: none;
+		transform: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.primary:hover:not(:disabled) {
+			transform: none;
+		}
 	}
 
 	.secondary {
