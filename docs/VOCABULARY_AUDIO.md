@@ -75,17 +75,27 @@ Why this over the obvious alternatives:
   leading/trailing consonants. Files are already ~5KB either way, so the
   byte savings aren't worth the quality risk.
 
-## Voice and model
+## Voices and model
 
 Generated via the ElevenLabs MCP connector's `creative_generate_speech`
-tool, using the workspace's **"Temporary Armenian voice before we create one
-with Tereza"** voice (`labels.language: hy`) — a placeholder until a proper
-Armenian voice is recorded with Tereza. **Its voice `voice_id` is not
-stable** — it's been regenerated at least twice already (each time by
-deleting and redoing it in the ElevenLabs dashboard: once because an
-English-language design prompt gave it a heavy English accent, once to
-adjust the personality/pronunciation description). Always look it up by
-name via `creative_list_voices` rather than hardcoding an id anywhere.
+tool. The workspace has two voices, with a fixed division of labor:
+
+- **"Tereza jan speaks Armenian"** (`voice_id: B7DEF4tn54LpozCVN7ah`) —
+  **the app's main voice.** Everything single-voiced defaults to her:
+  individual vocabulary words, and any future single-speaker audio. If
+  you're generating a word clip, it's Tereza, no exceptions.
+- **"Lazy Dmitrii"** (`voice_id: oNYQkBHg8N8sOXiVNvyU`) — **the second
+  voice, used only where two speakers are necessary** (dialogs). Never the
+  default for anything; he exists so a future dialog feature has a second
+  speaker to alternate against Tereza.
+
+These replaced the earlier "Temporary Armenian voice before we create one
+with Tereza" placeholder (deleted from the workspace on 2026-08-18; the
+whole catalog was regenerated with Tereza jan the same day). Unlike that
+placeholder, whose `voice_id` churned with every dashboard recreation,
+these two are the intended long-term voices — the ids above are safe to
+use directly. If a generation fails with an unknown-voice error, check
+`creative_list_voices` before assuming anything else is wrong.
 
 **Model: `eleven_v3`, not `eleven_multilingual_v2`.** The catalog was
 originally generated with `eleven_multilingual_v2` (the connector's default
@@ -97,13 +107,12 @@ phonetically complex Armenian words — confirmed on `Հաջողություն`
 future word sounds off, don't assume it's the voice — try `eleven_v3` first
 (and if you're not already on it, that's the bug).
 
-**When the permanent voice is recorded, every existing `.m4a` file needs
+**If the main voice ever changes again, every existing `.m4a` file needs
 regenerating with the new `voice_id`** — there's no per-word tracking of
 which voice generated which file, so treat a voice swap as "redo the whole
-catalog," not an incremental migration. Same goes for any future accidental
-deletion/recreation of the temporary voice in the dashboard — that also
-silently changes the `voice_id`, even when the name and design prompt stay
-identical.
+catalog," not an incremental migration. (This already happened once: the
+2026-08-18 switch from the temporary voice to Tereza jan was a full-catalog
+regeneration.)
 
 ## ⚠️ VERY IMPORTANT: word-initial "Ո" is pronounced "vo", not "o"
 
@@ -142,23 +151,22 @@ Do this every time a word is added to any deck file under
 `src/lib/content/vocabulary/decks/`. Ask Claude to do it, or follow the same
 steps by hand:
 
-1. Look up the current voice: `creative_list_voices` (search
-   `"Temporary Armenian"`), grab its `voice_id`.
-2. Generate: `creative_generate_speech` with `prompt` = the word's exact
+1. Generate: `creative_generate_speech` with `prompt` = the word's exact
    `armenian` field value (capitalized, per Conventions §10) — **except
    words starting with a standalone "Ո", which need the "Ո"→"Վ" prompt
-   respelling above** — `model_id: "eleven_v3"`, that `voice_id`,
-   `generations_count: 1` (one take is enough — this is a fixed reference
-   clip, not a creative pick).
-3. Poll `creative_get_flow_run_status` with the returned `flow_id` +
+   respelling above** — `model_id: "eleven_v3"`,
+   `voice_id: B7DEF4tn54LpozCVN7ah` (Tereza jan — see "Voices and model"
+   above; words always use the main voice), `generations_count: 1` (one
+   take is enough — this is a fixed reference clip, not a creative pick).
+2. Poll `creative_get_flow_run_status` with the returned `flow_id` +
    `session_ids` until `all_completed`, then take the `media[].url`.
-4. Download it, then transcode with the exact `ffmpeg` command above.
-5. Save as `static/audio/vocabulary/<deckId>/<wordId>.m4a` — `deckId` is the
+3. Download it, then transcode with the exact `ffmpeg` command above.
+4. Save as `static/audio/vocabulary/<deckId>/<wordId>.m4a` — `deckId` is the
    deck file's basename (e.g. `greetings`), `wordId` is the word's `id`
    field. No code change needed beyond the deck file itself —
    [`wordAudioSrc()`](../src/lib/content/vocabulary/audio.ts) derives the
    path from those two ids.
-6. Commit the `.m4a` file alongside the deck data change.
+5. Commit the `.m4a` file alongside the deck data change.
 
 **Known constraint:** the ElevenLabs workspace's free tier hit a very low
 daily generation cap in practice (a handful of generations/day) before it
@@ -167,6 +175,7 @@ was upgraded to a paid plan — if generation starts failing with a
 
 ### Current coverage
 
-As of 2026-08-16, every word in `greetings.ts` (all 20) has its audio file,
-generated with `eleven_v3` — that deck is complete. Any deck added after it
-starts from zero and needs the same treatment before it's considered done.
+As of 2026-08-18, every word in `greetings.ts` (20) and `verbs-1.ts` (20)
+has its audio file, generated with `eleven_v3` and the Tereza jan voice —
+both decks are complete. Any deck added after them starts from zero and
+needs the same treatment before it's considered done.
