@@ -24,6 +24,18 @@
 
 {#if backHref !== undefined}
 	<TopBubbleLink href={backHref} ariaLabel={t(back)} side="left">
-		<span aria-hidden="true">←</span>
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2.75"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			aria-hidden="true"
+			width="18"
+			height="18"
+		>
+			<path d="m15 18-6-6 6-6" />
+		</svg>
 	</TopBubbleLink>
 {/if}

@@ -62,12 +62,12 @@
 			viewBox="0 0 24 24"
 			fill="none"
 			stroke="currentColor"
-			stroke-width="2"
+			stroke-width="2.75"
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			aria-hidden="true"
-			width="20"
-			height="20"
+			width="18"
+			height="18"
 		>
 			<circle cx="12" cy="12" r="10" />
 			<circle cx="12" cy="10" r="3" />
@@ -78,12 +78,12 @@
 			viewBox="0 0 24 24"
 			fill="none"
 			stroke="currentColor"
-			stroke-width="2"
+			stroke-width="2.75"
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			aria-hidden="true"
-			width="20"
-			height="20"
+			width="18"
+			height="18"
 		>
 			<path d="M11 3H5a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h6" />
 			<path d="M15 12h8" />

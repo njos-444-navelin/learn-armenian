@@ -12,7 +12,7 @@
 <ul class="letters">
 	{#each letters as letter (letter.id)}
 		<li>
-			<span class="glyphs" lang="hy">{letter.uppercase} {letter.lowercase}</span>
+			<span class="glyph-badge" lang="hy">{letter.uppercase} {letter.lowercase}</span>
 			<span class="voicing">{t(letter.voicing)}</span>
 		</li>
 	{/each}
@@ -34,16 +34,25 @@
 		display: flex;
 		align-items: center;
 		gap: var(--space-4);
-		padding: var(--space-3) var(--space-4);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
+		padding: var(--space-2) var(--space-4);
+		border-radius: var(--radius-lg);
+		background: var(--color-surface);
 	}
 
-	.glyphs {
+	.glyph-badge {
+		display: inline-flex;
 		flex-shrink: 0;
-		min-width: 4rem;
-		font-size: var(--font-size-xl);
-		font-weight: 700;
+		align-items: center;
+		justify-content: center;
+		min-width: 3.5rem;
+		height: 3.25rem;
+		padding: 0 var(--space-2);
+		border-radius: var(--radius-pill);
+		background: var(--color-background);
+		color: var(--color-accent-800);
+		font-family: var(--font-heading);
+		font-weight: var(--font-heading-weight);
+		font-size: 1.25rem;
 		white-space: nowrap;
 	}
 

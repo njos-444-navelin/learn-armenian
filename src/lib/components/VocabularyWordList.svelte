@@ -49,8 +49,8 @@
 
 	.words li {
 		padding: var(--space-3) var(--space-4);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
+		border-radius: var(--radius-lg);
+		background: var(--color-surface);
 	}
 
 	.row {

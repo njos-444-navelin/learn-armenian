@@ -44,7 +44,7 @@
 	}
 
 	.toast.info {
-		background: var(--color-secondary);
-		color: var(--color-on-secondary);
+		background: var(--color-toast-info);
+		color: var(--color-on-toast-info);
 	}
 </style>

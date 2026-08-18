@@ -74,11 +74,11 @@
 		min-height: var(--tap-target-min);
 		min-width: var(--tap-target-min);
 		padding: var(--space-3) var(--space-5);
-		border-radius: var(--radius-md);
+		border-radius: var(--radius-pill);
 		border: 1px solid transparent;
-		font-family: var(--font-family-sans);
+		font-family: var(--font-heading);
+		font-weight: var(--font-heading-weight);
 		font-size: var(--font-size-md);
-		font-weight: 600;
 		text-decoration: none;
 		cursor: pointer;
 		transition:

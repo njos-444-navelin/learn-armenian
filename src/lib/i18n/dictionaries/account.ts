@@ -24,10 +24,27 @@ export const magicLinkButton: Translated = {
 	ru: 'Прислать ссылку для входа'
 };
 
-export const magicLinkHint: Translated = {
-	en: 'For an existing account only — new here? Register below.',
-	ru: 'Только для существующего аккаунта — впервые здесь? Зарегистрируйтесь ниже.'
+export const magicLinkPageTitle: Translated = {
+	en: `Email a sign-in link — ${brandName}`,
+	ru: `Ссылка для входа — ${brandName}`
 };
+
+export const magicLinkPageDescription: Translated = {
+	en: 'Get a one-time link emailed to you to sign in without a password.',
+	ru: 'Получите одноразовую ссылку на почту для входа без пароля.'
+};
+
+export const magicLinkHint: Translated = {
+	en: 'This only works for an existing account.',
+	ru: 'Это работает только для существующего аккаунта.'
+};
+
+export const signInSubheading: Translated = {
+	en: 'Sign in to save your progress.',
+	ru: 'Войдите, чтобы сохранить свой прогресс.'
+};
+
+export const orDivider: Translated = { en: 'or', ru: 'или' };
 
 export const registerPrompt: Translated = { en: 'New here?', ru: 'Впервые здесь?' };
 

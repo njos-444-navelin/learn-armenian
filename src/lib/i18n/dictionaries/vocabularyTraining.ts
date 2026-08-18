@@ -85,11 +85,10 @@ export function intervalLabel(minutes: number): Translated {
 	return { en: `${value}y`, ru: `${value.replace('.', ',')}г` };
 }
 
-/** Full grade name — visually hidden on the button itself (which shows only
- * an emoji + interval, see Conventions §1 on decorative glyphs needing a
- * real translated label alongside them), read by screen readers. */
+/** Full grade name — shown as the primary label on each grade button
+ * (with the resulting review interval below it), see VocabularyTrainer.svelte. */
 export const gradeLabels: Record<Grade, Translated> = {
-	again: { en: 'Again', ru: 'Не помню' },
+	again: { en: 'Again', ru: 'Снова' },
 	hard: { en: 'Hard', ru: 'Трудно' },
 	good: { en: 'Good', ru: 'Хорошо' },
 	easy: { en: 'Easy', ru: 'Легко' }

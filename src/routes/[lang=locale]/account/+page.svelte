@@ -3,6 +3,7 @@
 	import AuthField from '$lib/components/AuthField.svelte';
 	import AuthForm from '$lib/components/AuthForm.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import Flagmark from '$lib/components/Flagmark.svelte';
 	import FormError from '$lib/components/FormError.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
 	import Seo from '$lib/components/Seo.svelte';
@@ -14,11 +15,11 @@
 		emailLabel,
 		passwordLabel,
 		signInButton,
+		signInSubheading,
 		signUpButton,
+		orDivider,
 		registerPrompt,
 		magicLinkButton,
-		magicLinkHint,
-		magicLinkSent,
 		signOutButton,
 		signedInAs,
 		changePasswordButton,
@@ -54,8 +55,9 @@
 	let changeEmailHref = $derived(withLocale(getLocale(), '/account/change-email'));
 	let contactHref = $derived(withLocale(getLocale(), '/account/contact'));
 	let deleteAccountHref = $derived(withLocale(getLocale(), '/account/delete'));
+	let magicLinkHref = $derived(withLocale(getLocale(), '/account/magic-link'));
 
-	type FormAction = 'login' | 'magiclink' | 'logout';
+	type FormAction = 'login' | 'logout';
 	let pending = $state<FormAction | null>(null);
 
 	/** Drives the submitting button's spinner and, critically, passes
@@ -103,12 +105,17 @@
 			</Button>
 		</AuthForm>
 	{:else}
+		<div class="acct-head">
+			<Flagmark />
+			<h1>{t(signInButton)}</h1>
+			<p class="acct-sub">{t(signInSubheading)}</p>
+		</div>
+
 		{#if authErrorFromLink}
 			<FormError message={t(authErrorGeneric)} />
 		{/if}
 
 		<AuthForm action={loginActionHref} submit={submitAction('login')}>
-			<h2>{t(signInButton)}</h2>
 			<AuthField
 				label={emailLabel}
 				type="email"
@@ -130,24 +137,13 @@
 			</Button>
 		</AuthForm>
 
-		<AuthForm action="?/magiclink" submit={submitAction('magiclink')}>
-			<AuthField label={emailLabel} type="email" name="email" autocomplete="email" />
-			<Button
-				type="submit"
-				variant="secondary"
-				loading={pending === 'magiclink'}
-				disabled={pending !== null}
-			>
-				{t(magicLinkButton)}
-			</Button>
-			<p class="hint">{t(magicLinkHint)}</p>
-			{#if form?.success && form.action === 'magiclink'}
-				<p role="status">{t(magicLinkSent)}</p>
-			{/if}
-			{#if form?.errorCode && form.action === 'magiclink'}
-				<FormError message={errorMessage(form.errorCode) ?? ''} />
-			{/if}
-		</AuthForm>
+		<div class="divider-row">
+			<hr class="hr" />
+			<span>{t(orDivider)}</span>
+			<hr class="hr" />
+		</div>
+
+		<Button href={magicLinkHref} variant="secondary">{t(magicLinkButton)}</Button>
 
 		<p class="register-prompt">
 			{t(registerPrompt)}
@@ -157,12 +153,35 @@
 </PageShell>
 
 <style>
-	h2 {
-		margin: 0;
-		font-size: var(--font-size-lg);
+	.acct-head {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-2);
 	}
 
-	.hint {
+	.acct-sub {
+		color: var(--color-text-secondary);
+		font-size: var(--font-size-sm);
+	}
+
+	.divider-row {
+		display: flex;
+		width: 100%;
+		max-width: 20rem;
+		align-items: center;
+		gap: var(--space-3);
+	}
+
+	.divider-row .hr {
+		flex: 1;
+		height: 1px;
+		margin: 0;
+		border: none;
+		background: var(--color-border);
+	}
+
+	.divider-row span {
 		color: var(--color-text-secondary);
 		font-size: var(--font-size-sm);
 	}

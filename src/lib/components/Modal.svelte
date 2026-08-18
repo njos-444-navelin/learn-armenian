@@ -38,7 +38,7 @@
 			<path
 				d="M6 6l12 12M18 6L6 18"
 				stroke="currentColor"
-				stroke-width="2"
+				stroke-width="2.75"
 				stroke-linecap="round"
 				stroke-linejoin="round"
 			/>
@@ -57,7 +57,7 @@
 		border: none;
 		border-radius: var(--radius-lg);
 		background: var(--color-background);
-		box-shadow: var(--shadow-md);
+		box-shadow: var(--shadow-lg);
 	}
 
 	dialog::backdrop {
@@ -75,7 +75,7 @@
 		min-height: var(--tap-target-min);
 		padding: 0;
 		border: none;
-		border-radius: var(--radius-md);
+		border-radius: var(--radius-pill);
 		background: none;
 		color: var(--color-text-secondary);
 		cursor: pointer;

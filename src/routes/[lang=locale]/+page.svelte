@@ -10,6 +10,7 @@
 	import { languageNames, startLearning } from '$lib/i18n/dictionaries/common';
 	import {
 		heading,
+		languageHint,
 		languagePickerLabel,
 		pageDescription,
 		pageTitle,
@@ -23,20 +24,39 @@
 <Seo title={pageTitle} description={pageDescription} />
 
 <PageShell>
+	<div class="hero-mark" aria-hidden="true"><span class="am">Ա</span></div>
 	<h1>{t(heading)}</h1>
 	<p class="subheading">{t(subheading)}</p>
 
-	<nav aria-label={t(languagePickerLabel)}>
+	<nav class="lang-list" aria-label={t(languagePickerLabel)}>
 		{#each LOCALES as option (option)}
-			<Button
+			<a
+				class="lang-card"
+				class:current={option === locale}
 				href={withLocale(option, '/')}
-				variant={option === locale ? 'primary' : 'secondary'}
-				ariaCurrent={option === locale ? 'page' : undefined}
+				aria-current={option === locale ? 'page' : undefined}
 				onclick={signedIn ? () => persistPreferredLocale(option) : undefined}
 			>
-				<span aria-hidden="true">{LOCALE_FLAGS[option]}</span>
-				{t(languageNames[option])}
-			</Button>
+				<span class="lang-flag" aria-hidden="true">{LOCALE_FLAGS[option]}</span>
+				<span class="lang-copy">
+					<span class="lang-name">{t(languageNames[option])}</span>
+					<span class="lang-hint">{t(languageHint[option])}</span>
+				</span>
+				<svg
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2.75"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+					width="16"
+					height="16"
+				>
+					<path d="M5 12h14" />
+					<path d="m12 5 7 7-7 7" />
+				</svg>
+			</a>
 		{/each}
 	</nav>
 
@@ -50,15 +70,84 @@
 </PageShell>
 
 <style>
+	.hero-mark {
+		display: grid;
+		place-content: center;
+		width: 5.5rem;
+		height: 5.5rem;
+		border-radius: 50%;
+		background: var(--color-accent-100);
+	}
+
+	.hero-mark .am {
+		font-family: var(--font-heading);
+		font-size: 2.5rem;
+		color: var(--color-accent-700);
+	}
+
 	.subheading {
 		color: var(--color-text-secondary);
 		font-size: var(--font-size-lg);
 	}
 
-	nav {
+	.lang-list {
 		display: flex;
-		flex-wrap: wrap;
+		width: 100%;
+		max-width: 24rem;
+		flex-direction: column;
 		gap: var(--space-3);
-		justify-content: center;
+	}
+
+	.lang-card {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		padding: var(--space-3) var(--space-4);
+		border-radius: var(--radius-lg);
+		background: var(--color-surface);
+		border: 1.5px solid transparent;
+		text-decoration: none;
+		color: var(--color-text-primary);
+		text-align: left;
+		transition: border-color var(--transition-fast);
+	}
+
+	.lang-card:hover,
+	.lang-card.current {
+		border-color: var(--color-primary);
+	}
+
+	.lang-flag {
+		display: grid;
+		flex-shrink: 0;
+		place-content: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		border-radius: 50%;
+		background: var(--color-neutral-200);
+		font-size: 1.2rem;
+	}
+
+	.lang-copy {
+		display: flex;
+		min-width: 0;
+		flex-direction: column;
+	}
+
+	.lang-name {
+		font-family: var(--font-heading);
+		font-weight: var(--font-heading-weight);
+		font-size: 1.1rem;
+	}
+
+	.lang-hint {
+		color: var(--color-text-secondary);
+		font-size: var(--font-size-sm);
+	}
+
+	.lang-card svg {
+		margin-left: auto;
+		flex-shrink: 0;
+		color: var(--color-accent-700);
 	}
 </style>

@@ -25,3 +25,14 @@ export const languagePickerLabel: Translated = {
 	en: 'Choose your language',
 	ru: 'Выберите язык'
 };
+
+export const languageHint: Record<'en' | 'ru', Translated> = {
+	en: {
+		en: 'Learn Armenian from English',
+		ru: 'Учить армянский с английского'
+	},
+	ru: {
+		en: 'Learn Armenian from Russian',
+		ru: 'Учить армянский с русского'
+	}
+};

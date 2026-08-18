@@ -33,8 +33,8 @@
 			stroke-width="1.5"
 			stroke-linejoin="round"
 		/>
-		<path d="M16 9a4.5 4.5 0 0 1 0 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-		<path d="M18.5 6.5a8 8 0 0 1 0 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+		<path d="M16 9a4.5 4.5 0 0 1 0 6" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" />
+		<path d="M18.5 6.5a8 8 0 0 1 0 11" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" />
 	</svg>
 </button>
 <audio bind:this={audio} {src} preload="none"></audio>
@@ -48,7 +48,7 @@
 		width: var(--tap-target-min);
 		height: var(--tap-target-min);
 		border: none;
-		border-radius: var(--radius-md);
+		border-radius: var(--radius-pill);
 		background: none;
 		color: var(--color-text-secondary);
 		cursor: pointer;

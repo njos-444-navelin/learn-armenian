@@ -59,19 +59,19 @@
 		width: var(--tap-target-min);
 		height: var(--tap-target-min);
 		border-radius: 50%;
-		background: var(--color-background);
-		border: 1px solid var(--color-border);
-		box-shadow: var(--shadow-sm);
+		background: var(--color-surface);
+		border: none;
 		font-size: var(--font-size-lg);
 		font-family: inherit;
 		text-decoration: none;
 		color: var(--color-text-primary);
 		cursor: pointer;
+		transition: background-color var(--transition-fast);
 		z-index: 20;
 	}
 
 	.bubble:hover {
-		background: var(--color-surface);
+		background: var(--color-neutral-300);
 	}
 
 	.left {
@@ -85,20 +85,20 @@
 	.badge-dot {
 		position: absolute;
 		/* Centers the dot on the ring itself at its top-right (45°) point —
-		   for a circle of diameter --tap-target-min (2.75rem), that point
-		   sits 0.4rem in from the button's outer edge on both axes (minus
-		   its own 1px border, since `top`/`right` are relative to the
-		   button's *padding* box while the border sits outside that).
-		   `top`/`right` position the dot's own edge, not its center, so
-		   they're offset back by half the dot's size to keep that center
-		   fixed as the dot's size changes — here that pushes them negative,
-		   letting the (now bigger) dot overhang the ring slightly. */
-		top: calc(0.4rem - 1px - 0.38125rem);
-		right: calc(0.4rem - 1px - 0.38125rem);
+		   the button has no border now, so its visual edge is exactly its
+		   padding-box edge, which is what `top`/`right` are relative to. For
+		   a circle of diameter --tap-target-min (2.75rem), that point sits
+		   0.4rem in from the button's edge on both axes. `top`/`right`
+		   position the dot's own edge, not its center, so they're offset
+		   back by half the dot's size to keep that center fixed as the dot's
+		   size changes — here that pushes them negative, letting the dot
+		   overhang the ring slightly. */
+		top: calc(0.4rem - 0.38125rem);
+		right: calc(0.4rem - 0.38125rem);
 		width: 0.7625rem;
 		height: 0.7625rem;
 		border-radius: 50%;
 		background: var(--color-notification);
-		border: 2px solid var(--color-background);
+		border: 2px solid var(--color-surface);
 	}
 </style>

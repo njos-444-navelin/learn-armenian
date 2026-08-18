@@ -90,7 +90,9 @@
 {#if current !== undefined}
 	<p class="progress">{t(progressLabel(masteredCount, letters.length))}</p>
 
-	<p class="letter-display" lang="hy">{current.uppercase} {current.lowercase}</p>
+	<div class="letter-stage">
+		<p class="letter-display" lang="hy">{current.uppercase} {current.lowercase}</p>
+	</div>
 
 	<p class="question">{t(question)}</p>
 
@@ -126,10 +128,26 @@
 		font-size: var(--font-size-sm);
 	}
 
+	.letter-stage {
+		display: flex;
+		width: clamp(9rem, 42vw, 13rem);
+		aspect-ratio: 1;
+		align-items: center;
+		justify-content: center;
+		padding: var(--space-4);
+		border-radius: 50%;
+		background: var(--color-surface);
+		box-sizing: border-box;
+	}
+
 	.letter-display {
-		font-size: var(--font-size-display);
-		font-weight: 700;
+		margin: 0;
+		font-family: var(--font-heading);
+		font-weight: var(--font-heading-weight);
+		font-size: clamp(2.25rem, 10vw, 4rem);
 		line-height: 1;
+		color: var(--color-accent-800);
+		text-align: center;
 	}
 
 	.question {

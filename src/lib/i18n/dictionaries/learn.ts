@@ -26,9 +26,19 @@ export const alphabetTrainerLabel: Translated = {
 	ru: 'Тренажёр алфавита'
 };
 
+export const alphabetTrainerHint: Translated = {
+	en: 'Learn the Armenian letters',
+	ru: 'Изучите армянский алфавит'
+};
+
 export const vocabularyTrainerLabel: Translated = {
 	en: 'Vocabulary trainer',
 	ru: 'Тренажёр слов'
+};
+
+export const vocabularyTrainerHint: Translated = {
+	en: 'Practice words and phrases',
+	ru: 'Практикуйте слова и фразы'
 };
 
 export const moreToComeLabel: Translated = {

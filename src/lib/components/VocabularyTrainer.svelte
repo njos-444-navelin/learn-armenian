@@ -69,10 +69,11 @@
 		waiting.length > 0 ? Math.min(...waiting.map((card) => minutesUntilDue(card.state, now))) : 0
 	);
 
-	// Left-to-right: easiest (blue) to hardest (red) — see the product spec's
-	// own ordering, which runs "very easily, okay, hardly, not at all".
-	const GRADE_ORDER: readonly Grade[] = ['easy', 'good', 'hard', 'again'];
-	const GRADE_EMOJI: Record<Grade, string> = { easy: '😄', good: '🙂', hard: '😕', again: '😵' };
+	// Left-to-right: hardest to easiest — matches the standard SRS reviewer
+	// convention (Anki and the design reference both run "Again, Hard, Good,
+	// Easy"), and lines up with the grade tokens' own escalating tint
+	// (neutral → terracotta → sage → deep sage).
+	const GRADE_ORDER: readonly Grade[] = ['again', 'hard', 'good', 'easy'];
 
 	/** A new card slides in from the right with a slight clockwise tilt,
 	 * fading in as it settles — deliberately distinct from the flip
@@ -231,11 +232,10 @@
 				aria-hidden={!revealed}
 				tabindex={revealed ? 0 : -1}
 			>
-				<span class="emoji" aria-hidden="true">{GRADE_EMOJI[grade]}</span>
+				<span class="g-label">{t(gradeLabels[grade])}</span>
 				<span class="interval">
 					{previews !== undefined ? t(intervalLabel(minutesUntilDue(previews[grade], now))) : ''}
 				</span>
-				<span class="sr-only">{t(gradeLabels[grade])}</span>
 			</button>
 		{/each}
 	</form>
@@ -310,9 +310,8 @@
 		justify-content: center;
 		gap: var(--space-2);
 		backface-visibility: hidden;
-		border: 1px solid var(--color-border);
 		border-radius: var(--radius-lg);
-		background: var(--color-background);
+		background: var(--color-surface);
 		box-shadow: var(--shadow-md);
 		padding: var(--space-5);
 	}
@@ -338,8 +337,17 @@
 		display: inline-block;
 		max-width: 100%;
 		overflow: hidden;
+		/* Heading font is safe here on both faces — the front face is
+		   Armenian script, which falls through to Noto Serif Armenian, the
+		   literal companion face to --font-heading's Noto Serif. Unlike the
+		   earlier Comfortaa/Nunito pairing (where Armenian's fallback looked
+		   nothing like the Latin face itself, making the flip read as two
+		   unrelated typefaces), both faces now render from the same
+		   coordinated Noto Serif system, so flipping the card stays
+		   visually coherent. */
+		font-family: var(--font-heading);
+		font-weight: var(--font-heading-weight);
 		font-size: var(--font-size-xl);
-		font-weight: 700;
 		text-align: center;
 		overflow-wrap: break-word;
 	}
@@ -380,10 +388,11 @@
 		align-items: center;
 		justify-content: center;
 		gap: var(--space-1);
+		padding: var(--space-3) 0;
 		border: none;
 		border-radius: var(--radius-md);
-		font-family: var(--font-family-sans);
-		font-weight: 600;
+		font-family: var(--font-heading);
+		font-weight: var(--font-heading-weight);
 		cursor: pointer;
 		transition:
 			background-color var(--transition-fast),
@@ -405,13 +414,15 @@
 		opacity: 0.6;
 	}
 
-	.emoji {
-		font-size: var(--font-size-lg);
-		line-height: 1;
+	.g-label {
+		font-size: var(--font-size-sm);
+		line-height: 1.2;
 	}
 
 	.interval {
-		font-size: var(--font-size-sm);
+		font-family: var(--font-family-body);
+		font-size: 0.75rem;
+		opacity: 0.75;
 	}
 
 	.grade-button.easy {

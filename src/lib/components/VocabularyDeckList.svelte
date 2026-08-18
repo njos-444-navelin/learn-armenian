@@ -17,7 +17,7 @@
 	{#each decks as deck (deck.id)}
 		{@const added = addedDeckIds.has(deck.id)}
 		<li>
-			<a class="deck" class:added href={withLocale(locale, `/learn/vocabulary/${deck.id}`)}>
+			<a class="deck" href={withLocale(locale, `/learn/vocabulary/${deck.id}`)}>
 				<span class="title">{t(deck.title)}</span>
 				{#if added}
 					<span class="badge">{t(addedBadgeLabel)}</span>
@@ -45,31 +45,27 @@
 		justify-content: space-between;
 		gap: var(--space-3);
 		padding: var(--space-3) var(--space-4);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
+		border: 1.5px solid transparent;
+		border-radius: var(--radius-lg);
+		background: var(--color-surface);
 		text-decoration: none;
 		color: var(--color-text-primary);
-		font-weight: 600;
-		transition:
-			border-color var(--transition-fast),
-			background-color var(--transition-fast);
+		font-family: var(--font-heading);
+		font-weight: var(--font-heading-weight);
+		transition: border-color var(--transition-fast);
 	}
 
 	.deck:hover {
-		background: var(--color-surface);
-	}
-
-	.deck.added {
-		border-color: var(--color-success);
-		background: var(--color-success-surface);
+		border-color: var(--color-primary);
 	}
 
 	.badge {
 		flex-shrink: 0;
-		padding: var(--space-1) var(--space-2);
-		border-radius: var(--radius-sm);
+		padding: var(--space-1) var(--space-3);
+		border-radius: var(--radius-pill);
 		background: var(--color-success);
 		color: var(--color-on-success);
+		font-family: var(--font-family-body);
 		font-size: var(--font-size-sm);
 		font-weight: 600;
 	}

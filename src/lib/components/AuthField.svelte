@@ -31,10 +31,17 @@
 
 	input {
 		min-height: var(--tap-target-min);
-		padding: var(--space-2) var(--space-3);
+		padding: var(--space-2) var(--space-4);
 		border: 1px solid var(--color-border);
-		border-radius: var(--radius-sm);
+		border-radius: var(--radius-pill);
 		font-size: var(--font-size-md);
-		font-family: var(--font-family-sans);
+		font-family: var(--font-family-body);
+		background: var(--color-surface);
+		color: var(--color-text-primary);
+		caret-color: var(--color-primary);
+	}
+
+	input:focus-visible {
+		border-color: var(--color-primary);
 	}
 </style>
