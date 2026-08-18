@@ -28,7 +28,18 @@
 	let accountHref = $derived(withLocale(currentLocale, '/account'));
 	let trainVocabularyHref = $derived(withLocale(currentLocale, '/learn/vocabulary/train'));
 	let signedIn = $derived(page.data.claims !== null);
-	let hasWordsToPractice = $derived(signedIn && page.data.hasWordsToPractice === true);
+	/**
+	 * Suppressed on the training page itself — the badge exists to point
+	 * someone toward that page, so it has nothing left to say once they're
+	 * already there. Scoped to this one signal rather than "hide the badge
+	 * on this page" in general: a future notification reason unrelated to
+	 * training (see `page.data.hasWordsToPractice`'s doc comment) should
+	 * still show here.
+	 */
+	let onTrainPage = $derived(page.url.pathname === trainVocabularyHref);
+	let hasWordsToPractice = $derived(
+		signedIn && page.data.hasWordsToPractice === true && !onTrainPage
+	);
 	let userMenuAriaLabel = $derived(
 		hasWordsToPractice ? `${t(userMenuLabel)}: ${t(wordsToPracticeHint)}` : t(userMenuLabel)
 	);

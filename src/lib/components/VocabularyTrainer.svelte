@@ -3,6 +3,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
 	import { enhance } from '$app/forms';
+	import { invalidate } from '$app/navigation';
 	import Button from './Button.svelte';
 	import SpeakerButton from './SpeakerButton.svelte';
 	import { fitText } from '$lib/actions/fitText';
@@ -164,7 +165,13 @@
 				// Deliberately not calling `update()` — all UI state is already
 				// handled optimistically above, and the default
 				// `invalidateAll()` would refetch the whole training queue from
-				// the server mid-session for no benefit.
+				// the server mid-session for no benefit. Still refreshes the
+				// account-menu practice badge specifically, so it's already
+				// correct by the time the learner navigates away instead of
+				// showing stale "words to practice" after they just cleared
+				// them — see the `depends()` call this key matches in the
+				// locale layout's load.
+				await invalidate('vocabulary:practice-status');
 			};
 		};
 	}

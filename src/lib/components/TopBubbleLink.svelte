@@ -93,10 +93,10 @@
 		   they're offset back by half the dot's size to keep that center
 		   fixed as the dot's size changes — here that pushes them negative,
 		   letting the (now bigger) dot overhang the ring slightly. */
-		top: calc(0.4rem - 1px - 0.4125rem);
-		right: calc(0.4rem - 1px - 0.4125rem);
-		width: 0.825rem;
-		height: 0.825rem;
+		top: calc(0.4rem - 1px - 0.38125rem);
+		right: calc(0.4rem - 1px - 0.38125rem);
+		width: 0.7625rem;
+		height: 0.7625rem;
 		border-radius: 50%;
 		background: var(--color-notification);
 		border: 2px solid var(--color-background);

@@ -16,8 +16,21 @@ import type { LayoutServerLoad } from './$types';
  * new-word check still avoids the training page's full per-word queue
  * build: it only compares per-deck word *counts* (catalog size vs. rows in
  * `user_vocabulary_progress`), never loading translations or SRS state.
+ *
+ * The dot is suppressed while the learner is on the training page itself
+ * (see `onTrainPage` in UserMenu.svelte) — it's meant to point *toward*
+ * that page, so it has nothing left to say once they've arrived — but this
+ * value itself does update while they're there: it declares the
+ * `vocabulary:practice-status` dependency, and VocabularyTrainer.svelte
+ * calls `invalidate('vocabulary:practice-status')` after every graded card
+ * so it's already fresh by the time they navigate away. That's a targeted
+ * `invalidate()`, not `invalidateAll()`, specifically so grading doesn't
+ * also re-run (and needlessly re-fetch) the training page's own full
+ * queue load.
  */
-export const load: LayoutServerLoad = async ({ locals: { supabase, claims } }) => {
+export const load: LayoutServerLoad = async ({ depends, locals: { supabase, claims } }) => {
+	depends('vocabulary:practice-status');
+
 	if (claims === null) {
 		return { hasWordsToPractice: false };
 	}
