@@ -3,6 +3,7 @@
 	   ground with near-black ink, rather than a neutral gray UI. */
 	--color-background: #f5ead8;
 	--color-surface: #ebddc5;
+	--color-surface-hover: color-mix(in srgb, var(--color-surface) 92%, var(--color-neutral-900) 8%);
 	--color-text-primary: #201e1d;
 	--color-text-secondary: #645c50;
 	--color-border: color-mix(in srgb, #201e1d 16%, transparent);

@@ -42,20 +42,6 @@
 					<span class="lang-name">{t(languageNames[option])}</span>
 					<span class="lang-hint">{t(languageHint[option])}</span>
 				</span>
-				<svg
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2.75"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					aria-hidden="true"
-					width="16"
-					height="16"
-				>
-					<path d="M5 12h14" />
-					<path d="m12 5 7 7-7 7" />
-				</svg>
 			</a>
 		{/each}
 	</nav>
@@ -66,6 +52,20 @@
 		onclick={signedIn ? () => persistPreferredLocale(locale) : undefined}
 	>
 		{t(startLearning)}
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2.75"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			aria-hidden="true"
+			width="16"
+			height="16"
+		>
+			<path d="M5 12h14" />
+			<path d="m12 5 7 7-7 7" />
+		</svg>
 	</Button>
 </PageShell>
 
@@ -109,12 +109,18 @@
 		text-decoration: none;
 		color: var(--color-text-primary);
 		text-align: left;
-		transition: border-color var(--transition-fast);
+		transition:
+			border-color var(--transition-fast),
+			background-color var(--transition-fast);
 	}
 
-	.lang-card:hover,
+	.lang-card:hover:not(.current) {
+		background: var(--color-surface-hover);
+	}
+
 	.lang-card.current {
 		border-color: var(--color-primary);
+		cursor: default;
 	}
 
 	.lang-flag {
@@ -143,11 +149,5 @@
 	.lang-hint {
 		color: var(--color-text-secondary);
 		font-size: var(--font-size-sm);
-	}
-
-	.lang-card svg {
-		margin-left: auto;
-		flex-shrink: 0;
-		color: var(--color-accent-700);
 	}
 </style>
