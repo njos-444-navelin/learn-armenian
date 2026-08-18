@@ -71,3 +71,8 @@ export const preferredLocaleSaveFailedMessage: Translated = {
 	en: "Couldn't save your language preference — try switching again later.",
 	ru: 'Не удалось сохранить Ваш выбор языка — попробуйте переключить его снова позже.'
 };
+
+export const newVersionAvailableMessage: Translated = {
+	en: 'A new version is available — tap to reload.',
+	ru: 'Доступна новая версия — нажмите, чтобы обновить.'
+};

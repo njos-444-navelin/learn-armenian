@@ -6,13 +6,28 @@
 	import { pwaInfo } from 'virtual:pwa-info';
 	import { onMount } from 'svelte';
 	import { invalidate, onNavigate } from '$app/navigation';
+	import { pushToast } from '$lib/stores/toasts.svelte';
+	import { newVersionAvailableMessage } from '$lib/i18n/dictionaries/common';
 
 	let { data, children } = $props();
 	let { claims, supabase } = $derived(data);
 
 	onMount(() => {
 		if (pwaInfo) {
-			import('virtual:pwa-register').then(({ registerSW }) => registerSW({ immediate: true }));
+			import('virtual:pwa-register').then(({ registerSW }) =>
+				registerSW({
+					immediate: true,
+					// Without this, the default behavior on a new deploy is an
+					// unprompted `window.location.reload()` the instant the updated
+					// service worker activates — including mid-navigation, which is
+					// what produced the "flash of unstyled content" (a hard reload
+					// interrupting an in-flight SPA navigation). Prompt instead and
+					// let the reload happen on the user's own tap.
+					onNeedReload() {
+						pushToast(newVersionAvailableMessage, 'info', () => window.location.reload());
+					}
+				})
+			);
 		}
 	});
 

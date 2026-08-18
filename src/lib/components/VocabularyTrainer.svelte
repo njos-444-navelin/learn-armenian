@@ -181,64 +181,66 @@
 <p class="summary">{t(todaysCountLabel(remainingNew, remainingDue))}</p>
 
 {#if current !== undefined}
-	<div class="card-slot">
-		<div class="card-clip">
-			{#key `${current.deckId}:${current.word.id}`}
-				<div
-					class="card"
-					class:flipped
-					role="button"
-					tabindex="0"
-					onclick={flip}
-					onkeydown={handleCardKeydown}
-					aria-label={t(flipButtonLabel(flipped))}
-					in:cardEnter
-					out:fade={{ duration: 150 }}
-				>
-					<div class="card-inner">
-						<div class="face front">
-							<span class="word-row">
-								<span class="word" lang="hy" use:fitText>{current.word.armenian}</span>
-								<SpeakerButton src={wordAudioSrc(current.deckId, current.word.id)} />
-							</span>
-						</div>
-						<div class="face back">
-							<span class="word" use:fitText>{t(current.word.translation)}</span>
-							{#if current.word.register !== undefined}
-								<em class="register">{t(registerLabels[current.word.register])}</em>
-							{/if}
-							{#if current.word.note !== undefined}
-								<p class="note">{t(current.word.note)}</p>
-							{/if}
+	<div class="trainer">
+		<div class="card-slot">
+			<div class="card-clip">
+				{#key `${current.deckId}:${current.word.id}`}
+					<div
+						class="card"
+						class:flipped
+						role="button"
+						tabindex="0"
+						onclick={flip}
+						onkeydown={handleCardKeydown}
+						aria-label={t(flipButtonLabel(flipped))}
+						in:cardEnter
+						out:fade={{ duration: 150 }}
+					>
+						<div class="card-inner">
+							<div class="face front">
+								<span class="word-row">
+									<span class="word" lang="hy" use:fitText>{current.word.armenian}</span>
+									<SpeakerButton src={wordAudioSrc(current.deckId, current.word.id)} />
+								</span>
+							</div>
+							<div class="face back">
+								<span class="word" use:fitText>{t(current.word.translation)}</span>
+								{#if current.word.register !== undefined}
+									<em class="register">{t(registerLabels[current.word.register])}</em>
+								{/if}
+								{#if current.word.note !== undefined}
+									<p class="note">{t(current.word.note)}</p>
+								{/if}
+							</div>
 						</div>
 					</div>
-				</div>
-			{/key}
+				{/key}
+			</div>
 		</div>
+
+		<p class="hint" aria-hidden={revealed}>{revealed ? '' : t(flipHint)}</p>
+
+		<form method="POST" action="?/grade" use:enhance={submitGrade()} class="grades" class:revealed>
+			<input type="hidden" name="deckId" value={current.deckId} />
+			<input type="hidden" name="wordId" value={current.word.id} />
+			{#each GRADE_ORDER as grade (grade)}
+				<button
+					type="submit"
+					name="grade"
+					value={grade}
+					class="grade-button {grade}"
+					disabled={!revealed}
+					aria-hidden={!revealed}
+					tabindex={revealed ? 0 : -1}
+				>
+					<span class="g-label">{t(gradeLabels[grade])}</span>
+					<span class="interval">
+						{previews !== undefined ? t(intervalLabel(minutesUntilDue(previews[grade], now))) : ''}
+					</span>
+				</button>
+			{/each}
+		</form>
 	</div>
-
-	<p class="hint" aria-hidden={revealed}>{revealed ? '' : t(flipHint)}</p>
-
-	<form method="POST" action="?/grade" use:enhance={submitGrade()} class="grades" class:revealed>
-		<input type="hidden" name="deckId" value={current.deckId} />
-		<input type="hidden" name="wordId" value={current.word.id} />
-		{#each GRADE_ORDER as grade (grade)}
-			<button
-				type="submit"
-				name="grade"
-				value={grade}
-				class="grade-button {grade}"
-				disabled={!revealed}
-				aria-hidden={!revealed}
-				tabindex={revealed ? 0 : -1}
-			>
-				<span class="g-label">{t(gradeLabels[grade])}</span>
-				<span class="interval">
-					{previews !== undefined ? t(intervalLabel(minutesUntilDue(previews[grade], now))) : ''}
-				</span>
-			</button>
-		{/each}
-	</form>
 {:else if waiting.length > 0}
 	<p aria-live="polite">{t(nextCardInLabel(soonestWaitMinutes))}</p>
 {:else}
@@ -258,14 +260,34 @@
 		font-size: var(--font-size-lg);
 	}
 
+	/* Its own (tighter-than-PageShell's-default) gap between the card, the
+	   flip hint and the grade buttons — the card alone runs tall, and on a
+	   phone with Safari's address bar still expanded (the common case: this
+	   page never needs a scroll gesture that would auto-collapse it), the
+	   default page-wide gap left the grade buttons clipped under the bar.
+	   Scoped to this wrapper rather than shrinking PageShell's shared gap,
+	   which every other page also relies on. */
+	.trainer {
+		display: flex;
+		width: 100%;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-3);
+	}
+
 	/* Gives the outgoing and incoming `.card` (see the `{#key}` block above)
 	   a shared box to sit absolutely within, so the two overlap exactly
 	   during the crossfade instead of stacking in normal flow and shoving
-	   the hint/grade buttons below down for the transition's duration. */
+	   the hint/grade buttons below down for the transition's duration.
+	   Capped narrower than the other `--measure`-derived widths on this page
+	   (see `.trainer` above) — the card's height follows its width via
+	   `aspect-ratio`, and this is the main lever for keeping the whole
+	   card+hint+buttons stack short enough to fit above a phone's address
+	   bar without scrolling. */
 	.card-slot {
 		position: relative;
 		width: 100%;
-		max-width: 20rem;
+		max-width: 17rem;
 		aspect-ratio: 3 / 4;
 	}
 
@@ -294,7 +316,17 @@
 		width: 100%;
 		height: 100%;
 		transition: transform 0.5s;
+		/* -webkit- prefix genuinely required here — unlike perspective/
+		   backface-visibility below, Safari still needs this one even on
+		   current versions (kept as-is by the build's CSS minifier, which
+		   strips vendor prefixes it can confirm are unnecessary). */
+		-webkit-transform-style: preserve-3d;
 		transform-style: preserve-3d;
+		/* Promotes the card to its own compositing layer as soon as it
+		   mounts — without this, iOS Safari can briefly render the mirrored
+		   back face on first paint of a freshly mounted card before
+		   self-correcting (WebKit backface-visibility timing bug). */
+		transform: translateZ(0);
 	}
 
 	.card.flipped .card-inner {

@@ -284,3 +284,15 @@ See [`docs/VOCABULARY_AUDIO.md`](VOCABULARY_AUDIO.md) for the storage/
 encoding decisions and, most importantly, the exact steps to generate and
 save a new word's clip — **follow that checklist for every new word**, in
 the same change that adds the word to its deck file.
+
+## 12. English UI copy is British English
+
+Every `en` string in `src/lib/i18n/dictionaries/` uses British spelling, not
+American — e.g. **colour** (not color), **organise**/**-ise** endings (not
+-ize), **travelling**/**cancelled** (double consonant), **licence** as a
+noun vs. **license** as a verb, **grey** (not gray), **centre** (not
+center). This is a fixed house style, not a per-string judgment call — if
+you're unsure which side of a spelling difference is British, check it
+rather than guessing. Doesn't apply to code identifiers, file names, or
+third-party API/library terms (e.g. `color-mix()`, CSS `background-color`),
+only to user-facing English copy.

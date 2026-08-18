@@ -1,14 +1,29 @@
 <script lang="ts">
 	import { fly, fade } from 'svelte/transition';
 	import { t } from '$lib/i18n/current';
-	import { toastState } from '$lib/stores/toasts.svelte';
+	import { dismissToast, toastState } from '$lib/stores/toasts.svelte';
 </script>
 
 <div class="stack" role="status" aria-live="polite">
 	{#each toastState.items as toast (toast.id)}
-		<p class="toast {toast.variant}" in:fly={{ y: -16, duration: 200 }} out:fade={{ duration: 150 }}>
-			{t(toast.message)}
-		</p>
+		{#if toast.onClick}
+			<button
+				type="button"
+				class="toast {toast.variant} actionable"
+				in:fly={{ y: -16, duration: 200 }}
+				out:fade={{ duration: 150 }}
+				onclick={() => {
+					toast.onClick?.();
+					dismissToast(toast.id);
+				}}
+			>
+				{t(toast.message)}
+			</button>
+		{:else}
+			<p class="toast {toast.variant}" in:fly={{ y: -16, duration: 200 }} out:fade={{ duration: 150 }}>
+				{t(toast.message)}
+			</p>
+		{/if}
 	{/each}
 </div>
 
@@ -31,11 +46,17 @@
 	.toast {
 		margin: 0;
 		padding: var(--space-3) var(--space-4);
+		border: none;
 		border-radius: var(--radius-md);
 		box-shadow: var(--shadow-md);
 		font-size: var(--font-size-sm);
+		font-family: inherit;
 		font-weight: 600;
 		text-align: center;
+	}
+
+	.toast.actionable {
+		cursor: pointer;
 	}
 
 	.toast.error {

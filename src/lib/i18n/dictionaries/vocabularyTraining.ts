@@ -59,30 +59,30 @@ const DAYS_PER_YEAR = 365.25;
 
 /** Whole minutes until a grade's resulting review — shown on that grade's
  * button. Dynamic/interpolated, see Conventions §1. Months/years get one
- * decimal place (e.g. "2.3mo"), same as Anki's own reviewer — a card
+ * decimal place (e.g. "2.3 mo"), same as Anki's own reviewer — a card
  * reviewed successfully many times keeps compounding its interval well
  * past a year, where a whole-number rounding would lose too much
  * precision to be useful. */
 export function intervalLabel(minutes: number): Translated {
 	if (minutes < 60) {
 		const value = Math.max(1, minutes);
-		return { en: `${value}min`, ru: `${value}мин` };
+		return { en: `${value} min`, ru: `${value} мин` };
 	}
 	if (minutes < 60 * 24) {
 		const value = Math.max(1, Math.round(minutes / 60));
-		return { en: `${value}h`, ru: `${value}ч` };
+		return { en: `${value} h`, ru: `${value} ч` };
 	}
 	const days = minutes / (60 * 24);
 	if (days < 30) {
 		const value = Math.max(1, Math.round(days));
-		return { en: `${value}d`, ru: `${value}д` };
+		return { en: `${value} d`, ru: `${value} д` };
 	}
 	if (days < DAYS_PER_YEAR) {
 		const value = (days / DAYS_PER_MONTH).toFixed(1);
-		return { en: `${value}mo`, ru: `${value.replace('.', ',')}мес` };
+		return { en: `${value} mo`, ru: `${value.replace('.', ',')} мес` };
 	}
 	const value = (days / DAYS_PER_YEAR).toFixed(1);
-	return { en: `${value}y`, ru: `${value.replace('.', ',')}г` };
+	return { en: `${value} y`, ru: `${value.replace('.', ',')} г` };
 }
 
 /** Full grade name — shown as the primary label on each grade button
