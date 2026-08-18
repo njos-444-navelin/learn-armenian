@@ -44,14 +44,14 @@ export const NEW_CARD: CardState = {
 
 const LEARNING_STEPS_MIN = [1, 10] as const;
 const RELEARNING_STEPS_MIN = [10] as const;
-// Kept apart on purpose: pressing 'good' on a card's last learning step
-// graduates it at GRADUATING_INTERVAL_DAYS, and 'easy' from anywhere in
-// learning jumps straight to EASY_INTERVAL_DAYS — if these two ever matched,
-// the two buttons would show (and schedule) the exact same wait on that
-// step, the same ambiguity 'hard'/'again' had before they were split out
-// below. 12h vs 1d keeps them visibly distinct at every step.
-const GRADUATING_INTERVAL_DAYS = 0.5;
-const EASY_INTERVAL_DAYS = 1;
+// Anki's own defaults. Kept apart on purpose: pressing 'good' on a card's
+// last learning step graduates it at GRADUATING_INTERVAL_DAYS, and 'easy'
+// from anywhere in learning jumps straight to EASY_INTERVAL_DAYS — if these
+// two ever matched, the two buttons would show (and schedule) the exact same
+// wait on that step, the same ambiguity 'hard'/'again' had before they were
+// split out below. 1d vs 4d keeps them visibly distinct at every step.
+const GRADUATING_INTERVAL_DAYS = 1;
+const EASY_INTERVAL_DAYS = 4;
 const MIN_EASE = 1.3;
 const HARD_INTERVAL_MULTIPLIER = 1.2;
 const EASY_BONUS = 1.3;
@@ -62,6 +62,12 @@ const MAX_INTERVAL_DAYS = 36500;
 const LAPSE_EASE_PENALTY = 0.2;
 const HARD_EASE_PENALTY = 0.15;
 const EASY_EASE_BONUS = 0.15;
+/** Anki's monotonicity rule: in the review phase each better grade must
+ * schedule at least this much later than the grade below it (good ≥ hard +
+ * 1d, easy ≥ good + 1d). The multipliers alone can't guarantee that — at
+ * the ease floor, 'hard' (×1.2) and 'good' (×1.3) land only 8% apart, close
+ * enough that the whole-day button labels render identically. */
+const MIN_GRADE_SEPARATION_DAYS = 1;
 
 const MINUTE_MS = 60_000;
 const DAY_MS = 24 * 60 * MINUTE_MS;
@@ -138,26 +144,37 @@ function gradeReviewPhase(state: CardState, grade: Grade, now: Date): CardState 
 			lapses: state.lapses + 1
 		};
 	}
+	// The three success grades form a chain — each interval is floored at
+	// the previous grade's interval plus MIN_GRADE_SEPARATION_DAYS, so the
+	// buttons always show (and schedule) strictly increasing waits. Only the
+	// MAX_INTERVAL_DAYS cap is allowed to collapse them back together.
+	const hardDays = Math.min(MAX_INTERVAL_DAYS, state.intervalDays * HARD_INTERVAL_MULTIPLIER);
+	const goodDays = Math.min(
+		MAX_INTERVAL_DAYS,
+		Math.max(hardDays + MIN_GRADE_SEPARATION_DAYS, state.intervalDays * state.easeFactor)
+	);
+
 	if (grade === 'hard') {
 		const easeFactor = Math.max(MIN_EASE, state.easeFactor - HARD_EASE_PENALTY);
-		const intervalDays = Math.min(MAX_INTERVAL_DAYS, state.intervalDays * HARD_INTERVAL_MULTIPLIER);
 		return {
 			...state,
 			easeFactor,
-			intervalDays,
-			dueAt: addDays(now, intervalDays),
+			intervalDays: hardDays,
+			dueAt: addDays(now, hardDays),
 			reps: state.reps + 1
 		};
 	}
 	if (grade === 'good') {
-		const intervalDays = Math.min(MAX_INTERVAL_DAYS, state.intervalDays * state.easeFactor);
-		return { ...state, intervalDays, dueAt: addDays(now, intervalDays), reps: state.reps + 1 };
+		return { ...state, intervalDays: goodDays, dueAt: addDays(now, goodDays), reps: state.reps + 1 };
 	}
 
 	// easy
 	const easeFactor = state.easeFactor + EASY_EASE_BONUS;
-	const intervalDays = Math.min(MAX_INTERVAL_DAYS, state.intervalDays * easeFactor * EASY_BONUS);
-	return { ...state, easeFactor, intervalDays, dueAt: addDays(now, intervalDays), reps: state.reps + 1 };
+	const easyDays = Math.min(
+		MAX_INTERVAL_DAYS,
+		Math.max(goodDays + MIN_GRADE_SEPARATION_DAYS, state.intervalDays * easeFactor * EASY_BONUS)
+	);
+	return { ...state, easeFactor, intervalDays: easyDays, dueAt: addDays(now, easyDays), reps: state.reps + 1 };
 }
 
 /**
