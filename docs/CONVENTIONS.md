@@ -57,6 +57,12 @@ If a component needs a color that doesn't exist yet, add a new token to
 `tokens.css` (with a semantic name, not a raw color name) rather than writing a
 literal hex/rgb value inline.
 
+See [`docs/DESIGN.md`](DESIGN.md) for the reasoning behind the palette itself
+(when to use a tinted background vs. a plain surface, why accent and accent-2
+shouldn't sit as competing backgrounds, contrast rules for text on a filled
+accent) — this rule says *where* colors must come from, that doc says *how*
+to pick one.
+
 ## 3. Duplicated UI becomes a shared component
 
 The moment a UI element (a button, a layout shell, a form field, ...) is used

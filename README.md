@@ -13,7 +13,8 @@ English or Russian — and learn Armenian from there.
   [Database schema and Supabase management](#database-schema-and-supabase-management)
 - A custom, fully-typed **i18n system** (English/Russian) — no UI string is ever
   rendered without going through it
-- A small **design-token-based design system** — no component ever hardcodes a color
+- A small **design-token-based design system** — no component ever hardcodes a color;
+  see [`docs/DESIGN.md`](docs/DESIGN.md) for the palette/type/motion rationale
 - **[`@vite-pwa/sveltekit`](https://github.com/vite-pwa/sveltekit)**, so the app installs and works offline as a PWA
 - Deployed on **Netlify** via `@sveltejs/adapter-netlify` — Claude manages the
   site (env vars, deploys) directly via the Netlify MCP connector, see
