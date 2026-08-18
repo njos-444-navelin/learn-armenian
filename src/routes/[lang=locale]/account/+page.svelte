@@ -7,8 +7,10 @@
 	import FormError from '$lib/components/FormError.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
 	import Seo from '$lib/components/Seo.svelte';
+	import { LOCALE_FLAGS, LOCALES } from '$lib/i18n/locale';
 	import { getLocale, t } from '$lib/i18n/current';
-	import { withLocale } from '$lib/i18n/paths';
+	import { withLocale, withoutLocale } from '$lib/i18n/paths';
+	import { persistPreferredLocale } from '$lib/i18n/persistPreferredLocale';
 	import {
 		pageTitle,
 		pageDescription,
@@ -29,7 +31,12 @@
 		authErrorMessages,
 		genericAuthError
 	} from '$lib/i18n/dictionaries/account';
+	import { switchLanguage } from '$lib/i18n/dictionaries/common';
 	import { heading as contactHeading } from '$lib/i18n/dictionaries/contact';
+	import {
+		trainVocabularyCountLabel,
+		trainVocabularyMenuLabel
+	} from '$lib/i18n/dictionaries/vocabularyTraining';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import type { ActionData } from './$types';
 
@@ -37,6 +44,7 @@
 
 	let claims = $derived(page.data.claims);
 	let signedIn = $derived(claims !== null);
+	let trainableWordCount = $derived(signedIn ? (page.data.trainableWordCount ?? 0) : 0);
 	let authErrorFromLink = $derived(page.url.searchParams.get('authError') !== null);
 	/** A form's `action="?/login"` resolves relative to the current URL, and
 	 * a query-only relative reference *replaces* the whole query string
@@ -56,6 +64,15 @@
 	let contactHref = $derived(withLocale(getLocale(), '/account/contact'));
 	let deleteAccountHref = $derived(withLocale(getLocale(), '/account/delete'));
 	let magicLinkHref = $derived(withLocale(getLocale(), '/account/magic-link'));
+	let trainVocabularyHref = $derived(withLocale(getLocale(), '/learn/vocabulary/train'));
+
+	let currentLocale = $derived(getLocale());
+	let otherLocale = $derived(LOCALES.find((candidate) => candidate !== currentLocale));
+	let switchLanguageHref = $derived(
+		otherLocale !== undefined
+			? withLocale(otherLocale, withoutLocale(page.url.pathname))
+			: undefined
+	);
 
 	type FormAction = 'login' | 'logout';
 	let pending = $state<FormAction | null>(null);
@@ -89,6 +106,21 @@
 		<h1>{t(signedInAs)}</h1>
 		<p>{claims.email}</p>
 		<nav class="account-actions">
+			<Button href={trainVocabularyHref} variant={trainableWordCount > 0 ? 'primary' : 'secondary'}>
+				{trainableWordCount > 0
+					? t(trainVocabularyCountLabel(trainableWordCount))
+					: t(trainVocabularyMenuLabel)}
+			</Button>
+			{#if otherLocale !== undefined && switchLanguageHref !== undefined}
+				<Button
+					href={switchLanguageHref}
+					variant="secondary"
+					onclick={() => persistPreferredLocale(otherLocale)}
+				>
+					{t(switchLanguage)}
+					<span aria-hidden="true">{LOCALE_FLAGS[currentLocale]}/{LOCALE_FLAGS[otherLocale]}</span>
+				</Button>
+			{/if}
 			<Button href={changePasswordHref} variant="secondary">{t(changePasswordButton)}</Button>
 			<Button href={changeEmailHref} variant="secondary">{t(changeEmailButton)}</Button>
 			<Button href={contactHref} variant="secondary">{t(contactHeading)}</Button>

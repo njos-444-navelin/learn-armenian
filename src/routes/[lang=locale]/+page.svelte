@@ -8,6 +8,7 @@
 	import { withLocale } from '$lib/i18n/paths';
 	import { persistPreferredLocale } from '$lib/i18n/persistPreferredLocale';
 	import { languageNames, startLearning } from '$lib/i18n/dictionaries/common';
+	import { hasAccountPrompt, signInButton } from '$lib/i18n/dictionaries/account';
 	import {
 		heading,
 		languageHint,
@@ -19,6 +20,7 @@
 
 	let locale = $derived(getLocale());
 	let signedIn = $derived(page.data.claims !== null);
+	let signInHref = $derived(withLocale(locale, '/account'));
 </script>
 
 <Seo title={pageTitle} description={pageDescription} />
@@ -67,6 +69,13 @@
 			<path d="m12 5 7 7-7 7" />
 		</svg>
 	</Button>
+
+	{#if !signedIn}
+		<p class="signin-prompt">
+			{t(hasAccountPrompt)}
+			<a href={signInHref}>{t(signInButton)}</a>
+		</p>
+	{/if}
 </PageShell>
 
 <style>
@@ -149,5 +158,10 @@
 	.lang-hint {
 		color: var(--color-text-secondary);
 		font-size: var(--font-size-sm);
+	}
+
+	.signin-prompt {
+		font-size: var(--font-size-sm);
+		color: var(--color-text-secondary);
 	}
 </style>

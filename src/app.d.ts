@@ -15,6 +15,7 @@ declare global {
 		interface PageData {
 			claims: JwtPayload | null;
 			hasWordsToPractice?: boolean;
+			trainableWordCount?: number;
 		}
 		// interface PageState {}
 		// interface Platform {}

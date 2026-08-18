@@ -14,5 +14,13 @@
 <PageShell>
 	<h1>{t(heading)}</h1>
 	<p>{t(body)}</p>
-	<Button href="mailto:{supportEmail}" variant="primary">{supportEmail}</Button>
+	<Button href="mailto:{supportEmail}" variant="primary">
+		<span class="email">{supportEmail}</span>
+	</Button>
 </PageShell>
+
+<style>
+	.email {
+		overflow-wrap: anywhere;
+	}
+</style>

@@ -31,17 +31,6 @@ export const continueLabel: Translated = {
 	ru: 'Продолжить'
 };
 
-export const switchToLanguageLabel: Record<'en' | 'ru', Translated> = {
-	en: {
-		en: 'Switch to English',
-		ru: 'Переключить на английский'
-	},
-	ru: {
-		en: 'Switch to Russian',
-		ru: 'Переключить на русский'
-	}
-};
-
 export const switchLanguage: Translated = {
 	en: 'Switch language',
 	ru: 'Сменить язык'
@@ -50,11 +39,6 @@ export const switchLanguage: Translated = {
 export const account: Translated = {
 	en: 'Account',
 	ru: 'Личный кабинет'
-};
-
-export const userMenuLabel: Translated = {
-	en: 'Account menu',
-	ru: 'Меню аккаунта'
 };
 
 export const closeLabel: Translated = {

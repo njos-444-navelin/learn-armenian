@@ -116,6 +116,11 @@
 		text-align: left;
 		font-family: var(--font-family-body);
 		cursor: pointer;
+		transition: background-color var(--transition-fast);
+	}
+
+	.hub-card:hover {
+		background: var(--color-surface-hover);
 	}
 
 	.more-note {

@@ -9,6 +9,11 @@
 html {
 	text-size-adjust: 100%;
 	-webkit-text-size-adjust: 100%;
+	/* Safari's default tap highlight is a translucent blue that flashes over
+	   whatever's tapped, clashing with the app's own warm palette — every
+	   interactive element already has its own hover/active/focus-visible
+	   treatment, so this native overlay is pure noise. */
+	-webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -25,6 +30,14 @@ img,
 svg {
 	max-width: 100%;
 	height: auto;
+}
+
+/* Safari applies its own default blue outline to plain :focus more readily
+   than Chrome does on a mouse click (its :focus-visible heuristic differs),
+   so without this it can leak through even though only :focus-visible is
+   styled below. */
+:focus:not(:focus-visible) {
+	outline: none;
 }
 
 :focus-visible {

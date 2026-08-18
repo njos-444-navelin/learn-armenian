@@ -44,14 +44,17 @@ export const NEW_CARD: CardState = {
 
 const LEARNING_STEPS_MIN = [1, 10] as const;
 const RELEARNING_STEPS_MIN = [10] as const;
-// Anki's own defaults. Kept apart on purpose: pressing 'good' on a card's
-// last learning step graduates it at GRADUATING_INTERVAL_DAYS, and 'easy'
-// from anywhere in learning jumps straight to EASY_INTERVAL_DAYS — if these
-// two ever matched, the two buttons would show (and schedule) the exact same
-// wait on that step, the same ambiguity 'hard'/'again' had before they were
-// split out below. 1d vs 4d keeps them visibly distinct at every step.
+// Kept apart on purpose: pressing 'good' on a card's last learning step
+// graduates it at GRADUATING_INTERVAL_DAYS, and 'easy' from anywhere in
+// learning jumps straight to EASY_INTERVAL_DAYS — if these two ever matched,
+// the two buttons would show (and schedule) the exact same wait on that
+// step, the same ambiguity 'hard'/'again' had before they were split out
+// below. 1d vs 2d keeps them visibly distinct at every step, while still
+// landing softer than Anki's own 4d default — a first-time-ever "easy" on a
+// never-studied word shouldn't jump as far ahead as "easy" on a card you're
+// merely reviewing again.
 const GRADUATING_INTERVAL_DAYS = 1;
-const EASY_INTERVAL_DAYS = 4;
+const EASY_INTERVAL_DAYS = 2;
 const MIN_EASE = 1.3;
 const HARD_INTERVAL_MULTIPLIER = 1.2;
 const EASY_BONUS = 1.3;
