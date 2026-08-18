@@ -12,7 +12,9 @@
 <ul class="letters">
 	{#each letters as letter (letter.id)}
 		<li>
-			<span class="glyph-badge" lang="hy">{letter.uppercase} {letter.lowercase}</span>
+			<span class="glyph-badge" lang="hy"
+				>{letter.uppercase === undefined ? letter.lowercase : `${letter.uppercase} ${letter.lowercase}`}</span
+			>
 			<span class="voicing">{t(letter.voicing)}</span>
 		</li>
 	{/each}

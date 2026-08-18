@@ -2,6 +2,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
 	import Seo from '$lib/components/Seo.svelte';
+	import { ALPHABET } from '$lib/content/alphabet';
 	import {
 		allModeDescription,
 		allModeLabel,
@@ -30,7 +31,7 @@
 	</div>
 
 	<div class="mode-choice">
-		<p class="mode-description">{t(allModeDescription)}</p>
+		<p class="mode-description">{t(allModeDescription(ALPHABET.length))}</p>
 		<Button href={withLocale(locale, '/learn/alphabet/quiz/all')} variant="primary">
 			{t(allModeLabel)}
 		</Button>

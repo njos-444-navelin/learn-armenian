@@ -2,23 +2,23 @@ import type { Translated } from '$lib/i18n/types';
 
 export interface AlphabetLetter {
 	id: string;
-	uppercase: string;
+	/** Omitted for the one letter with no dedicated capital glyph of its
+	 * own — see the և entry below. Every other entry has one. */
+	uppercase?: string | undefined;
 	lowercase: string;
 	voicing: Translated;
 }
 
 /**
- * The 38 letters of the modern Armenian alphabet (Ա–Ֆ). The traditional 36
- * letters of the Mesrop Mashtots alphabet plus Օ/օ and Ֆ/ֆ, added later, and
- * ՈՒ/ու (the /u/ digraph) counted as one of them: modern Armenian has no
- * standalone letter "ւ" — it's written with two characters but taught and
- * alphabetized as a single letter, and the `u` entry below says so directly
- * rather than describing it as "Ո combined with a separate Ւ".
- *
- * Deliberately excludes the և ligature ("yev"): it has no distinct uppercase
- * form of its own (ԵՎ is used instead), which would break the uniform
- * "capital + lowercase" pattern every other entry follows. A candidate for a
- * dedicated ligatures/digraphs lesson later, not an oversight here.
+ * The 39 letters of the modern Armenian alphabet (Ա–Ֆ, plus և). The
+ * traditional 36 letters of the Mesrop Mashtots alphabet plus Օ/օ and Ֆ/ֆ,
+ * added later, and two entries written with two characters but taught and
+ * alphabetized as a single letter:
+ * - ՈՒ/ու (the /u/ digraph) — modern Armenian has no standalone letter "ւ".
+ * - և (the "yev" ligature) — has no dedicated uppercase glyph of its own, so
+ *   its entry omits `uppercase` rather than fake one; real Armenian text
+ *   capitalizes it as Ե+Վ (not the archaic Ե+Ւ) where needed, but that's a
+ *   two-letter substitution, not a capital form of և itself.
  *
  * Voicing text is a learner's approximation, not IPA, and deliberately only
  * compares each sound to words in the learner's own language (English for
@@ -326,5 +326,13 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		uppercase: 'Ֆ',
 		lowercase: 'ֆ',
 		voicing: { en: `"f" — as in "fun"`, ru: '«ф» — как в слове «флаг»' }
+	},
+	{
+		id: 'yev',
+		lowercase: 'և',
+		voicing: {
+			en: `"yev" — like "ye" in "yes" followed by "v".`,
+			ru: '«йев» — «е», как в начале слова «ель», плюс «в».'
+		}
 	}
 ];

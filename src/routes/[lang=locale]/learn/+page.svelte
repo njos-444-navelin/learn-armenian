@@ -77,11 +77,7 @@
 			</span>
 		</a>
 
-		<button type="button" class="hub-card muted" disabled>
-			<span class="hub-copy">
-				<span class="hub-title">{t(moreToComeLabel)}</span>
-			</span>
-		</button>
+		<p class="more-note">{t(moreToComeLabel)}</p>
 	</nav>
 </PageShell>
 
@@ -122,14 +118,11 @@
 		cursor: pointer;
 	}
 
-	.hub-card.muted {
-		background: var(--color-neutral-200);
+	.more-note {
+		margin: var(--space-2) 0 0;
 		color: var(--color-text-secondary);
-		cursor: not-allowed;
-	}
-
-	.hub-card.muted:disabled {
-		opacity: 0.7;
+		font-size: var(--font-size-sm);
+		text-align: center;
 	}
 
 	.hub-icon {

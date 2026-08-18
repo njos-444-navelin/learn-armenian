@@ -5,14 +5,24 @@
 	let opacity = $state(0);
 	let fast = $state(false);
 
-	// Starts the moment a navigation begins, filling slowly toward (but not
-	// reaching) completion — a classic "trickle" loading bar, since we have
-	// no real progress percentage to report.
+	// Waits before showing anything — most navigations in this app (hover-
+	// preloaded links, cached routes) resolve well under this delay, and a
+	// bar that flashes on for every single click (e.g. repeatedly toggling
+	// the language on the home screen) reads as noise, not progress. Only a
+	// navigation that's still running once the delay elapses starts the
+	// "trickle": filling slowly toward (but not reaching) completion, since
+	// we have no real progress percentage to report. If a *new* navigation
+	// supersedes this one before the delay fires, the effect reruns
+	// (`navigating.to` is a fresh object) and the stale timeout is cleared
+	// before it ever shows the bar.
 	$effect(() => {
 		if (navigating.to === null) return;
-		fast = false;
-		opacity = 1;
-		width = 82;
+		const show = setTimeout(() => {
+			fast = false;
+			opacity = 1;
+			width = 82;
+		}, 150);
+		return () => clearTimeout(show);
 	});
 
 	// Once the navigation resolves, snaps the rest of the way to 100%

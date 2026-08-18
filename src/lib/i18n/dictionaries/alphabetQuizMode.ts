@@ -31,7 +31,10 @@ export const allModeLabel: Translated = {
 	ru: 'Весь алфавит'
 };
 
-export const allModeDescription: Translated = {
-	en: 'Get quizzed on all 38 letters at once.',
-	ru: 'Проверьте себя сразу на всех 38 буквах.'
-};
+/** Dynamic — see Conventions §1 on why interpolated text is a function, not a literal. */
+export function allModeDescription(letterCount: number): Translated {
+	return {
+		en: `Get quizzed on all ${letterCount} letters at once.`,
+		ru: `Проверьте себя сразу на всех ${letterCount} буквах.`
+	};
+}

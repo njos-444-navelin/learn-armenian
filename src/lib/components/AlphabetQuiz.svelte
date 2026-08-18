@@ -91,7 +91,11 @@
 	<p class="progress">{t(progressLabel(masteredCount, letters.length))}</p>
 
 	<div class="letter-stage">
-		<p class="letter-display" lang="hy">{current.uppercase} {current.lowercase}</p>
+		<p class="letter-display" lang="hy"
+			>{current.uppercase === undefined
+				? current.lowercase
+				: `${current.uppercase} ${current.lowercase}`}</p
+		>
 	</div>
 
 	<p class="question">{t(question)}</p>

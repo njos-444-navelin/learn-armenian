@@ -76,7 +76,7 @@
 		width: 5.5rem;
 		height: 5.5rem;
 		border-radius: 50%;
-		background: var(--color-accent-100);
+		background: var(--color-surface);
 	}
 
 	.hero-mark .am {
