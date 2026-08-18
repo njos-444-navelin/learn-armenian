@@ -54,6 +54,21 @@ variant, the `Ա` hero glyph, the letter-circle) uses
 against the accent. Don't "fix" this by lightening the button text back to
 white — that was tried and fails contrast.
 
+### Hover state: darken the element's own color, don't jump to the neutral ramp
+
+A card or button whose rest fill is `--color-surface` (or another warm
+token) should darken *that same color* on hover, not switch to
+`--color-neutral-200`. The neutral ramp reads as a genuinely different,
+cooler/greyer hue sitting next to a warm surface tone, even though its hex
+value is technically still warm-tinted — it looked like an unrelated "grey
+hover" bolted onto a warm card. `--color-surface-hover` (a `color-mix()` of
+`--color-surface` with a touch of `--color-neutral-900`) is the fix: same
+hue family, just a shade deeper — the same relationship
+`--color-primary-hover` already has to `--color-primary`. Used by the home
+screen's language cards and the `/learn` hub cards; reach for the same
+`color-mix()` pattern before adding a new `*-hover` token for any other
+`--color-surface`-based element, rather than aliasing to a neutral step.
+
 ### Don't pair accent and accent-2 as competing backgrounds
 
 Terracotta and sage sitting as backgrounds *next to each other* — e.g. two
@@ -157,6 +172,21 @@ tone first, not by adding the border/shadow back.
   `transition` — it is not inherited from anywhere, and a bubble button once
   shipped with a hover color change but no `transition` at all, which read as
   an abrupt flicker instead of a hover.
+- **Primary button hover/press physicality**: at rest the primary button
+  carries `--shadow-sm`; hovering raises it to `--shadow-md` with a
+  `translateY(-2px)` lift, and pressing settles it back to `--shadow-sm`
+  with no offset — a deliberate "you're about to commit to something"
+  weight that the secondary/success/error variants don't get (see
+  [`Button.svelte`](../src/lib/components/Button.svelte)). Disabled drops
+  the shadow and transform entirely, and `prefers-reduced-motion` keeps the
+  shadow change but drops the transform. The lift alone caused a real bug:
+  a cursor approaching the button from below could cross the original
+  bottom edge, trigger `:hover`, watch the button rise out from under it,
+  lose `:hover`, and repeat — flickering in place. Fixed with an invisible
+  `::after` strip a few pixels taller than the lift distance, positioned
+  just below the button, so the hoverable area still covers wherever the
+  cursor landed even after the button moves. Any future hover-triggered
+  `transform` needs the same buffer, not just a smaller transform distance.
 - **Page-to-page transitions**: a native browser View Transition
   (`document.startViewTransition`, wired up in the root
   [`+layout.svelte`](../src/routes/+layout.svelte) via SvelteKit's

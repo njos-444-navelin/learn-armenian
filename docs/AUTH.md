@@ -1,8 +1,10 @@
 # Authentication
 
 Sign-in lives at `/account` (locale-prefixed: `/en/account`, `/ru/account`),
-reachable from the user-menu popover in the top-right corner of every page
-(`src/lib/components/UserMenu.svelte`). Sign-up is a separate page,
+reachable directly from the account bubble in the top-right corner of every
+page except `/account` itself
+(`src/lib/components/UserMenu.svelte`; see Design decisions below for why
+it's a plain link rather than a menu). Sign-up is a separate page,
 `/account/register`, linked from the bottom of `/account` — the sign-in page
 is deliberately the default landing spot and doesn't also try to sell
 registration; see Design decisions. It's backed by
@@ -320,3 +322,22 @@ feature) handle Auth's related cleanup that a direct table delete wouldn't.
   before `load` re-runs to render the result, so a `load`-only guard
   doesn't protect a direct/replayed POST to the action from a signed-out
   session.
+- **The account bubble is a plain link to `/account`, not a popover
+  trigger.** It used to open a menu (switch language / train vocabulary /
+  account) on click — but a button whose icon and label both say "account"
+  should just go there; opening a menu instead reads as broken, not
+  helpful. The popover's other two options moved onto `/account` itself,
+  in the signed-in view's `account-actions` nav: "Train vocabulary" (shows
+  the exact due/new word count and switches from the secondary to the
+  primary button style once that count is above zero — see
+  `trainableWordCount` in
+  [`account/+page.server.ts`](../src/routes/[lang=locale]/account/+page.server.ts))
+  and "Switch language". The bubble itself hides entirely while already on
+  `/account` — see `onAccountPage` in
+  [`UserMenu.svelte`](../src/lib/components/UserMenu.svelte) — there's
+  nothing for a link to itself to do.
+- **"Switch language" isn't offered on the signed-out sign-in screen**,
+  only in the signed-in `account-actions` nav. The account page's own back
+  button already returns to the home screen, where the full language
+  picker lives, so a second, narrower way to change language on the same
+  screen was redundant.

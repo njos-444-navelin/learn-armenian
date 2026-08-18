@@ -186,8 +186,9 @@ that are both this cheap to redo and this inexpensive to lose.
 
 **Exception:** persisting a signed-in user's chosen UI language (the locale
 buttons on [`[lang=locale]/+page.svelte`](../src/routes/[lang=locale]/+page.svelte)
-and the switch-language link in
-[`UserMenu.svelte`](../src/lib/components/UserMenu.svelte), both via
+and the "Switch language" button in the signed-in view of
+[`account/+page.svelte`](../src/routes/[lang=locale]/account/+page.svelte),
+both via
 [`persistPreferredLocale()`](../src/lib/i18n/persistPreferredLocale.ts)) is
 the same shape: the click navigates immediately, the write to
 `user_preferences` happens in the background, and a failure shows an error
