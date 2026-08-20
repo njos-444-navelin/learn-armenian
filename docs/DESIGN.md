@@ -188,6 +188,27 @@ smoother (~1.5), not the full 2.75 — that's only for genuinely
 stroke-only paths (the speaker's sound-wave arcs, the chevron in
 `BackButton.svelte`).
 
+**Icon provenance is mixed — verify against the real path data before
+assuming an icon is "Lucide," this codebase has no such dependency.**
+The Claude Design "Organic" reference project (not this repo) documents
+its icon set as Lucide, which raised the question of whether this app's
+own hand-authored SVGs actually trace back to it. Checked against
+Lucide's published paths directly:
+[`BackButton.svelte`](../src/lib/components/BackButton.svelte)'s
+chevron (`m15 18-6-6 6-6`) is a byte-for-byte match to Lucide's
+`chevron-left`. [`UserMenu.svelte`](../src/lib/components/UserMenu.svelte)'s
+signed-in icon reuses Lucide's `circle-user` circles exactly
+(`cx="12" cy="12" r="10"` / `cx="12" cy="10" r="3"`) but redraws the
+shoulders as a plain arc instead of Lucide's boxier shoulder path.
+The signed-out door-and-arrow icon isn't a Lucide icon at all — it's a
+custom glyph in the spirit of Lucide's `log-in`/`log-out` pair
+(mirrored door, arrow through it), with none of the actual coordinates
+or corner radii copied. Don't assume any other icon in this app can be
+swapped for its "equivalent" Lucide glyph without a visual diff — some
+paths here are literal Lucide, some are Lucide-inspired hand-drawings,
+and there's no dependency or build step that would keep the two in
+sync if Lucide's own paths change.
+
 **Icon buttons are flat: a `--color-surface` fill, no border, no
 shadow.** The earlier version had a `--color-background`-filled circle
 with a `1px` border and `--shadow-sm` — visually redundant once the fill
