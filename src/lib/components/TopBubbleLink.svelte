@@ -71,7 +71,7 @@
 	}
 
 	.bubble:hover {
-		background: var(--color-neutral-300);
+		background: var(--color-surface-hover);
 	}
 
 	.left {

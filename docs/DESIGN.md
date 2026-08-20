@@ -69,6 +69,22 @@ screen's language cards and the `/learn` hub cards; reach for the same
 `color-mix()` pattern before adding a new `*-hover` token for any other
 `--color-surface`-based element, rather than aliasing to a neutral step.
 
+### The `--color-primary` outline/border means "selected," not "hovered"
+
+A 1.5px `--color-primary` border on an otherwise-transparent-bordered card
+or row is reserved for marking the *currently selected* item — e.g. the
+home screen's language picker, where the current-language card gets
+`border-color: var(--color-primary)` (see `.lang-card.current` in
+[`+page.svelte`](../src/routes/[lang=locale]/+page.svelte)). Hover must
+never reuse that same border treatment, even on elements that have no
+selected state at all — a hover outline reads as "this is the selected
+one" the instant the cursor lands, which is misleading on a plain list
+like the vocabulary deck list where nothing is selected yet. Hover gets
+the `--color-surface-hover` background treatment from the rule above
+instead. If a component needs both states (selectable *and* hoverable),
+keep them on visually distinct properties — border for selected,
+background for hover — so the two don't collide into the same signal.
+
 ### Don't pair accent and accent-2 as competing backgrounds
 
 Terracotta and sage sitting as backgrounds *next to each other* — e.g. two

@@ -52,11 +52,11 @@
 		color: var(--color-text-primary);
 		font-family: var(--font-heading);
 		font-weight: var(--font-heading-weight);
-		transition: border-color var(--transition-fast);
+		transition: background-color var(--transition-fast);
 	}
 
 	.deck:hover {
-		border-color: var(--color-primary);
+		background: var(--color-surface-hover);
 	}
 
 	.title {
