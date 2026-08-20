@@ -8,6 +8,8 @@
 	import {
 		alphabetTrainerHint,
 		alphabetTrainerLabel,
+		dialoguesHint,
+		dialoguesLabel,
 		heading,
 		menuAriaLabel,
 		moreToComeLabel,
@@ -69,10 +71,9 @@
 					width="24"
 					height="24"
 				>
-					<path
-						d="M4 16.5V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v4.5a4 4 0 0 1-4 4H9.5L5.5 20a1 1 0 0 1-1.5-.9z"
-					/>
-					<path d="M8.5 8.3h7M8.5 12.2h4" />
+					<rect x="3" y="5.4" width="12.5" height="15.4" rx="4" />
+					<path d="M6.8 13.2h4.9" />
+					<path d="M7 5.4A4 4 0 0 1 11 1.4h4.5a4 4 0 0 1 4 4V13a4 4 0 0 1-4 4" />
 				</svg>
 			</span>
 			<span class="hub-copy">
@@ -80,6 +81,31 @@
 				<span class="hub-sub">{t(vocabularyTrainerHint)}</span>
 			</span>
 		</a>
+
+		<div class="hub-card acc soon" aria-disabled="true">
+			<span class="hub-icon">
+				<svg
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2.75"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+					width="24"
+					height="24"
+				>
+					<path
+						d="M4 16.5V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v4.5a4 4 0 0 1-4 4H9.5L5.5 20a1 1 0 0 1-1.5-.9z"
+					/>
+					<path d="M8.5 8.3h7M8.5 12.2h4" />
+				</svg>
+			</span>
+			<span class="hub-copy">
+				<span class="hub-title">{t(dialoguesLabel)}</span>
+				<span class="hub-sub">{t(dialoguesHint)}</span>
+			</span>
+		</div>
 
 		<p class="more-note">{t(moreToComeLabel)}</p>
 	</nav>
@@ -125,6 +151,15 @@
 
 	.hub-card:hover {
 		background: var(--color-surface-hover);
+	}
+
+	.hub-card.soon {
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+
+	.hub-card.soon:hover {
+		background: var(--color-surface);
 	}
 
 	.more-note {

@@ -139,7 +139,7 @@
 		width: 2.5rem;
 		height: 2.5rem;
 		border-radius: 50%;
-		background: var(--color-neutral-200);
+		background: var(--color-background);
 		font-size: 1.2rem;
 	}
 

@@ -69,6 +69,25 @@ screen's language cards and the `/learn` hub cards; reach for the same
 `color-mix()` pattern before adding a new `*-hover` token for any other
 `--color-surface`-based element, rather than aliasing to a neutral step.
 
+### Icon-badge circles inside a card: `--color-background`, not a neutral step
+
+The small round badge that sits inside a `--color-surface` card — the
+home screen's language-flag circle, the `/learn` hub cards' icon
+circle — should fill with plain `--color-background` (the page's own
+cream), the same lighter-than-`--color-surface` contrast used
+everywhere a badge needs to read as a distinct layer on top of a card.
+The language-flag circle briefly drifted to `--color-neutral-200`
+instead — a different token that happens to sit close to
+`--color-background` in hex but reads as a faint grey mismatch once
+the two badge styles are seen side by side (one screen has flag
+badges, the other has lesson-icon badges, and going back and forth
+between them made the drift obvious even though neither one looked
+wrong in isolation). If a future badge-in-a-card needs its own visual
+treatment, start from `--color-background` and vary something other
+than the base token — same principle as the hover rule above: don't
+reach for a neutral ramp step just because its hex value happens to
+look close enough.
+
 ### The `--color-primary` outline/border means "selected," not "hovered"
 
 A 1.5px `--color-primary` border on an otherwise-transparent-bordered card
@@ -183,11 +202,15 @@ tone first, not by adding the border/shadow back.
 **The `/learn` hub menu icons are a matched set.** They sit side by side
 in the same list, so any mismatch between them (a heavier stroke, a
 filled shape, a different viewBox) reads immediately, unlike two icons
-used in unrelated parts of the app. Every hub icon — the current
-alphabet-trainer Ա glyph and vocabulary speech-bubble, and any future
-addition to that "more to come" list — uses the same 24×24 viewBox,
-`stroke-width="2.75"`, round caps/joins, and no fill, per the site-wide
-rule above. The Ա glyph itself is hand-traced from the printed letter,
+used in unrelated parts of the app. Every hub icon — the alphabet-trainer
+Ա glyph, the vocabulary-trainer deck-of-cards, the dialogues speech-bubble
+(currently a disabled placeholder — see below), and any future addition —
+uses the same 24×24 viewBox, `stroke-width="2.75"`, round caps/joins, and
+no fill, per the site-wide rule above. Icon identity follows the *feature*,
+not the menu slot: when dialogues borrowed the speech-bubble that
+vocabulary used to have, vocabulary got a new deck-of-cards-with-a-word
+icon rather than the two swapping meanings some other way. The Ա glyph
+itself is hand-traced from the printed letter,
 not a generic "U" — see
 [`+page.svelte`](../src/routes/[lang=locale]/learn/+page.svelte): a
 symmetric U-bowl for the main body, plus a separate short hook stroke

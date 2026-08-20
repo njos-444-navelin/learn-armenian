@@ -41,6 +41,16 @@ export const vocabularyTrainerHint: Translated = {
 	ru: 'Практикуйте слова и фразы'
 };
 
+export const dialoguesLabel: Translated = {
+	en: 'Dialogues',
+	ru: 'Диалоги'
+};
+
+export const dialoguesHint: Translated = {
+	en: 'Coming soon',
+	ru: 'Скоро появится'
+};
+
 export const moreToComeLabel: Translated = {
 	en: 'More to come',
 	ru: 'Скоро появится больше'
