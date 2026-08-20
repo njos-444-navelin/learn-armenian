@@ -180,6 +180,38 @@ back/account bubbles). If a future icon button still looks like it's
 floating unclearly against its background, fix that with a stronger fill
 tone first, not by adding the border/shadow back.
 
+**The `/learn` hub menu icons are a matched set.** They sit side by side
+in the same list, so any mismatch between them (a heavier stroke, a
+filled shape, a different viewBox) reads immediately, unlike two icons
+used in unrelated parts of the app. Every hub icon — the current
+alphabet-trainer Ա glyph and vocabulary speech-bubble, and any future
+addition to that "more to come" list — uses the same 24×24 viewBox,
+`stroke-width="2.75"`, round caps/joins, and no fill, per the site-wide
+rule above. The Ա glyph itself is hand-traced from the printed letter,
+not a generic "U" — see
+[`+page.svelte`](../src/routes/[lang=locale]/learn/+page.svelte): a
+symmetric U-bowl for the main body, plus a separate short hook stroke
+for the small flourish the real glyph has branching off the right
+stem. Two things went wrong on the way to the current path data, both
+worth knowing if this icon is ever redrawn:
+
+- **Reference against a sans-serif face, not a serif one.** Noto Serif
+  Armenian's flourish carries extra serif-style shaping that isn't
+  structural to the letter — it exaggerates exactly the part being
+  hand-traced. Noto Sans Armenian's monoline-ish strokes are much
+  closer to what a 2.75-stroke icon should mimic.
+- **Measure the reference, don't eyeball it.** Even against the sans
+  face, eyeballing a screenshot placed the hook's branch point around
+  52% of the letter's height — visibly too high, producing a long
+  droopy tail. Sampling actual pixels (render the glyph to a `<canvas>`
+  at a large size, scan rows for where the hook's ink first separates
+  from the main stem) found the real branch point at ~67% — right
+  where the straight stem ends and the bowl curve begins, not partway
+  up — with the hook's descender ending almost level with the bowl's
+  own bottom. The current path (branch ~y 13.5 of an 18.5-tall glyph,
+  ending ~y 18.2) reflects the measured version, not the eyeballed
+  one.
+
 ## Motion
 
 - **Hover/interactive-state transitions**: `--transition-fast` (150ms

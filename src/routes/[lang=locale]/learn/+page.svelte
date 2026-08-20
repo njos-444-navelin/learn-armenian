@@ -44,8 +44,10 @@
 					width="24"
 					height="24"
 				>
-					<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-					<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+					<g transform="translate(0, 2)">
+						<path d="M6.5 4V13.5A5 5 0 0 0 16.5 13.5V4" />
+						<path d="M16.3 13.5Q19.7 13.7 19.6 15.9V18.2" />
+					</g>
 				</svg>
 			</span>
 			<span class="hub-copy">
@@ -67,8 +69,10 @@
 					width="24"
 					height="24"
 				>
-					<rect x="3" y="4" width="18" height="14" rx="2" />
-					<path d="M3 9h18" />
+					<path
+						d="M4 16.5V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v4.5a4 4 0 0 1-4 4H9.5L5.5 20a1 1 0 0 1-1.5-.9z"
+					/>
+					<path d="M8.5 8.3h7M8.5 12.2h4" />
 				</svg>
 			</span>
 			<span class="hub-copy">
