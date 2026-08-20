@@ -8,9 +8,12 @@
  * survive closing the tab, not just the current session.
  *
  * No separate cleanup pass is needed: `isAudioMuted()` removes its own key
- * the moment it notices the mute period has lapsed, and it's called at
- * least once per drill question built, so a stale key never lingers past
- * the next time the alphabet trainer is actually used.
+ * the moment it notices the mute period has lapsed. It's only actually
+ * called when the drill's type round-robin lands on an 'audio' slot (see
+ * AlphabetTrainer.svelte's buildQuestionFor), not on every question — but
+ * that round-robin is deterministic (sound, audio, case, ...), so every
+ * real practice session hits an 'audio' slot at least once, which is
+ * enough that a stale key never lingers past the next session.
  */
 
 const STORAGE_KEY = 'learn-armenian:audio-muted-until';

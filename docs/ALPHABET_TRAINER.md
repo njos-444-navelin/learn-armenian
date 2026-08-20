@@ -129,8 +129,15 @@ round-robin would otherwise land on, so muted learners simply never see an
 audio question rather than seeing one they'd have to skip again. No
 separate cleanup pass exists for the stored mute timestamp:
 `isAudioMuted()` deletes its own key the moment it notices the mute period
-has lapsed, and it's called at least once per drill question built, so a
-stale key can't outlive the next time the trainer is actually used.
+has lapsed. It's only actually called when the round-robin lands on an
+`audio` slot, not on every question — but that happens at least once per
+real session (the round-robin's second question is always `audio`), which
+is enough that a stale key can't outlive the next session. Verified
+directly (no test account needed — this is pure `localStorage`, no auth or
+DB involved): muting with a short synthetic duration, confirming
+`isAudioMuted()` flips to `false` *and* the stored key is actually removed
+once the duration passes, and that a corrupted stored value is treated as
+unmuted and cleaned up rather than thrown on.
 
 ## The words registry, and why letters reference it instead of embedding examples
 
