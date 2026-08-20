@@ -208,6 +208,17 @@ or replayed POST to the action from a signed-out session. See
 [`src/lib/server/authGuard.ts`](../src/lib/server/authGuard.ts), called from
 both places on every route under `account/` that requires a session.
 
+**Debugging note:** a form action submitted via `use:enhance` returns a real
+`fail()`/error response *inside* a `200 OK` HTTP response — SvelteKit embeds
+the actual outcome in the response body (`{"type":"failure","status":400,...}`),
+not the transport status. A network log showing "200 OK" for one of these
+POSTs does not mean the action succeeded; check the response body, or the
+`result.type` your own `use:enhance` callback receives. This is exactly how
+the alphabet trainer's save-progress action silently 400'd on every single
+request for a while — see
+[`docs/ALPHABET_TRAINER.md`](ALPHABET_TRAINER.md#two-real-bugs-one-misleading-toast)
+for the full story.
+
 ## 9. Russian UI text uses the formal register (вы, not ты)
 
 Every Russian string that addresses the user — an instruction, a button
@@ -297,3 +308,20 @@ you're unsure which side of a spelling difference is British, check it
 rather than guessing. Doesn't apply to code identifiers, file names, or
 third-party API/library terms (e.g. `color-mix()`, CSS `background-color`),
 only to user-facing English copy.
+
+## 13. Every alphabet letter and example word ships with a pronunciation audio file
+
+Every `AlphabetLetter` (in [`src/lib/content/alphabet.ts`](../src/lib/content/alphabet.ts))
+must have a matching clip at `static/audio/alphabet/<letterId>.m4a`, and every
+`Word` it references via `exampleWordIds` (in
+[`src/lib/content/words/entries.ts`](../src/lib/content/words/entries.ts))
+must have one at `static/audio/words/<wordId>.m4a` — the paths
+[`letterAudioSrc()`](../src/lib/content/alphabetAudio.ts) and
+[`wordAudioSrc()`](../src/lib/content/words/audio.ts) derive. Same "no missing
+audio" rule as §11: nothing falls back gracefully if a clip is absent.
+
+See [`docs/ALPHABET_AUDIO.md`](ALPHABET_AUDIO.md) for the checklist — it
+builds on `docs/VOCABULARY_AUDIO.md`'s pipeline but adds two alphabet-specific
+decisions (send a letter's bare glyph as the prompt, and the letter `vo`
+itself needs the same "Ո"→"Վ" prompt fix vocabulary words do) that aren't
+obvious from the vocabulary doc alone.

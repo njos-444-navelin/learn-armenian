@@ -1,0 +1,172 @@
+<script lang="ts">
+	import type { AlphabetLetter } from '$lib/content/alphabet';
+	import { LEVEL_MAX } from '$lib/alphabet/mastery';
+	import { t } from '$lib/i18n/current';
+	import {
+		backToAlphabetLabel,
+		levelBadgeLabel,
+		practiceAgainLabel,
+		summaryHeading,
+		summaryNote
+	} from '$lib/i18n/dictionaries/alphabetTrainer';
+
+	export interface SummaryRow {
+		letter: AlphabetLetter;
+		before: number;
+		after: number;
+	}
+
+	interface Props {
+		rows: readonly SummaryRow[];
+		onBackHome: () => void;
+		onPracticeAgain: () => void;
+	}
+
+	let { rows, onBackHome, onPracticeAgain }: Props = $props();
+
+	let upCount = $derived(rows.filter((row) => row.after > row.before).length);
+	let downCount = $derived(rows.filter((row) => row.after < row.before).length);
+
+	function pairLabel(letter: AlphabetLetter): string {
+		return letter.uppercase === undefined ? letter.lowercase : `${letter.uppercase} ${letter.lowercase}`;
+	}
+</script>
+
+<h1>{t(summaryHeading(upCount))}</h1>
+
+<ul class="rows">
+	{#each rows as row (row.letter.id)}
+		{@const gained = row.after > row.before}
+		<li class="row">
+			<span lang="hy" class="pair">{pairLabel(row.letter)}</span>
+			<div class="pips">
+				{#each { length: LEVEL_MAX } as _, n (n)}
+					<div class="pip" class:filled={n < row.after}></div>
+				{/each}
+			</div>
+			<span class="badge" class:up={gained} class:down={!gained}>{t(levelBadgeLabel(row.after))}</span>
+		</li>
+	{/each}
+</ul>
+
+<p class="note">{t(summaryNote(downCount))}</p>
+
+<div class="actions">
+	<button type="button" class="primary" onclick={onBackHome}>{t(backToAlphabetLabel)}</button>
+	<button type="button" class="secondary" onclick={onPracticeAgain}>{t(practiceAgainLabel)}</button>
+</div>
+
+<style>
+	h1 {
+		margin: 0;
+	}
+
+	.rows {
+		display: flex;
+		width: 100%;
+		flex-direction: column;
+		gap: var(--space-2);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.row {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		padding: var(--space-3) var(--space-4);
+		border-radius: var(--radius-lg);
+		background: var(--color-surface);
+	}
+
+	.pair {
+		flex: none;
+		font-family: var(--font-heading);
+		font-weight: var(--font-heading-weight);
+		font-size: 1.3rem;
+		color: var(--color-accent-800);
+	}
+
+	.pips {
+		display: flex;
+		flex: 1;
+		gap: 2px;
+	}
+
+	.pip {
+		height: 6px;
+		flex: 1;
+		border-radius: var(--radius-pill);
+		background: var(--color-neutral-300);
+	}
+
+	.pip.filled {
+		background: var(--color-accent-2-500);
+	}
+
+	.badge {
+		flex: none;
+		padding: 4px var(--space-2);
+		border-radius: var(--radius-pill);
+		font-size: 0.75rem;
+		white-space: nowrap;
+	}
+
+	.badge.up {
+		background: var(--color-accent-2-200);
+		color: var(--color-accent-2-800);
+	}
+
+	.badge.down {
+		background: var(--color-error-surface);
+		color: var(--color-on-error-surface);
+	}
+
+	.note {
+		margin: 0;
+		color: var(--color-text-secondary);
+	}
+
+	.actions {
+		display: flex;
+		width: 100%;
+		flex-direction: column;
+		gap: var(--space-2);
+	}
+
+	.primary {
+		min-height: var(--tap-target-min);
+		border: none;
+		border-radius: var(--radius-pill);
+		background: var(--color-primary);
+		color: var(--color-on-primary);
+		font-family: var(--font-heading);
+		font-weight: var(--font-heading-weight);
+		font-size: var(--font-size-md);
+		box-shadow: var(--shadow-sm);
+		cursor: pointer;
+		transition: background-color var(--transition-fast);
+	}
+
+	.primary:hover {
+		background: var(--color-primary-hover);
+	}
+
+	.secondary {
+		min-height: var(--tap-target-min);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-pill);
+		background: transparent;
+		color: var(--color-text-primary);
+		font-family: var(--font-heading);
+		font-weight: var(--font-heading-weight);
+		font-size: var(--font-size-md);
+		cursor: pointer;
+		transition: background-color var(--transition-fast);
+	}
+
+	.secondary:hover {
+		background: var(--color-surface-hover);
+	}
+</style>

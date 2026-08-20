@@ -2,10 +2,15 @@
 	import type { Snippet } from 'svelte';
 
 	interface Props {
+		/** Drops the bar's own border/background/shadow, leaving just the fixed
+		 * positioning and safe-area spacing — for a child (e.g. a button with its
+		 * own pill background and shadow) that shouldn't sit inside a second
+		 * visible container. */
+		bare?: boolean | undefined;
 		children: Snippet;
 	}
 
-	let { children }: Props = $props();
+	let { bare = false, children }: Props = $props();
 
 	// Reasonable single-row guess for the first paint; corrected the instant
 	// the real bar mounts and reports its height, so the spacer below is
@@ -13,7 +18,7 @@
 	let barHeight = $state(72);
 </script>
 
-<div class="bar" bind:clientHeight={barHeight}>
+<div class="bar" class:bare bind:clientHeight={barHeight}>
 	{@render children()}
 </div>
 
@@ -43,6 +48,13 @@
 	.bar :global(form),
 	.bar :global(.button) {
 		flex: 1;
+	}
+
+	.bar.bare {
+		padding: 0;
+		border: none;
+		background: none;
+		box-shadow: none;
 	}
 
 	.spacer {

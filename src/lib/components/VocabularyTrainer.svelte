@@ -36,7 +36,7 @@
 
 	// `initialQueue` is only ever meant to be read once, at mount — this
 	// component owns advancing through it locally afterwards (see
-	// AlphabetQuiz.svelte for the same pattern with its own `letters` prop).
+	// AlphabetTrainer.svelte for the same pattern with its own `levels` prop).
 	let activeQueue = $state<TrainingCard[]>(untrack(() => [...initialQueue]));
 	// Cards graded this session that aren't due yet — a periodic check (see
 	// the `$effect` below) moves each one into `activeQueue` the moment its

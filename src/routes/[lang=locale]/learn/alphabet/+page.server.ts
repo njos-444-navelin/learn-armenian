@@ -1,0 +1,73 @@
+import { fail } from '@sveltejs/kit';
+import { applyAnswer } from '$lib/alphabet/mastery';
+import { requireSignedIn } from '$lib/server/authGuard';
+import type { Actions, PageServerLoad } from './$types';
+
+export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => {
+	if (claims === null) {
+		return { levels: {} as Record<string, number>, signedIn: false };
+	}
+
+	const { data, error: queryError } = await supabase
+		.from('user_alphabet_progress')
+		.select('letter_id, level')
+		.eq('user_id', claims.sub);
+
+	if (queryError) {
+		console.error('alphabet: failed to load progress', queryError);
+		return { levels: {} as Record<string, number>, signedIn: true };
+	}
+
+	const levels = Object.fromEntries(data.map((row) => [row.letter_id as string, row.level as number]));
+	return { levels, signedIn: true };
+};
+
+export const actions: Actions = {
+	/**
+	 * The actual security boundary for Practice — see
+	 * AlphabetTrainer.svelte's client-side sign-in check, which is a UX
+	 * nicety only. A skip (the audio question type's "can't listen" option)
+	 * never calls this action at all: it doesn't change a letter's level, so
+	 * there's nothing to persist.
+	 */
+	answer: async ({ request, params, url, locals: { supabase, claims } }) => {
+		const verified = requireSignedIn(claims, params.lang, { url, action: 'practice' });
+
+		const formData = await request.formData();
+		const letterId = String(formData.get('letterId') ?? '');
+		const chosenId = String(formData.get('chosenId') ?? '');
+		if (letterId === '' || chosenId === '') {
+			return fail(400, { errorCode: 'invalid_request' });
+		}
+
+		const { data: existing, error: fetchError } = await supabase
+			.from('user_alphabet_progress')
+			.select('level')
+			.eq('user_id', verified.sub)
+			.eq('letter_id', letterId)
+			.maybeSingle();
+
+		if (fetchError) {
+			console.error('alphabet: failed to load current level', fetchError);
+			return fail(500, { errorCode: 'generic' });
+		}
+
+		const current = existing?.level ?? 0;
+		// Recomputed here, not trusted from the client, so a tampered request
+		// can't move a letter's level without actually picking the right
+		// answer — `chosenId` is one of the drill's own option ids either way.
+		const next = applyAnswer(current, chosenId === letterId);
+
+		const { error: upsertError } = await supabase.from('user_alphabet_progress').upsert(
+			{ user_id: verified.sub, letter_id: letterId, level: next, updated_at: new Date().toISOString() },
+			{ onConflict: 'user_id,letter_id' }
+		);
+
+		if (upsertError) {
+			console.error('alphabet: failed to save level', upsertError);
+			return fail(500, { errorCode: 'generic' });
+		}
+
+		return { success: true, level: next };
+	}
+};

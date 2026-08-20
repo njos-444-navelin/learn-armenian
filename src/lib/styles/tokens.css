@@ -71,6 +71,13 @@
 	--color-error-hover: #7c2a1d;
 	--color-error-glow: rgb(154 51 36 / 0.5);
 	--color-on-error: var(--color-neutral-100);
+	/* A soft tinted surface for error content that isn't a solid alarm-red
+	   fill (a toast, an inline notice) — mirrors --color-success-surface's
+	   role below, just without a ramp to draw from (--color-error is
+	   hand-picked, not a ramp step — see the comment above), so it's mixed
+	   from --color-error itself instead of aliased to one. */
+	--color-error-surface: color-mix(in srgb, var(--color-error) 14%, var(--color-background));
+	--color-on-error-surface: var(--color-error-hover);
 	--color-success: var(--color-accent-2-700);
 	--color-success-hover: var(--color-accent-2-800);
 	--color-on-success: var(--color-accent-2-100);

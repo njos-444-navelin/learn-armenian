@@ -69,6 +69,28 @@ screen's language cards and the `/learn` hub cards; reach for the same
 `color-mix()` pattern before adding a new `*-hover` token for any other
 `--color-surface`-based element, rather than aliasing to a neutral step.
 
+### The neutral ramp reads cool — reserve it for an actual neutral/informational meaning, not as a default fill
+
+Same underlying fact as the hover-state note above (the neutral ramp reads
+as a distinct, cooler/greyer hue next to this app's warm palette, whatever
+its raw hex value technically is), generalized beyond hover: **don't reach
+for `--color-neutral-*` as the default/idle fill for something just because
+nothing else was specified.** It's correct where the *meaning* is genuinely
+neutral or informational and a warm tone would misrepresent that — e.g.
+`--color-toast-info`'s neutral-800 fill, where "info" is deliberately not
+success (sage) or error (the hand-picked red) and shouldn't borrow either's
+color language. It reads wrong as the resting/default state of something
+that has no particular meaning yet, which is a different case: the alphabet
+trainer's letter grid originally filled an unmet ("level 0") tile with
+`--color-neutral-200` and it read as an odd cool-grey wash sitting among the
+sage-tinted tiles of letters in progress. The fix was `--color-neutral-100`
+instead — close enough to `--color-background` itself to read as "blank
+page showing through," not as a competing hue — which is the general
+pattern to reach for: **a "nothing to show yet" state wants something close
+to the page's own ground, not a step off the neutral ramp**, even a light
+one. Reserve the neutral ramp itself for spots where cool/grey is actually
+the right signal.
+
 ### Icon-badge circles inside a card: `--color-background`, not a neutral step
 
 The small round badge that sits inside a `--color-surface` card — the
@@ -123,14 +145,22 @@ color, reach for an icon or badge tint before a card-wide background tint.
 Related but distinct: even a *single* large area filled with a light
 accent tint (not paired against anything) can read as an unintentional
 "pink" or "off" wash once it's big enough — the home screen's `Ա` hero
-mark and the alphabet quiz's big letter-circle both started on
-`--color-accent-100` and were moved to plain `--color-surface`, with the
-glyph itself carrying the accent color (`--color-accent-700/800`) instead
-of the circle behind it. Small badges (the per-letter glyph pills in
-`LetterList.svelte`) keep a light background tint fine, since a badge a
-few characters wide doesn't dominate the page the way a hero circle or a
-full-width card does — this is a matter of scale, not a blanket ban on
-tinted backgrounds.
+mark and the alphabet trainer's learn-step letter-circle both use plain
+`--color-surface`, with the glyph itself carrying the accent color
+(`--color-accent-700/800`) instead of the circle behind it. Small badges
+(the per-letter glyph pills a word card's speaker row sits in) keep a
+light background tint fine, since a badge a few characters wide doesn't
+dominate the page the way a hero circle or a full-width card does — this
+is a matter of scale, not a blanket ban on tinted backgrounds.
+
+The alphabet trainer's 39-tile letter grid (`AlphabetLetterGrid.svelte`)
+looks like it should collide with this rule — collectively the tiles cover
+most of the screen — but each tile is individually small (the same
+scale as a glyph pill), and a *new* learner's grid reads as mostly the
+flat neutral "not met yet" tone rather than a tinted wash, since the sage
+mastery tint only fills in gradually per tile as levels rise. Many small
+elements sitting side by side read differently from one large tinted
+area; this rule is about the latter.
 
 ## Typography
 
@@ -176,6 +206,41 @@ Nothing in this system has a sharp or barely-rounded corner — if a new
 element needs *some* rounding but doesn't fit the pill/card categories
 above, `--radius-md`/`--radius-sm` exist for that, but pill/lg should be
 the first instinct.
+
+### Padding must clear the corner radius, not just look "roomy enough"
+
+A large radius carves a real bite out of each corner — content padded less
+than that radius sits visually *inside* the curve instead of clear of it,
+which reads as content "starting before the border-radius ends," not as a
+tight/efficient layout. This is easy to miss because it only becomes
+obvious once there's content anchored to an edge near a corner (left-aligned
+text, a badge) — a short, centered single line in the same box can look
+fine at the identical padding, which is why this slips through: the same
+component can look right in one spot and wrong in another depending purely
+on what content ends up flush against which edge.
+
+Concretely:
+- **A rounded rectangle** (`--radius-lg`, 28px): padding should be at or near
+  the radius itself, not a fraction of it. `--space-5` (26.4px) is the
+  practical match for `--radius-lg` at this scale — several cards across the
+  alphabet trainer (`AlphabetLetterSheet.svelte`/`AlphabetLearnStep.svelte`'s
+  `.word-card`) originally used `--space-3` (13.2px, under half the radius)
+  and visibly pinched their left-aligned content into the corner curve; the
+  fix was raising padding to `--space-5`, not touching the radius.
+- **A pill** (`--radius-pill`, fully rounded — cap radius = half the
+  element's height): the *horizontal* padding needs to clear that cap
+  radius, which scales with height, not with the pill's own font size. A
+  short single-line pill button can look fine on modest padding; a *taller*
+  pill (two-line label, larger content) needs proportionally more —
+  `AlphabetTrainer.svelte`'s `Practice` button is a two-line pill roughly
+  70px tall, so its ~36px cap radius needed `--space-6` (35.2px) horizontal
+  padding, not the `--space-4` (17.6px) that a single-line pill button gets
+  away with. Vertical padding on a pill isn't under the same constraint —
+  the top/bottom edges between the two caps are flat, not curved.
+- When in doubt, sanity-check against the radius value itself rather than
+  reusing whatever spacing token a nearby element happens to use — two
+  elements with the same padding token can need different actual clearance
+  if their radius or their content's alignment differs.
 
 ## Icons
 
@@ -256,6 +321,19 @@ worth knowing if this icon is ever redrawn:
   ending ~y 18.2) reflects the measured version, not the eyeballed
   one.
 
+**A primary (`--color-primary`-filled) button that navigates to a new
+screen or flow gets a trailing arrow, not a chevron-in-a-circle.** A full
+arrow (shaft + head — Lucide's `arrow-right`: `M5 12h14` plus
+`m12 5 7 7-7 7`) reads as "go" more directly than a bare chevron
+(`m9 18 6-6-6-6`, a `›` shape with no shaft), and the circular tinted
+backing a chevron often sits in doesn't add anything once the arrow
+itself already carries the meaning — drop it, let the arrow sit directly
+on the button's own fill. See the alphabet trainer's `Practice` button
+(`AlphabetTrainer.svelte`) for the current example. This is specifically
+about *navigational* primary buttons — one that submits a form or confirms
+an in-place action doesn't need a directional affordance at all, since it
+isn't taking the learner anywhere.
+
 ## Motion
 
 - **Hover/interactive-state transitions**: `--transition-fast` (150ms
@@ -304,6 +382,47 @@ worth knowing if this icon is ever redrawn:
   the delay was added. On completion the bar snaps to 100% quickly, holds
   briefly, then fades out and resets. If the delay is ever removed "to make
   it feel more responsive," that regression will come back.
+- **A two-way crossfade inside a vertically-centered flex column shifts the
+  page.** [`AlphabetTrainer.svelte`](../src/lib/components/AlphabetTrainer.svelte)
+  fades between its four screens (`home`/`learn`/`drill`/`summary`) as they
+  swap inside an `{#if}/{:else if}` chain. A true two-way `transition:fade`
+  keeps the outgoing screen mid-fade-out *and* the incoming screen
+  mid-fade-in simultaneously in the DOM — briefly doubling the flex
+  column's height and visibly nudging everything else in the centered
+  layout. Using `in:fade` only (no `out:`) removes the outgoing screen
+  instantly instead, so only one `.screen` element ever exists at a time —
+  confirmed via a `MutationObserver` count during the swap. If a future
+  screen-swap transition needs a genuine crossfade (both screens visible
+  together on purpose), it has to happen outside the page's normal
+  document flow (e.g. absolutely positioned during the transition only),
+  not inside a plain centered flex column.
+- **A conditionally-taller footer shifts everything above it, even when
+  it's fixed-position.** `AlphabetDrillQuestion.svelte`'s answer footer
+  reveals feedback text only after an option is picked — sizing the footer
+  to that empty state's height (`min-height: 5rem`, its shortest possible
+  content) meant the reveal changed the footer's actual height, and since
+  the whole screen is vertically centered, that shift moved the glyph and
+  options above it too, not just the footer itself. Reserve height for the
+  *tallest* state a fixed/sticky footer can show, not its default one —
+  here that meant measuring the two-line wrapped feedback case and setting
+  `min-height: 6.5rem` up front, so revealing feedback fills existing
+  space instead of growing into it.
+- **Prefer a plain CSS `animation` + `@keyframes` over a `svelte/transition`
+  directive for anything that must self-verify.** [`Toast.svelte`](../src/lib/components/Toast.svelte)
+  switched from `svelte/transition`'s `fly`/`fade` to `animation:
+  toast-in`/`.closing { animation: toast-out }` with an `animationend`
+  listener driving actual removal (see
+  [`toasts.svelte.ts`](../src/lib/stores/toasts.svelte.ts)'s `closing`
+  flag). This wasn't a performance call — a CSS animation is directly
+  observable (computed style, `getAnimations()`, `animationend`) in a way
+  that made a real, reproducible bug trivial to pin down after a `fly`
+  transition intermittently appeared not to run at all. `.closing`
+  overrides the entrance animation by naming a different `animation`
+  rather than layering a second one, and `prefers-reduced-motion` has to
+  short-circuit removal in JS (`dismissToast()`), not just disable the
+  animation in CSS — otherwise a toast whose `animation: none` never fires
+  `animationend` would sit on screen forever waiting for an event that's
+  never coming.
 
 ## Where things live
 

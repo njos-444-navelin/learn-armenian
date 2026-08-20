@@ -36,8 +36,8 @@ export function isSafeInternalPath(path: string): boolean {
 
 /**
  * The path one level up in the app's route hierarchy, given a locale-stripped
- * pathname (e.g. `/learn/alphabet/quiz` -> `/learn/alphabet`). `undefined` at
- * the locale root (`/`) — there's nowhere further up to go.
+ * pathname (e.g. `/learn/vocabulary/train` -> `/learn/vocabulary`). `undefined`
+ * at the locale root (`/`) — there's nowhere further up to go.
  */
 export function parentPath(pathname: string): string | undefined {
 	if (pathname === '/') return undefined;
