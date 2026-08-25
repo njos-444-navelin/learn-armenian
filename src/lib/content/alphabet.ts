@@ -6,16 +6,23 @@ export interface AlphabetLetter {
 	 * own — see the և entry below. Every other entry has one. */
 	uppercase?: string | undefined;
 	lowercase: string;
-	voicing: Translated;
+	/** The quoted equivalent sound itself — e.g. `"t", aspirated` — short
+	 * enough to stand alone where space is tight (the drill's `sound`-type
+	 * option buttons). Combine with `voicingDetail` (via `fullVoicing()`)
+	 * for the full explanation shown on the learn step and letter sheet. */
+	voicingLabel: Translated;
+	/** The explanation/example half — e.g. `the normal English "t", like
+	 * in "top"` — never shown alone; always paired with `voicingLabel`. */
+	voicingDetail: Translated;
 	/** A tiny (1-3 character) phonetic hint shown under the glyph in the
-	 * letter grid — not IPA, not the full `voicing` explanation, just enough
+	 * letter grid — not IPA, not the full voicing explanation, just enough
 	 * to jog memory at a glance. An apostrophe marks the aspirated half of
 	 * an aspirated/unaspirated pair (e.g. `to`'s "t'" vs `tiwn`'s "t"),
-	 * mirroring how `voicing` explains the same distinction. Some pairs that
+	 * mirroring how voicing explains the same distinction. Some pairs that
 	 * are already genuinely confusable (see `alphabetConfusables.ts`) share
 	 * a tag — `ho`/`xeh` both read "х" in Russian, which has no separate
 	 * letter for either of Armenian's two "h" sounds; that's a real
-	 * limitation of a 1-character hint, not a bug, and the full `voicing`
+	 * limitation of a 1-character hint, not a bug, and the full voicing
 	 * text (and the sheet's audio) still disambiguates them properly. */
 	transliteration: Translated;
 	/** 1–2 ids into `words/entries.ts`'s `WORDS` registry — the "in a word"
@@ -25,6 +32,18 @@ export interface AlphabetLetter {
 	 * word-initial "vo" second) — order matters for those, so the sheet can
 	 * show the more common/default pronunciation first. */
 	exampleWordIds: readonly string[];
+}
+
+/** Recombines a letter's split voicing fields into the full explanation
+ * (`"t", aspirated — the normal English "t", like in "top"`) for the learn
+ * step and letter sheet, which have room for both halves. The drill's
+ * `sound`-type option buttons use `voicingLabel` alone instead — see its
+ * own doc comment for why the split exists at all. */
+export function fullVoicing(letter: AlphabetLetter): Translated {
+	return {
+		en: `${letter.voicingLabel.en} — ${letter.voicingDetail.en}`,
+		ru: `${letter.voicingLabel.ru} — ${letter.voicingDetail.ru}`
+	};
 }
 
 /**
@@ -41,10 +60,10 @@ export interface AlphabetLetter {
  * Voicing text is a learner's approximation, not IPA, and deliberately only
  * compares each sound to words in the learner's own language (English for
  * `en`, Russian for `ru`) — never to a third language the learner may not
- * know. Every entry leads with the quoted equivalent sound itself (e.g.
- * `"t", aspirated — ...`), so a learner scanning the list sees the sound
- * first and the explanation second, not the other way around. For the
- * unaspirated/aspirated stop pairs, where one language's native
+ * know. `voicingLabel` is always the quoted equivalent sound itself (e.g.
+ * `"t", aspirated`), so a learner scanning the list sees the sound first;
+ * `voicingDetail` is the explanation second, never the other way around.
+ * For the unaspirated/aspirated stop pairs, where one language's native
  * pronunciation already matches Armenian and the other doesn't (English
  * aspirates initial "k"/"p"/"t", Russian doesn't), the easy side just says
  * "like your normal X"; the other side gets a simple physical self-test (a
@@ -58,7 +77,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'ayb',
 		uppercase: 'Ա',
 		lowercase: 'ա',
-		voicing: { en: `"a" — as in "father"`, ru: '«а» — как в слове «мама»' },
+		voicingLabel: { en: `"a"`, ru: '«а»' },
+		voicingDetail: { en: `as in "father"`, ru: 'как в слове «мама»' },
 		transliteration: { en: 'a', ru: 'а' },
 		exampleWordIds: ['ayo']
 	},
@@ -66,7 +86,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'ben',
 		uppercase: 'Բ',
 		lowercase: 'բ',
-		voicing: { en: `"b" — as in "boy"`, ru: '«б» — как в слове «бок»' },
+		voicingLabel: { en: `"b"`, ru: '«б»' },
+		voicingDetail: { en: `as in "boy"`, ru: 'как в слове «бок»' },
 		transliteration: { en: 'b', ru: 'б' },
 		exampleWordIds: ['barev']
 	},
@@ -74,7 +95,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'gim',
 		uppercase: 'Գ',
 		lowercase: 'գ',
-		voicing: { en: `"g" — as in "go"`, ru: '«г» — как в слове «год»' },
+		voicingLabel: { en: `"g"`, ru: '«г»' },
+		voicingDetail: { en: `as in "go"`, ru: 'как в слове «год»' },
 		transliteration: { en: 'g', ru: 'г' },
 		exampleWordIds: ['gisher']
 	},
@@ -82,7 +104,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'da',
 		uppercase: 'Դ',
 		lowercase: 'դ',
-		voicing: { en: `"d" — as in "dog"`, ru: '«д» — как в слове «дом»' },
+		voicingLabel: { en: `"d"`, ru: '«д»' },
+		voicingDetail: { en: `as in "dog"`, ru: 'как в слове «дом»' },
 		transliteration: { en: 'd', ru: 'д' },
 		exampleWordIds: ['dur']
 	},
@@ -90,9 +113,16 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'yech',
 		uppercase: 'Ե',
 		lowercase: 'ե',
-		voicing: {
-			en: `"e" — as in "bed" (or "ye" as in "yes" at the start of a word)`,
-			ru: '«э» — как в слове «этот» (в начале слова — «е», как в слове «ель»)'
+		// Labeled "ye", not the plain "e" that's technically the more common
+		// case (mid-word) — Է/է ("e") is this letter's own listed
+		// confusable (see alphabetConfusables.ts), so a `sound`-type drill
+		// question testing both showed the exact same label twice. "ye" is
+		// this letter's genuinely distinguishing sound (same fix, same
+		// reasoning, as `vo`'s own entry below).
+		voicingLabel: { en: `"ye"`, ru: '«е»' },
+		voicingDetail: {
+			en: `at the start of a word (elsewhere, just "e", as in "bed")`,
+			ru: 'в начале слова, как в слове «ель» (в остальных случаях — просто «э», как в слове «этот»)'
 		},
 		transliteration: { en: 'e', ru: 'е' },
 		exampleWordIds: ['dzez', 'yereko']
@@ -101,7 +131,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'za',
 		uppercase: 'Զ',
 		lowercase: 'զ',
-		voicing: { en: `"z" — as in "zoo"`, ru: '«з» — как в слове «зима»' },
+		voicingLabel: { en: `"z"`, ru: '«з»' },
+		voicingDetail: { en: `as in "zoo"`, ru: 'как в слове «зима»' },
 		transliteration: { en: 'z', ru: 'з' },
 		exampleWordIds: ['zang']
 	},
@@ -109,9 +140,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'e',
 		uppercase: 'Է',
 		lowercase: 'է',
-		voicing: {
-			en: `"e" — as in "bed" (always; unlike Ե, never "ye")`,
-			ru: '«э» — как в слове «этот» (всегда; в отличие от Ե, никогда не «е»)'
+		voicingLabel: { en: `"e"`, ru: '«э»' },
+		voicingDetail: {
+			en: `as in "bed" (always; unlike Ե, never "ye")`,
+			ru: 'как в слове «этот» (всегда; в отличие от Ե, никогда не «е»)'
 		},
 		// A macron distinguishes this from yech's plain "e" — the two letters
 		// otherwise share a tag, which would defeat the point of a hint meant
@@ -123,9 +155,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'uht',
 		uppercase: 'Ը',
 		lowercase: 'ը',
-		voicing: {
-			en: `"uh" — a quick, unstressed sound, like the "a" in "sofa"`,
-			ru: '«а», кратко и безударно — как в конце слова «карта»'
+		voicingLabel: { en: `"uh"`, ru: '«а», кратко и безударно' },
+		voicingDetail: {
+			en: `a quick, unstressed sound, like the "a" in "sofa"`,
+			ru: 'как в конце слова «карта»'
 		},
 		// IPA schwa — precise, and distinct from ayb's plain "a"/«а».
 		transliteration: { en: 'ə', ru: 'ə' },
@@ -135,9 +168,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'to',
 		uppercase: 'Թ',
 		lowercase: 'թ',
-		voicing: {
-			en: `"t", aspirated — the normal English "t", like in "top"`,
-			ru: '«т», придыхательное — с лёгким выдохом воздуха'
+		voicingLabel: { en: `"t", aspirated`, ru: '«т», придыхательное' },
+		voicingDetail: {
+			en: `the normal English "t", like in "top"`,
+			ru: 'с лёгким выдохом воздуха'
 		},
 		transliteration: { en: `t'`, ru: `т'` },
 		exampleWordIds: ['tey']
@@ -146,10 +180,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'zhe',
 		uppercase: 'Ժ',
 		lowercase: 'ժ',
-		voicing: {
-			en: `"s" — as in "measure"`,
-			ru: '«ж» — как в слове «жук»'
-		},
+		voicingLabel: { en: `"s"`, ru: '«ж»' },
+		voicingDetail: { en: `as in "measure"`, ru: 'как в слове «жук»' },
 		transliteration: { en: 'zh', ru: 'ж' },
 		exampleWordIds: ['zham']
 	},
@@ -157,7 +189,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'ini',
 		uppercase: 'Ի',
 		lowercase: 'ի',
-		voicing: { en: `"ee" — as in "see"`, ru: '«и» — как в слове «мир»' },
+		voicingLabel: { en: `"ee"`, ru: '«и»' },
+		voicingDetail: { en: `as in "see"`, ru: 'как в слове «мир»' },
 		transliteration: { en: 'i', ru: 'и' },
 		exampleWordIds: ['im']
 	},
@@ -165,7 +198,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'liwn',
 		uppercase: 'Լ',
 		lowercase: 'լ',
-		voicing: { en: `"l" — as in "love"`, ru: '«л» — как в слове «лампа»' },
+		voicingLabel: { en: `"l"`, ru: '«л»' },
+		voicingDetail: { en: `as in "love"`, ru: 'как в слове «лампа»' },
 		transliteration: { en: 'l', ru: 'л' },
 		exampleWordIds: ['luys']
 	},
@@ -173,20 +207,28 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'xeh',
 		uppercase: 'Խ',
 		lowercase: 'խ',
-		voicing: {
-			en: `"h", raspy — a throat-clearing sound`,
-			ru: '«х», гортанное — как в слове «хлеб», но более резкое'
+		voicingLabel: { en: `"h", raspy`, ru: '«х», гортанное' },
+		voicingDetail: {
+			en: `a throat-clearing sound`,
+			ru: 'как в слове «хлеб», но более резкое'
 		},
-		transliteration: { en: 'kh', ru: 'х' },
+		// The EN tag already distinguishes this from ho (Հ)'s own plain 'h'
+		// by being the two-letter 'kh' — the apostrophe does the same job
+		// for RU, where both would otherwise render as the identical 'х'
+		// (Russian has no separate letter for either of Armenian's two "h"
+		// sounds). Same convention the aspirated/unaspirated stop pairs
+		// already use elsewhere (see the interface's own doc comment).
+		transliteration: { en: 'kh', ru: "х'" },
 		exampleWordIds: ['xaghal']
 	},
 	{
 		id: 'ca',
 		uppercase: 'Ծ',
 		lowercase: 'ծ',
-		voicing: {
-			en: `"ts", unaspirated — no puff of air, like in "cats"`,
-			ru: '«ц», без придыхания — твёрже и резче обычного русского «ц» (которое звучит с лёгким выдохом)'
+		voicingLabel: { en: `"ts", unaspirated`, ru: '«ц», без придыхания' },
+		voicingDetail: {
+			en: `no puff of air, like in "cats"`,
+			ru: 'твёрже и резче обычного русского «ц» (которое звучит с лёгким выдохом)'
 		},
 		transliteration: { en: 'ts', ru: 'ц' },
 		exampleWordIds: ['tsaghik']
@@ -195,9 +237,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'ken',
 		uppercase: 'Կ',
 		lowercase: 'կ',
-		voicing: {
-			en: `"k", unaspirated — no puff of air`,
-			ru: '«к» — как обычное русское, без выдоха'
+		voicingLabel: { en: `"k", unaspirated`, ru: '«к»' },
+		voicingDetail: {
+			en: `no puff of air`,
+			ru: 'как обычное русское, без выдоха'
 		},
 		transliteration: { en: 'k', ru: 'к' },
 		exampleWordIds: ['katu']
@@ -206,7 +249,11 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'ho',
 		uppercase: 'Հ',
 		lowercase: 'հ',
-		voicing: { en: `"h" — as in "house"`, ru: '«х», очень лёгкое — почти беззвучный выдох, без хрипа (в отличие от Խ)' },
+		voicingLabel: { en: `"h"`, ru: '«х», очень лёгкое' },
+		voicingDetail: {
+			en: `as in "house"`,
+			ru: 'почти беззвучный выдох, без хрипа (в отличие от Խ)'
+		},
 		transliteration: { en: 'h', ru: 'х' },
 		exampleWordIds: ['hats']
 	},
@@ -214,7 +261,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'ja',
 		uppercase: 'Ձ',
 		lowercase: 'ձ',
-		voicing: { en: `"dz" — as in "adze"`, ru: '«дз» — звонкое' },
+		voicingLabel: { en: `"dz"`, ru: '«дз»' },
+		voicingDetail: { en: `as in "adze"`, ru: 'звонкое' },
 		transliteration: { en: 'dz', ru: 'дз' },
 		exampleWordIds: ['dzuk']
 	},
@@ -222,9 +270,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'ghad',
 		uppercase: 'Ղ',
 		lowercase: 'ղ',
-		voicing: {
-			en: `"gh", gargled — a soft sound made in the back of the throat`,
-			ru: '«гх», гортанное — мягкий звук, похожий на лёгкое полоскание горла'
+		voicingLabel: { en: `"gh", gargled`, ru: '«гх», гортанное' },
+		voicingDetail: {
+			en: `a soft sound made in the back of the throat`,
+			ru: 'мягкий звук, похожий на лёгкое полоскание горла'
 		},
 		transliteration: { en: 'gh', ru: 'гх' },
 		exampleWordIds: ['aghjik']
@@ -233,9 +282,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'cheh',
 		uppercase: 'Ճ',
 		lowercase: 'ճ',
-		voicing: {
-			en: `"ch", unaspirated — no puff of air`,
-			ru: '«ч», без придыхания — твёрже и резче обычного русского «ч» (которое звучит с лёгким выдохом)'
+		voicingLabel: { en: `"ch", unaspirated`, ru: '«ч», без придыхания' },
+		voicingDetail: {
+			en: `no puff of air`,
+			ru: 'твёрже и резче обычного русского «ч» (которое звучит с лёгким выдохом)'
 		},
 		transliteration: { en: 'ch', ru: 'ч' },
 		exampleWordIds: ['chash']
@@ -244,7 +294,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'men',
 		uppercase: 'Մ',
 		lowercase: 'մ',
-		voicing: { en: `"m" — as in "mom"`, ru: '«м» — как в слове «мама»' },
+		voicingLabel: { en: `"m"`, ru: '«м»' },
+		voicingDetail: { en: `as in "mom"`, ru: 'как в слове «мама»' },
 		transliteration: { en: 'm', ru: 'м' },
 		exampleWordIds: ['mayr']
 	},
@@ -252,7 +303,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'yi',
 		uppercase: 'Յ',
 		lowercase: 'յ',
-		voicing: { en: `"y" — as in "yes"`, ru: '«й» — как в слове «йод»' },
+		voicingLabel: { en: `"y"`, ru: '«й»' },
+		voicingDetail: { en: `as in "yes"`, ru: 'как в слове «йод»' },
 		transliteration: { en: 'y', ru: 'й' },
 		exampleWordIds: ['yot']
 	},
@@ -260,7 +312,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'nu',
 		uppercase: 'Ն',
 		lowercase: 'ն',
-		voicing: { en: `"n" — as in "no"`, ru: '«н» — как в слове «нос»' },
+		voicingLabel: { en: `"n"`, ru: '«н»' },
+		voicingDetail: { en: `as in "no"`, ru: 'как в слове «нос»' },
 		transliteration: { en: 'n', ru: 'н' },
 		exampleWordIds: ['nor']
 	},
@@ -268,7 +321,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'sha',
 		uppercase: 'Շ',
 		lowercase: 'շ',
-		voicing: { en: `"sh" — as in "shop"`, ru: '«ш» — как в слове «шапка»' },
+		voicingLabel: { en: `"sh"`, ru: '«ш»' },
+		voicingDetail: { en: `as in "shop"`, ru: 'как в слове «шапка»' },
 		transliteration: { en: 'sh', ru: 'ш' },
 		exampleWordIds: ['shun']
 	},
@@ -276,20 +330,34 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'vo',
 		uppercase: 'Ո',
 		lowercase: 'ո',
-		voicing: {
-			en: `"o" — as in "more" (or "vo" at the start of a word)`,
-			ru: '«о» — как в слове «дом» (в начале слова — «во»)'
+		// Labeled "vo", not the plain "o" that's technically the more common
+		// case (mid-word) — Օ/օ ("o") is this letter's own listed confusable
+		// (see alphabetConfusables.ts), so a `sound`-type drill question
+		// testing both showed the exact same label twice, with nothing to
+		// tell the two options apart. "vo" is this letter's genuinely
+		// distinguishing sound; the mid-word case is still explained in
+		// voicingDetail and gets its own full walkthrough (and its own
+		// example word, `mot`) on the learn step and letter sheet.
+		voicingLabel: { en: `"vo"`, ru: '«во»' },
+		voicingDetail: {
+			en: `at the start of a word (elsewhere, just "o", as in "more")`,
+			ru: 'в начале слова (в остальных случаях — просто «о», как в слове «дом»)'
 		},
-		transliteration: { en: 'o', ru: 'о' },
+		// Same reasoning as voicingLabel above — 'o'/«о» is identical to o
+		// (Օ)'s own tag, its listed confusable (see alphabetConfusables.ts),
+		// which defeats the point of this being a glance-able hint in the
+		// letter grid specifically.
+		transliteration: { en: 'vo', ru: 'во' },
 		exampleWordIds: ['mot', 'vonts']
 	},
 	{
 		id: 'cha',
 		uppercase: 'Չ',
 		lowercase: 'չ',
-		voicing: {
-			en: `"ch", aspirated — the normal English "ch", like in "chair"`,
-			ru: '«ч», придыхательное — с лёгким выдохом воздуха'
+		voicingLabel: { en: `"ch", aspirated`, ru: '«ч», придыхательное' },
+		voicingDetail: {
+			en: `the normal English "ch", like in "chair"`,
+			ru: 'с лёгким выдохом воздуха'
 		},
 		transliteration: { en: `ch'`, ru: `ч'` },
 		exampleWordIds: ['chors']
@@ -298,9 +366,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'peh',
 		uppercase: 'Պ',
 		lowercase: 'պ',
-		voicing: {
-			en: `"p", unaspirated — no puff of air`,
-			ru: '«п», без придыхания — твёрже и резче обычного русского «п»'
+		voicingLabel: { en: `"p", unaspirated`, ru: '«п», без придыхания' },
+		voicingDetail: {
+			en: `no puff of air`,
+			ru: 'твёрже и резче обычного русского «п»'
 		},
 		transliteration: { en: 'p', ru: 'п' },
 		exampleWordIds: ['panir']
@@ -309,7 +378,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'jheh',
 		uppercase: 'Ջ',
 		lowercase: 'ջ',
-		voicing: { en: `"j" — as in "jazz"`, ru: '«дж» — как в слове «джаз»' },
+		voicingLabel: { en: `"j"`, ru: '«дж»' },
+		voicingDetail: { en: `as in "jazz"`, ru: 'как в слове «джаз»' },
 		transliteration: { en: 'j', ru: 'дж' },
 		exampleWordIds: ['jur']
 	},
@@ -317,9 +387,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'ra',
 		uppercase: 'Ռ',
 		lowercase: 'ռ',
-		voicing: {
-			en: `"r", strongly rolled — flutter your tongue tip against the roof of your mouth`,
-			ru: '«р», раскатистое — как русское протяжное «р-р-р», только более чёткое'
+		voicingLabel: { en: `"r", strongly rolled`, ru: '«р», раскатистое' },
+		voicingDetail: {
+			en: `flutter your tongue tip against the roof of your mouth`,
+			ru: 'как русское протяжное «р-р-р», только более чёткое'
 		},
 		transliteration: { en: 'rr', ru: 'рр' },
 		exampleWordIds: ['rusakan']
@@ -328,7 +399,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'seh',
 		uppercase: 'Ս',
 		lowercase: 'ս',
-		voicing: { en: `"s" — as in "see"`, ru: '«с» — как в слове «сон»' },
+		voicingLabel: { en: `"s"`, ru: '«с»' },
+		voicingDetail: { en: `as in "see"`, ru: 'как в слове «сон»' },
 		transliteration: { en: 's', ru: 'с' },
 		exampleWordIds: ['seghan']
 	},
@@ -336,7 +408,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'vev',
 		uppercase: 'Վ',
 		lowercase: 'վ',
-		voicing: { en: `"v" — as in "van"`, ru: '«в» — как в слове «вода»' },
+		voicingLabel: { en: `"v"`, ru: '«в»' },
+		voicingDetail: { en: `as in "van"`, ru: 'как в слове «вода»' },
 		transliteration: { en: 'v', ru: 'в' },
 		exampleWordIds: ['vat']
 	},
@@ -344,9 +417,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'tiwn',
 		uppercase: 'Տ',
 		lowercase: 'տ',
-		voicing: {
-			en: `"t", unaspirated — no puff of air`,
-			ru: '«т», без придыхания — твёрже и резче обычного русского «т»'
+		voicingLabel: { en: `"t", unaspirated`, ru: '«т», без придыхания' },
+		voicingDetail: {
+			en: `no puff of air`,
+			ru: 'твёрже и резче обычного русского «т»'
 		},
 		transliteration: { en: 't', ru: 'т' },
 		exampleWordIds: ['tun']
@@ -355,9 +429,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'reh',
 		uppercase: 'Ր',
 		lowercase: 'ր',
-		voicing: {
-			en: `"r", soft and quick — like the "tt" in "butter" (American pronunciation)`,
-			ru: '«р», мягкое и лёгкое — как обычное русское «р» в быстрой речи'
+		voicingLabel: { en: `"r", soft and quick`, ru: '«р», мягкое и лёгкое' },
+		voicingDetail: {
+			en: `like the "tt" in "butter" (American pronunciation)`,
+			ru: 'как обычное русское «р» в быстрой речи'
 		},
 		transliteration: { en: 'r', ru: 'р' },
 		exampleWordIds: ['sirel']
@@ -366,10 +441,8 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'tso',
 		uppercase: 'Ց',
 		lowercase: 'ց',
-		voicing: {
-			en: `"ts", aspirated — with a puff of air`,
-			ru: '«ц», придыхательное — с лёгким выдохом'
-		},
+		voicingLabel: { en: `"ts", aspirated`, ru: '«ц», придыхательное' },
+		voicingDetail: { en: `with a puff of air`, ru: 'с лёгким выдохом' },
 		transliteration: { en: `ts'`, ru: `ц'` },
 		exampleWordIds: ['tsurt']
 	},
@@ -377,9 +450,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'u',
 		uppercase: 'ՈՒ',
 		lowercase: 'ու',
-		voicing: {
-			en: `"oo" — as in "moon". Written with two characters, but treated as a single letter in the modern alphabet — there's no separate standalone "ւ".`,
-			ru: '«у» — как в слове «улица». Пишется двумя знаками, но в современном алфавите считается одной буквой — отдельной буквы «ւ» не существует.'
+		voicingLabel: { en: `"oo"`, ru: '«у»' },
+		voicingDetail: {
+			en: `as in "moon". Written with two characters, treated as a single letter.`,
+			ru: 'как в слове «улица». Пишется двумя знаками, считается одной буквой.'
 		},
 		transliteration: { en: 'u', ru: 'у' },
 		exampleWordIds: ['ush']
@@ -388,9 +462,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'piwr',
 		uppercase: 'Փ',
 		lowercase: 'փ',
-		voicing: {
-			en: `"p", aspirated — the normal English "p", like in "pot"`,
-			ru: '«п», придыхательное — с лёгким выдохом воздуха'
+		voicingLabel: { en: `"p", aspirated`, ru: '«п», придыхательное' },
+		voicingDetail: {
+			en: `the normal English "p", like in "pot"`,
+			ru: 'с лёгким выдохом воздуха'
 		},
 		transliteration: { en: `p'`, ru: `п'` },
 		exampleWordIds: ['pogh']
@@ -399,9 +474,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'keh',
 		uppercase: 'Ք',
 		lowercase: 'ք',
-		voicing: {
-			en: `"k", aspirated — the normal English "k", like in "kit"`,
-			ru: '«к», придыхательное — с лёгким выдохом воздуха'
+		voicingLabel: { en: `"k", aspirated`, ru: '«к», придыхательное' },
+		voicingDetail: {
+			en: `the normal English "k", like in "kit"`,
+			ru: 'с лёгким выдохом воздуха'
 		},
 		transliteration: { en: `k'`, ru: `к'` },
 		exampleWordIds: ['kuyr']
@@ -410,9 +486,10 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'o',
 		uppercase: 'Օ',
 		lowercase: 'օ',
-		voicing: {
-			en: `"o" — as in "more" (used mostly at the start of a word)`,
-			ru: '«о» — как в слове «дом» (обычно в начале слова)'
+		voicingLabel: { en: `"o"`, ru: '«о»' },
+		voicingDetail: {
+			en: `as in "more" (used mostly at the start of a word)`,
+			ru: 'как в слове «дом» (обычно в начале слова)'
 		},
 		transliteration: { en: 'o', ru: 'о' },
 		exampleWordIds: ['or']
@@ -421,16 +498,18 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'feh',
 		uppercase: 'Ֆ',
 		lowercase: 'ֆ',
-		voicing: { en: `"f" — as in "fun"`, ru: '«ф» — как в слове «флаг»' },
+		voicingLabel: { en: `"f"`, ru: '«ф»' },
+		voicingDetail: { en: `as in "fun"`, ru: 'как в слове «флаг»' },
 		transliteration: { en: 'f', ru: 'ф' },
 		exampleWordIds: ['film']
 	},
 	{
 		id: 'yev',
 		lowercase: 'և',
-		voicing: {
-			en: `"yev" — like "ye" in "yes" followed by "v".`,
-			ru: '«йев» — «е», как в начале слова «ель», плюс «в».'
+		voicingLabel: { en: `"yev"`, ru: '«йев»' },
+		voicingDetail: {
+			en: `like "ye" in "yes" followed by "v".`,
+			ru: '«е», как в начале слова «ель», плюс «в».'
 		},
 		transliteration: { en: 'yev', ru: 'ев' },
 		exampleWordIds: ['yerevan']

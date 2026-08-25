@@ -135,7 +135,7 @@ export const questionCaseToUpperLabel: Translated = {
 
 export const audioReplayHint: Translated = {
 	en: 'Tap to replay',
-	ru: 'Нажмите, чтобы прослушать снова'
+	ru: 'Повторить'
 };
 
 export const audioSkipLabel: Translated = {

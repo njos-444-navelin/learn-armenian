@@ -9,6 +9,12 @@
 		/** Pulses a glow around the button — reserved for rare, high-stakes
 		 * confirm actions (e.g. delete account). Pair with variant="error". */
 		glow?: boolean | undefined;
+		/** variant="secondary" only — swaps its deliberately transparent
+		 * background (see DESIGN.md) for an opaque one. For a secondary button
+		 * that sits over content it must fully occlude, e.g. inside a fixed
+		 * FloatingActionBar. Text/border colors are unaffected since
+		 * --color-on-secondary already equals --color-text-primary. */
+		opaque?: boolean | undefined;
 		children: Snippet;
 	}
 
@@ -43,6 +49,7 @@
 	<a
 		class="button {variant}"
 		class:glow={rest.glow}
+		class:opaque={rest.opaque}
 		href={rest.href}
 		aria-current={rest.ariaCurrent}
 		onclick={rest.onclick}
@@ -53,6 +60,7 @@
 	<button
 		class="button {variant}"
 		class:glow={rest.glow}
+		class:opaque={rest.opaque}
 		type={rest.type ?? 'button'}
 		disabled={rest.disabled || rest.loading}
 		aria-busy={rest.loading ? 'true' : undefined}
@@ -147,6 +155,16 @@
 
 	.secondary:hover:not(:disabled) {
 		background: var(--color-secondary-hover);
+	}
+
+	/* --color-on-secondary already equals --color-text-primary (see
+	 * tokens.css), so only the background needs swapping here. */
+	.secondary.opaque {
+		background: var(--color-background);
+	}
+
+	.secondary.opaque:hover:not(:disabled) {
+		background: var(--color-background-hover);
 	}
 
 	.success {

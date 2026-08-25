@@ -27,6 +27,19 @@
 				var(--space-4) + env(safe-area-inset-right)
 			) calc(var(--space-6) + env(safe-area-inset-bottom))
 			calc(var(--space-4) + env(safe-area-inset-left));
+		/* For a screen that needs to defeat this element's own centering —
+		   forcing itself to always fill the full height this would
+		   otherwise center it within, so a fixed header inside it gets a
+		   constant position instead of moving with however tall that
+		   screen's own content happens to be (see AlphabetLearnStep.svelte's
+		   .learn-step and AlphabetDrillQuestion.svelte's .drill-step).
+		   Mirrors this padding's own top/bottom terms exactly; defined once
+		   here, not re-derived at each call site, so the two can't drift
+		   out of sync with each other. */
+		--page-content-min-height: calc(
+			100dvh - (var(--tap-target-min) + var(--space-4) * 2 + env(safe-area-inset-top)) -
+				(var(--space-6) + env(safe-area-inset-bottom))
+		);
 	}
 
 	.content {

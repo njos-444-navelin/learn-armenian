@@ -8,6 +8,7 @@
 	import { applyAnswer } from '$lib/alphabet/mastery';
 	import { buildDrillQuestion, DRILL_QUESTION_TYPES, type DrillQuestion } from '$lib/alphabet/drillQuestion';
 	import { buildSession } from '$lib/alphabet/session';
+	import { setCloseAction } from '$lib/stores/topLeftAction.svelte';
 	import type { AlphabetLetter } from '$lib/content/alphabet';
 	import { getWord } from '$lib/content/words/entries';
 	import type { Word } from '$lib/content/words/types';
@@ -85,8 +86,10 @@
 	let sessionLog = $state<LogEntry[]>([]);
 
 	let locale = $derived(getLocale());
-	// Deterministic — safe as $derived (buildSession has no randomness),
-	// unlike a drill question, which does and must be built imperatively.
+	// buildSession shuffles which letters it picks, so this and the real
+	// session built in startPractice() below normally land on different
+	// letters — harmless, since this is only ever read for its *counts*
+	// (learnLetters.length, drillLetters.length), never specific letters.
 	let sessionPreview = $derived(buildSession(letters, levels));
 
 	let openLetter = $derived(sheetLetterId === null ? undefined : letters.find((letter) => letter.id === sheetLetterId));
@@ -201,6 +204,30 @@
 	function backHome(): void {
 		screen = 'home';
 	}
+
+	// Swaps the layout's top-left "Back" bubble for a "Close" (X) one for
+	// every screen but 'home' — see topLeftAction.svelte.ts for why this
+	// can't just be a prop. The cleanup (run before each re-run and on
+	// unmount) always hands the bubble back, so navigating away mid-session
+	// can't leave some other page stuck with this override.
+	$effect(() => {
+		if (screen === 'home') return;
+		setCloseAction(backHome);
+		return () => setCloseAction(null);
+	});
+
+	// Screen changes are client-side state, not real navigations, so the
+	// browser never resets scroll position for them the way it would on an
+	// actual page load. Without this, scrolling down on a tall screen (the
+	// summary's rows list, most often) leaves the *next* screen scrolled to
+	// that same spot, cutting off its own top content — e.g. "Practice
+	// again" landing straight into an already-scrolled-down drill question.
+	// `void screen` is what makes this effect track `screen` at all; the
+	// scroll call itself doesn't read it.
+	$effect(() => {
+		void screen;
+		if (browser) window.scrollTo(0, 0);
+	});
 
 	let summaryRows = $derived(
 		sessionLog.flatMap((entry) => {

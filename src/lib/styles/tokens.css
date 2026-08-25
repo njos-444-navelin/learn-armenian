@@ -2,11 +2,30 @@
 	/* Color — surfaces & text. "Organic" design system: a warm cream-and-sand
 	   ground with near-black ink, rather than a neutral gray UI. */
 	--color-background: #f5ead8;
+	--color-background-hover: color-mix(in srgb, var(--color-background) 92%, var(--color-neutral-900) 8%);
+	/* A soft, barely-there translucency for a fixed element that mostly
+	   wants a solid backing (see AlphabetDrillQuestion.svelte's .skip) but
+	   reads better with a touch of glass than fully flat — not the
+	   near-opaque overlay --color-backdrop is for. */
+	--color-background-translucent: color-mix(in srgb, var(--color-background) 94%, transparent);
+	/* A touch softer still — for a panel that wraps several floating
+	   pieces into one card (see AlphabetDrillQuestion.svelte's
+	   .footer-card), where a little more glass reads as one cohesive
+	   surface rather than competing with the button(s) sitting on top of
+	   it. */
+	--color-background-translucent-soft: color-mix(in srgb, var(--color-background) 86%, transparent);
 	--color-surface: #ebddc5;
 	--color-surface-hover: color-mix(in srgb, var(--color-surface) 92%, var(--color-neutral-900) 8%);
 	--color-text-primary: #201e1d;
 	--color-text-secondary: #645c50;
 	--color-border: color-mix(in srgb, #201e1d 16%, transparent);
+	/* A lighter, more translucent step of --color-border — for a control
+	   that wants a softer, less assertive outline than the standard one,
+	   whether that's because it sits on something already glassy itself
+	   (AlphabetDrillQuestion.svelte's .footer-card) or just because a
+	   heavier border reads as too strong against it (that component's own
+	   answer options). */
+	--color-border-soft: color-mix(in srgb, #201e1d 10%, transparent);
 
 	/* Tonal ramps — neutral (ink), accent (terracotta) and accent-2 (sage),
 	   each on a shared perceptual lightness scale so the same step of any

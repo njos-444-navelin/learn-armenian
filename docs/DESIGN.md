@@ -40,7 +40,13 @@ ad-hoc `color-mix()` wherever one fits.
 `--color-primary` (terracotta, ramp step ~500) is the one primary action
 color. `--color-secondary` is deliberately `transparent` — secondary
 buttons are outlined on the ground, not filled with a second color; see
-[`Button.svelte`](../src/lib/components/Button.svelte). `--color-error` and
+[`Button.svelte`](../src/lib/components/Button.svelte). The one exception
+is `Button`'s `opaque` prop, for a secondary button sitting in a fixed
+element over scrollable content (see the alphabet trainer's floating
+footer buttons in [`docs/ALPHABET_TRAINER.md`](ALPHABET_TRAINER.md#the-floating-footer-buttons-three-extracted-to-button-three-kept-bespoke))
+— there, letting the background show through defeats the whole point of
+the button being fixed in the first place, so it swaps in
+`--color-background` instead. `--color-error` and
 the vocabulary trainer's `--color-grade-*` tokens are hand-picked rather
 than literal ramp steps — see the comments directly above them in
 `tokens.css` for why each one isn't just aliased to the nearest ramp step.
@@ -196,6 +202,25 @@ an earlier version of this system used a synthetic `-webkit-text-stroke`
 to fake a bolder heading weight. Noto Serif goes to a true 900 (Black), so
 that hack is gone — don't reintroduce it if the type system changes again;
 check the real weight range first.
+
+### Form controls don't inherit type by default — that's a global reset, not a per-button fix
+
+`button`/`input`/`select`/`textarea` don't inherit `font-family` (or
+`color`) from their ancestors in any browser's default stylesheet — left
+alone, they render in the OS's own UI font instead of Noto Serif, which
+reads as a generic, out-of-place control against the rest of the page.
+[`app.css`](../src/app.css) fixes this once, globally
+(`button, input, select, textarea { font: inherit; color: inherit; }`),
+rather than leaving every component to redeclare `font-family` itself —
+that per-component approach is what most buttons in this codebase
+actually do anyway (`Button.svelte`, `.next`, `.mute`, ...), and it's
+fragile by construction: it silently works until exactly one button
+forgets to, which is precisely how the alphabet drill's answer options
+shipped with the browser's default sans-serif instead of the app's own
+serif for a while. The individual `font-family` declarations elsewhere
+weren't removed after this reset landed — they're redundant now, not
+wrong — but any *new* interactive control no longer needs one to look
+right.
 
 ## Shape
 
@@ -398,15 +423,37 @@ isn't taking the learner anywhere.
   not inside a plain centered flex column.
 - **A conditionally-taller footer shifts everything above it, even when
   it's fixed-position.** `AlphabetDrillQuestion.svelte`'s answer footer
-  reveals feedback text only after an option is picked — sizing the footer
-  to that empty state's height (`min-height: 5rem`, its shortest possible
-  content) meant the reveal changed the footer's actual height, and since
-  the whole screen is vertically centered, that shift moved the glyph and
-  options above it too, not just the footer itself. Reserve height for the
+  reveals a feedback card only after an option is picked — sizing the
+  footer to its shortest state's height meant the reveal changed the
+  footer's actual height, and since the screen's content centers in
+  whatever space is left above it, that shift moved the glyph and options
+  above it too, not just the footer itself. Reserve height for the
   *tallest* state a fixed/sticky footer can show, not its default one —
-  here that meant measuring the two-line wrapped feedback case and setting
-  `min-height: 6.5rem` up front, so revealing feedback fills existing
-  space instead of growing into it.
+  here that meant measuring the tallest real case (two-line feedback text,
+  a button, and the card's own padding) and setting `min-height: 8.25rem`
+  on the outer `.footer` up front, unconditionally, regardless of which of
+  the four states (nothing yet, a bare button, or the card) is actually
+  showing — so a state change fills existing space instead of growing
+  into it. The reserved height living on a *different* element than the
+  one that visually changes size (`.footer`, not `.footer-card`) is
+  deliberate: it's what let the card itself skip rendering entirely for
+  the "nothing to show yet" state without that also being a footer-height
+  change — see "Fixed floating elements" in [`ALPHABET_TRAINER.md`](ALPHABET_TRAINER.md)
+  for the fuller story, including a real bug where the card rendered
+  empty for a state that had nothing to put in it.
+- **A fixed element's own box can block clicks even where it has nothing
+  visible.** [`FloatingActionBar.svelte`](../src/lib/components/FloatingActionBar.svelte)'s
+  `.bar` is `position: fixed`, sized to its tallest possible content (see
+  the point above) — so on a shorter viewport, or whenever its actual
+  content is smaller than that reserved box (a single small centered
+  button, or nothing at all), the *empty* margin within that box still
+  sat on top of and intercepted clicks meant for whatever was genuinely
+  visible underneath it (the alphabet drill's options grid, in the bug
+  that surfaced this). Fixed once, generally, rather than per-caller:
+  `.bar` itself is `pointer-events: none`, and only real
+  `button`/`a`/`form` descendants get `pointer-events: auto` back. Any
+  future child of this component just needs to be a real interactive
+  element to work correctly — nothing extra to opt into.
 - **Prefer a plain CSS `animation` + `@keyframes` over a `svelte/transition`
   directive for anything that must self-verify.** [`Toast.svelte`](../src/lib/components/Toast.svelte)
   switched from `svelte/transition`'s `fly`/`fade` to `animation:
@@ -423,6 +470,17 @@ isn't taking the learner anywhere.
   animation in CSS — otherwise a toast whose `animation: none` never fires
   `animationend` would sit on screen forever waiting for an event that's
   never coming.
+- **New UI that appears in response to something the learner just did
+  fades in — it doesn't just pop into existence.** An abrupt appearance
+  reads as a flash/glitch even when it's fully intentional, and it's easy
+  to miss during development precisely because it renders correctly, just
+  too abruptly to register as deliberate. `AlphabetDrillQuestion.svelte`'s
+  `.footer-card` — the feedback text and Next/Mute button(s) that appear
+  the instant an option is picked — uses `in:fade` (entrance only, same
+  reasoning as the screen-crossfade entry above) with the same
+  reduced-motion-aware duration pattern as `AlphabetTrainer.svelte`'s own
+  screen fade. Reach for this by default for anything conditionally
+  rendered in direct response to a click, not just this one case.
 
 ## Where things live
 

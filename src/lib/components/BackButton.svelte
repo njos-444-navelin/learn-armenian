@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import TopBubbleLink from './TopBubbleLink.svelte';
-	import { back } from '$lib/i18n/dictionaries/common';
+	import { back, closeLabel } from '$lib/i18n/dictionaries/common';
 	import { getLocale, t } from '$lib/i18n/current';
 	import { parentPath, withLocale, withoutLocale } from '$lib/i18n/paths';
+	import { topLeftActionState } from '$lib/stores/topLeftAction.svelte';
 
 	let locale = $derived(getLocale());
 	let pathname = $derived(withoutLocale(page.url.pathname));
@@ -22,7 +23,23 @@
 	);
 </script>
 
-{#if backHref !== undefined}
+{#if topLeftActionState.onClose !== null}
+	<TopBubbleLink onclick={topLeftActionState.onClose} ariaLabel={t(closeLabel)} side="left">
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2.75"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			aria-hidden="true"
+			width="18"
+			height="18"
+		>
+			<path d="M6 6l12 12M18 6L6 18" />
+		</svg>
+	</TopBubbleLink>
+{:else if backHref !== undefined}
 	<TopBubbleLink href={backHref} ariaLabel={t(back)} side="left">
 		<svg
 			viewBox="0 0 24 24"

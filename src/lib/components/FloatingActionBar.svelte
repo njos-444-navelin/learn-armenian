@@ -43,6 +43,21 @@
 		border-radius: var(--radius-lg);
 		box-shadow: var(--shadow-sm);
 		z-index: 10;
+		/* This bar is fixed and can end up overlapping scrollable content
+		   behind it on a short viewport (a `bare` caller's actual content
+		   doesn't always fill its full reserved box — a small centered
+		   button leaves real dead space around it, and some states have no
+		   content at all). Only an actual button/link/form inside should
+		   ever be clickable; the bar's own box — including any such gap —
+		   must never swallow a click meant for whatever's behind it. */
+		pointer-events: none;
+	}
+
+	.bar :global(form),
+	.bar :global(.button),
+	.bar :global(button),
+	.bar :global(a) {
+		pointer-events: auto;
 	}
 
 	.bar :global(form),

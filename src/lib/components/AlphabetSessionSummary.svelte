@@ -9,6 +9,8 @@
 		summaryHeading,
 		summaryNote
 	} from '$lib/i18n/dictionaries/alphabetTrainer';
+	import Button from './Button.svelte';
+	import FloatingActionBar from './FloatingActionBar.svelte';
 
 	export interface SummaryRow {
 		letter: AlphabetLetter;
@@ -51,10 +53,12 @@
 
 <p class="note">{t(summaryNote(downCount))}</p>
 
-<div class="actions">
-	<button type="button" class="primary" onclick={onBackHome}>{t(backToAlphabetLabel)}</button>
-	<button type="button" class="secondary" onclick={onPracticeAgain}>{t(practiceAgainLabel)}</button>
-</div>
+<FloatingActionBar bare>
+	<div class="actions">
+		<Button type="button" variant="primary" onclick={onBackHome}>{t(backToAlphabetLabel)}</Button>
+		<Button type="button" variant="secondary" opaque onclick={onPracticeAgain}>{t(practiceAgainLabel)}</Button>
+	</div>
+</FloatingActionBar>
 
 <style>
 	h1 {
@@ -128,45 +132,15 @@
 		color: var(--color-text-secondary);
 	}
 
+	/* No align-items set — the default `stretch` is what makes each
+	   <Button> below span the row's full width; unlike a row-direction
+	   flex parent, `flex: 1` (from FloatingActionBar's `.bar
+	   :global(.button)` rule) grows main-axis (vertical) size here, not
+	   width, so stretch is doing the actual work. */
 	.actions {
 		display: flex;
 		width: 100%;
 		flex-direction: column;
 		gap: var(--space-2);
-	}
-
-	.primary {
-		min-height: var(--tap-target-min);
-		border: none;
-		border-radius: var(--radius-pill);
-		background: var(--color-primary);
-		color: var(--color-on-primary);
-		font-family: var(--font-heading);
-		font-weight: var(--font-heading-weight);
-		font-size: var(--font-size-md);
-		box-shadow: var(--shadow-sm);
-		cursor: pointer;
-		transition: background-color var(--transition-fast);
-	}
-
-	.primary:hover {
-		background: var(--color-primary-hover);
-	}
-
-	.secondary {
-		min-height: var(--tap-target-min);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-pill);
-		background: transparent;
-		color: var(--color-text-primary);
-		font-family: var(--font-heading);
-		font-weight: var(--font-heading-weight);
-		font-size: var(--font-size-md);
-		cursor: pointer;
-		transition: background-color var(--transition-fast);
-	}
-
-	.secondary:hover {
-		background: var(--color-surface-hover);
 	}
 </style>

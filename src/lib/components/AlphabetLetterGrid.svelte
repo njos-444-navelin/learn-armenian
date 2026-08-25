@@ -141,12 +141,26 @@
 		display: grid;
 		width: 100%;
 		grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr));
+		/* Grid items stretch to fill their track by default — `.tile`'s own
+		   `max-width` below caps how big a tile can get, and this centers
+		   it within whatever track width auto-fill/1fr actually produced,
+		   instead of leaving it stuck flush against the track's start edge. */
+		justify-items: center;
 		gap: var(--space-1);
 	}
 
 	.tile {
 		display: flex;
+		width: 100%;
 		aspect-ratio: 1;
+		/* A column can stretch wider than this on a wide phone (auto-fill's
+		   column count is still driven only by the 3rem minimum above), and
+		   since a wider phone isn't necessarily a taller one, letting the
+		   tile itself (and, via aspect-ratio, its height) grow unbounded
+		   with it could make 6 rows of tiles taller than the viewport. This
+		   caps that growth without changing how many columns fit at any
+		   breakpoint. */
+		max-width: 3rem;
 		min-width: var(--tap-target-min);
 		flex-direction: column;
 		align-items: center;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { AlphabetLetter } from '$lib/content/alphabet';
+	import { fullVoicing, type AlphabetLetter } from '$lib/content/alphabet';
 	import { letterAudioSrc } from '$lib/content/alphabetAudio';
 	import type { Word } from '$lib/content/words/types';
 	import { wordAudioSrc } from '$lib/content/words/audio';
@@ -85,7 +85,7 @@
 		</div>
 	</div>
 
-	<p class="voicing">{t(letter.voicing)}</p>
+	<p class="voicing">{t(fullVoicing(letter))}</p>
 
 	{#each words as word (word.id)}
 		<div class="word-card">

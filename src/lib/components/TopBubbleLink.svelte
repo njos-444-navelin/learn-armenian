@@ -16,7 +16,11 @@
 	interface TriggerProps extends BaseProps {
 		href?: undefined;
 		onclick: () => void;
-		ariaExpanded: boolean;
+		/** Only set for a button that opens something (a menu, a panel) —
+		 * a plain one-shot action like "close" isn't a popup and shouldn't
+		 * claim to be one. */
+		ariaHaspopup?: true | undefined;
+		ariaExpanded?: boolean | undefined;
 		ariaControls?: string | undefined;
 	}
 
@@ -37,7 +41,7 @@
 		type="button"
 		class="bubble {side}"
 		aria-label={ariaLabel}
-		aria-haspopup="true"
+		aria-haspopup={rest.ariaHaspopup}
 		aria-expanded={rest.ariaExpanded}
 		aria-controls={rest.ariaControls}
 		onclick={rest.onclick}
