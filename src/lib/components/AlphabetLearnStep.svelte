@@ -256,7 +256,9 @@
 		background: var(--color-background);
 		color: var(--color-text-primary);
 		cursor: pointer;
-		transition: background-color var(--transition-fast);
+		transition:
+			background-color var(--transition-fast),
+			outline-color var(--transition-fast);
 	}
 
 	.prev:hover {

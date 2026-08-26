@@ -3,7 +3,7 @@
 	import TopBubbleLink from './TopBubbleLink.svelte';
 	import { back, closeLabel } from '$lib/i18n/dictionaries/common';
 	import { getLocale, t } from '$lib/i18n/current';
-	import { parentPath, withLocale, withoutLocale } from '$lib/i18n/paths';
+	import { parentPath, resolveRuntimePath, withoutLocale } from '$lib/i18n/paths';
 	import { topLeftActionState } from '$lib/stores/topLeftAction.svelte';
 
 	let locale = $derived(getLocale());
@@ -19,7 +19,7 @@
 	 */
 	let backBounces = $derived(signedIn && pathname === '/learn');
 	let backHref = $derived(
-		parent !== undefined && !backBounces ? withLocale(locale, parent) : undefined
+		parent !== undefined && !backBounces ? resolveRuntimePath(locale, parent) : undefined
 	);
 </script>
 

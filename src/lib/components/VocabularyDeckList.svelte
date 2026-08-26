@@ -2,7 +2,7 @@
 	import type { VocabularyDeck } from '$lib/content/vocabulary/types';
 	import { addedBadgeLabel } from '$lib/i18n/dictionaries/vocabulary';
 	import { getLocale, t } from '$lib/i18n/current';
-	import { withLocale } from '$lib/i18n/paths';
+	import { withLocaleDeck } from '$lib/i18n/paths';
 
 	interface Props {
 		decks: readonly VocabularyDeck[];
@@ -17,7 +17,7 @@
 	{#each decks as deck (deck.id)}
 		{@const added = addedDeckIds.has(deck.id)}
 		<li>
-			<a class="deck" href={withLocale(locale, `/learn/vocabulary/${deck.id}`)}>
+			<a class="deck" href={withLocaleDeck(locale, deck.id)}>
 				<span class="title">{t(deck.title)}</span>
 				{#if added}
 					<span class="badge">{t(addedBadgeLabel)}</span>
@@ -52,7 +52,9 @@
 		color: var(--color-text-primary);
 		font-family: var(--font-heading);
 		font-weight: var(--font-heading-weight);
-		transition: background-color var(--transition-fast);
+		transition:
+			background-color var(--transition-fast),
+			outline-color var(--transition-fast);
 	}
 
 	.deck:hover {

@@ -120,7 +120,8 @@
 		text-align: left;
 		transition:
 			border-color var(--transition-fast),
-			background-color var(--transition-fast);
+			background-color var(--transition-fast),
+			outline-color var(--transition-fast);
 	}
 
 	.lang-card:hover:not(.current) {

@@ -41,7 +41,7 @@
 
 	let { question, allLetters, index, total, onAnswered, onNext }: Props = $props();
 
-	let picked = $state<string | 'skipped' | null>(null);
+	let picked = $state<string | null>(null);
 	let audioEl: HTMLAudioElement | undefined = $state();
 
 	// Same reduced-motion-aware pattern as AlphabetTrainer.svelte's own
@@ -353,7 +353,9 @@
 		background: var(--color-surface);
 		color: var(--color-accent-800);
 		cursor: pointer;
-		transition: background-color var(--transition-fast);
+		transition:
+			background-color var(--transition-fast),
+			outline-color var(--transition-fast);
 	}
 
 	.audio-button:hover {
@@ -384,7 +386,11 @@
 		background: var(--color-surface);
 		color: var(--color-text-primary);
 		cursor: pointer;
-		transition: background-color var(--transition-fast), border-color var(--transition-fast), opacity var(--transition-fast);
+		transition:
+			background-color var(--transition-fast),
+			border-color var(--transition-fast),
+			opacity var(--transition-fast),
+			outline-color var(--transition-fast);
 	}
 
 	.options.glyph-options .option {
@@ -505,7 +511,9 @@
 		color: var(--color-text-secondary);
 		font-size: var(--font-size-sm);
 		cursor: pointer;
-		transition: background-color var(--transition-fast);
+		transition:
+			background-color var(--transition-fast),
+			outline-color var(--transition-fast);
 	}
 
 	.skip:hover {
@@ -539,7 +547,9 @@
 		font-weight: var(--font-heading-weight);
 		font-size: var(--font-size-sm);
 		cursor: pointer;
-		transition: background-color var(--transition-fast);
+		transition:
+			background-color var(--transition-fast),
+			outline-color var(--transition-fast);
 	}
 
 	.mute:hover {

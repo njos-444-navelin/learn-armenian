@@ -70,9 +70,17 @@
 	--color-on-primary: var(--color-text-primary);
 
 	/* Color — secondary actions: an outline on the ground, not a filled
-	   chip, per the Organic button spec. */
+	   chip, per the Organic button spec. Hover is its own subtle darkened
+	   step of the page's own warm cream, not the achromatic
+	   --color-neutral-200 the ramp would suggest (next to the saturated
+	   warm tones everywhere else on the page, a plain neutral gray read as
+	   noticeably cooler/"blueish" by contrast, even though it isn't blue in
+	   isolation) and lighter than --color-background-hover's own 8% mix
+	   (tuned for a bigger tap target elsewhere) — this is a comparatively
+	   thin outline button, so the same darkening read as too strong a jump
+	   from its resting transparent fill. */
 	--color-secondary: transparent;
-	--color-secondary-hover: var(--color-neutral-200);
+	--color-secondary-hover: color-mix(in srgb, var(--color-background) 96%, var(--color-neutral-900) 4%);
 	--color-on-secondary: var(--color-text-primary);
 
 	/* Color — info toast. A solid fill (unlike --color-secondary above, which

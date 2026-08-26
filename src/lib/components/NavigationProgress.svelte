@@ -52,6 +52,7 @@
 		left: 0;
 		height: 3px;
 		background: var(--color-primary);
+		/* stylelint-disable-next-line local/transition-includes-outline-color -- aria-hidden and pointer-events: none (see markup), never focusable. */
 		transition:
 			width 4s cubic-bezier(0.1, 0.6, 0.4, 1),
 			opacity 0.2s ease;
@@ -60,6 +61,7 @@
 	}
 
 	.bar.fast {
+		/* stylelint-disable-next-line local/transition-includes-outline-color -- same as .bar above. */
 		transition:
 			width 0.2s ease-out,
 			opacity 0.2s ease 0.2s;

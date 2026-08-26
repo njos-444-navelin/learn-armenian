@@ -5,7 +5,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => {
 	if (claims === null) {
-		return { levels: {} as Record<string, number>, signedIn: false };
+		return { levels: {}, signedIn: false };
 	}
 
 	const { data, error: queryError } = await supabase
@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => 
 
 	if (queryError) {
 		console.error('alphabet: failed to load progress', queryError);
-		return { levels: {} as Record<string, number>, signedIn: true };
+		return { levels: {}, signedIn: true };
 	}
 
 	const levels = Object.fromEntries(data.map((row) => [row.letter_id as string, row.level as number]));

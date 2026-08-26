@@ -326,18 +326,18 @@ feature) handle Auth's related cleanup that a direct table delete wouldn't.
   trigger.** It used to open a menu (switch language / train vocabulary /
   account) on click — but a button whose icon and label both say "account"
   should just go there; opening a menu instead reads as broken, not
-  helpful. The popover's other two options moved onto `/account` itself,
-  in the signed-in view's `account-actions` nav: "Train vocabulary" (shows
-  the exact due/new word count and switches from the secondary to the
-  primary button style once that count is above zero — see
-  `trainableWordCount` in
+  helpful. The popover's other two options moved onto `/account` itself:
+  vocabulary progress (collection size and due-right-now count — see
+  `vocabularyWordCount`/`vocabularyDueCount` in
   [`account/+page.server.ts`](../src/routes/[lang=locale]/account/+page.server.ts))
-  and "Switch language". The bubble itself hides entirely while already on
-  `/account` — see `onAccountPage` in
+  now lives in the signed-in dashboard's "My progress" card grid rather
+  than a "Train vocabulary (N)" button, and "Switch language" moved into
+  the dashboard's footer link row. The bubble itself hides entirely while
+  already on `/account` — see `onAccountPage` in
   [`UserMenu.svelte`](../src/lib/components/UserMenu.svelte) — there's
   nothing for a link to itself to do.
 - **"Switch language" isn't offered on the signed-out sign-in screen**,
-  only in the signed-in `account-actions` nav. The account page's own back
+  only in the signed-in dashboard's footer link row. The account page's own back
   button already returns to the home screen, where the full language
   picker lives, so a second, narrower way to change language on the same
   screen was redundant.

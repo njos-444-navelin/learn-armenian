@@ -61,6 +61,7 @@
 <svelte:head>
 	<link rel="icon" href={favicon} />
 	{#if pwaInfo}
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -- vite-plugin-pwa's own generated <link rel="manifest"> tag, never user-controlled -->
 		{@html pwaInfo.webManifest.linkTag}
 	{/if}
 </svelte:head>

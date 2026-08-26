@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { DEFAULT_LOCALE, LOCALES } from '$lib/i18n/locale';
 	import { t } from '$lib/i18n/current';
-	import { withLocale, withoutLocale } from '$lib/i18n/paths';
+	import { resolveRuntimePath, withoutLocale } from '$lib/i18n/paths';
 	import type { Translated } from '$lib/i18n/types';
 
 	interface Props {
@@ -21,11 +21,15 @@
 	<meta name="description" content={t(description)} />
 	<link rel="canonical" href={canonicalHref} />
 	{#each LOCALES as locale (locale)}
-		<link rel="alternate" hreflang={locale} href={page.url.origin + withLocale(locale, path)} />
+		<link
+			rel="alternate"
+			hreflang={locale}
+			href={page.url.origin + resolveRuntimePath(locale, path)}
+		/>
 	{/each}
 	<link
 		rel="alternate"
 		hreflang="x-default"
-		href={page.url.origin + withLocale(DEFAULT_LOCALE, path)}
+		href={page.url.origin + resolveRuntimePath(DEFAULT_LOCALE, path)}
 	/>
 </svelte:head>

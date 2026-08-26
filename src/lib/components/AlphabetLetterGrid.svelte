@@ -129,7 +129,10 @@
 		font-weight: var(--font-heading-weight);
 		font-size: 1.1rem;
 		cursor: pointer;
-		transition: background-color var(--transition-fast), color var(--transition-fast);
+		transition:
+			background-color var(--transition-fast),
+			color var(--transition-fast),
+			outline-color var(--transition-fast);
 	}
 
 	.case-option.active {
@@ -177,7 +180,9 @@
 		/* A per-ramp-step hover token for 10 dynamic background colors isn't
 		   worth precomputing — brightness() darkens whichever tone is already
 		   set, matching the "darken the element's own color" rule uniformly. */
-		transition: filter var(--transition-fast);
+		transition:
+			filter var(--transition-fast),
+			outline-color var(--transition-fast);
 	}
 
 	.tile:hover {
@@ -209,6 +214,7 @@
 	.level-gradient {
 		height: 7px;
 		border-radius: var(--radius-pill);
+		/* stylelint-disable-next-line scale-unlimited/declaration-strict-value -- every stop below is already a var(--color-...) token; the lint plugin can't see inside linear-gradient() to verify that itself, it just flags the top-level value for not being a bare var(). */
 		background: linear-gradient(
 			90deg,
 			var(--color-neutral-100),

@@ -9,16 +9,6 @@ export const trainVocabularyMenuLabel: Translated = {
 	ru: 'Тренировать слова'
 };
 
-/** Shown instead of the plain `trainVocabularyMenuLabel` once there's an
- * exact count to report — see `trainableWordCount` in the account page's
- * server load. Dynamic/interpolated, see Conventions §1. */
-export function trainVocabularyCountLabel(count: number): Translated {
-	return {
-		en: `Train vocabulary (${count})`,
-		ru: `Тренировать слова (${count})`
-	};
-}
-
 /** Announced by screen readers alongside the (purely visual) notification
  * dot shown when the learner has words due for review or never-studied
  * words waiting in a deck they've added — see the `hasWordsToPractice`

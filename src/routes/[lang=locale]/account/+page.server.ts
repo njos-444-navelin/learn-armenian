@@ -1,20 +1,44 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { isSafeInternalPath } from '$lib/i18n/paths';
+import { ALPHABET } from '$lib/content/alphabet';
+import { LEVEL_MAX } from '$lib/alphabet/mastery';
 import { VOCABULARY_CATALOG } from '$lib/content/vocabulary/catalog';
 import { loadDeckWords } from '$lib/content/vocabulary/loadDeck';
 import { cardStateFromRow, isDue } from '$lib/srs/scheduler';
 import type { Actions, PageServerLoad } from './$types';
 
 /**
- * Exact count for the "Train vocabulary (N)" button — unlike
- * `hasWordsToPractice` in the locale layout's load (a cheap existence check
- * that short-circuits on the first match, run on every signed-in page load
- * app-wide), this tallies every trainable word across every added deck, so
- * it only runs here on the one page that needs the precise number.
+ * Stats for the signed-in dashboard's progress cards: alphabet mastery (the
+ * learner's 0-10 drill level per letter, averaged across the whole
+ * alphabet) and the vocabulary collection's size split into a total and a
+ * due-right-now count — unlike `hasWordsToPractice` in the locale layout's
+ * load (a cheap existence check that short-circuits on the first match, run
+ * on every signed-in page load app-wide), this tallies every word across
+ * every added deck, so it only runs here on the one page that needs the
+ * precise numbers.
  */
 export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => {
 	if (claims === null) {
-		return { trainableWordCount: 0 };
+		return { alphabetMasteryPercent: 0, vocabularyWordCount: 0, vocabularyDueCount: 0 };
+	}
+
+	const { data: alphabetRows, error: alphabetError } = await supabase
+		.from('user_alphabet_progress')
+		.select('letter_id, level')
+		.eq('user_id', claims.sub);
+
+	let alphabetMasteryPercent = 0;
+	if (alphabetError) {
+		console.error('account: failed to load alphabet progress', alphabetError);
+	} else {
+		const levelByLetterId = new Map(
+			alphabetRows.map((row) => [row.letter_id as string, row.level as number])
+		);
+		const totalLevel = ALPHABET.reduce(
+			(sum, letter) => sum + (levelByLetterId.get(letter.id) ?? 0),
+			0
+		);
+		alphabetMasteryPercent = Math.round((totalLevel / (ALPHABET.length * LEVEL_MAX)) * 100);
 	}
 
 	const { data: addedDecks, error: decksError } = await supabase
@@ -24,12 +48,12 @@ export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => 
 
 	if (decksError) {
 		console.error('account: failed to load added decks', decksError);
-		return { trainableWordCount: 0 };
+		return { alphabetMasteryPercent, vocabularyWordCount: 0, vocabularyDueCount: 0 };
 	}
 
 	const deckIds = addedDecks.map((row) => row.deck_id as string);
 	if (deckIds.length === 0) {
-		return { trainableWordCount: 0 };
+		return { alphabetMasteryPercent, vocabularyWordCount: 0, vocabularyDueCount: 0 };
 	}
 
 	const { data: progressRows, error: progressError } = await supabase
@@ -40,7 +64,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => 
 
 	if (progressError) {
 		console.error('account: failed to load vocabulary progress', progressError);
-		return { trainableWordCount: 0 };
+		return { alphabetMasteryPercent, vocabularyWordCount: 0, vocabularyDueCount: 0 };
 	}
 
 	const progressByKey = new Map(
@@ -48,7 +72,8 @@ export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => 
 	);
 
 	const now = new Date();
-	let trainableWordCount = 0;
+	let vocabularyWordCount = 0;
+	let vocabularyDueCount = 0;
 
 	for (const deckId of deckIds) {
 		const deck = VOCABULARY_CATALOG.find((candidate) => candidate.id === deckId);
@@ -56,14 +81,15 @@ export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => 
 		const words = await loadDeckWords(deckId);
 		if (words === undefined) continue;
 		for (const word of words) {
+			vocabularyWordCount++;
 			const row = progressByKey.get(`${deckId}:${word.id}`);
 			if (row === undefined || isDue(cardStateFromRow(row), now)) {
-				trainableWordCount++;
+				vocabularyDueCount++;
 			}
 		}
 	}
 
-	return { trainableWordCount };
+	return { alphabetMasteryPercent, vocabularyWordCount, vocabularyDueCount };
 };
 
 export const actions: Actions = {

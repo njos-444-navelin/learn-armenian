@@ -52,13 +52,24 @@ textarea {
    than Chrome does on a mouse click (its :focus-visible heuristic differs),
    so without this it can leak through even though only :focus-visible is
    styled below. */
+/* The outline is always present at its full width/offset, just
+   transparent by default — :focus-visible below only swaps outline-color,
+   never the outline shorthand itself. outline-style is a discrete value
+   (there's no "halfway" between none and solid to interpolate), so
+   animating a none → 3px solid jump can't fade; animating transparent →
+   an opaque color can. */
+* {
+	outline: 3px solid transparent;
+	outline-offset: 2px;
+	transition: outline-color var(--transition-fast);
+}
+
 :focus:not(:focus-visible) {
 	outline: none;
 }
 
 :focus-visible {
-	outline: 3px solid var(--color-focus-ring);
-	outline-offset: 2px;
+	outline-color: var(--color-focus-ring);
 }
 
 h1,
@@ -97,7 +108,13 @@ a:hover {
 	padding: 0;
 	margin: -1px;
 	overflow: hidden;
+	/* clip-path is the modern replacement; clip stays alongside it for
+	   browsers old enough to not support clip-path (the standard "belt and
+	   suspenders" sr-only pattern) — deprecated, but deliberately not
+	   removed. */
+	/* stylelint-disable-next-line property-no-deprecated -- see above */
 	clip: rect(0, 0, 0, 0);
+	clip-path: inset(50%);
 	white-space: nowrap;
 	border: 0;
 }

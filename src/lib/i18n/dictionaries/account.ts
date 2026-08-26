@@ -72,6 +72,48 @@ export const signOutButton: Translated = { en: 'Sign out', ru: 'Выйти' };
 
 export const signedInAs: Translated = { en: 'Signed in as', ru: 'Вы вошли как' };
 
+// Signed-in dashboard
+export const myProgressHeading: Translated = { en: 'My progress', ru: 'Мой прогресс' };
+
+export const alphabetCardLabel: Translated = { en: 'Alphabet', ru: 'Алфавит' };
+
+/** Dynamic — see Conventions §1. */
+export function alphabetMasteryLabel(percent: number): Translated {
+	return { en: `${percent}% mastered`, ru: `Освоено ${percent}%` };
+}
+
+export const vocabularyCardLabel: Translated = { en: 'Vocabulary', ru: 'Словарь' };
+
+/** Russian declines "слово" by count (1 слово, 2-4 слова, 5+ слов) — English
+ * only needs the singular/plural split `collectionCountLabel` below already
+ * makes inline. */
+function ruWordForm(count: number): string {
+	const mod10 = count % 10;
+	const mod100 = count % 100;
+	if (mod10 === 1 && mod100 !== 11) return 'слово';
+	if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'слова';
+	return 'слов';
+}
+
+/** Dynamic — see Conventions §1. */
+export function collectionCountLabel(count: number): Translated {
+	return {
+		en: `${count} ${count === 1 ? 'word' : 'words'} in your collection`,
+		ru: `${count} ${ruWordForm(count)} в коллекции`
+	};
+}
+
+/** Dynamic — see Conventions §1. Ru phrasing matches `todaysCountLabel` in
+ * `dictionaries/vocabularyTraining.ts`, which sidesteps declining "слово" by
+ * count the same way. */
+export function dueNowLabel(count: number): Translated {
+	return { en: `${count} due now`, ru: `${count} на повторение` };
+}
+
+export const allCaughtUpLabel: Translated = { en: 'All caught up', ru: 'Всё повторено' };
+
+export const accountSettingsHeading: Translated = { en: 'Account settings', ru: 'Настройки аккаунта' };
+
 export const authErrorGeneric: Translated = {
 	en: 'That sign-in link is invalid or has expired. Please try again.',
 	ru: 'Ссылка для входа недействительна или истекла. Попробуйте ещё раз.'

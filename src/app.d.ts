@@ -15,7 +15,9 @@ declare global {
 		interface PageData {
 			claims: JwtPayload | null;
 			hasWordsToPractice?: boolean;
-			trainableWordCount?: number;
+			alphabetMasteryPercent?: number;
+			vocabularyWordCount?: number;
+			vocabularyDueCount?: number;
 		}
 		// interface PageState {}
 		// interface Platform {}

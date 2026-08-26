@@ -63,6 +63,14 @@ shouldn't sit as competing backgrounds, contrast rules for text on a filled
 accent) — this rule says *where* colors must come from, that doc says *how*
 to pick one.
 
+Enforced by `npm run lint:css` (`scale-unlimited/declaration-strict-value` in
+[`stylelint.config.js`](../stylelint.config.js)) for `color`, `*-color`,
+`fill`, and `stroke` — not `box-shadow`, which the rule can't reliably check
+(see the config's own comment on that exclusion) and stays a manual-review
+concern. A deliberate exception (e.g. [`Flagmark.svelte`](../src/lib/components/Flagmark.svelte)'s
+literal flag colors) gets a `stylelint-disable-next-line` comment explaining
+why, not a rule change.
+
 ## 3. Duplicated UI becomes a shared component
 
 The moment a UI element (a button, a layout shell, a form field, ...) is used
@@ -85,6 +93,41 @@ one and `withoutLocale()`/`getLocale()` (all in
 [`current.ts`](../src/lib/i18n/current.ts)) to read one. This keeps the set of
 supported locales defined in exactly one place
 ([`src/lib/i18n/locale.ts`](../src/lib/i18n/locale.ts)).
+
+Enforced by `npm run lint:js` (`no-restricted-syntax` in
+[`eslint.config.js`](../eslint.config.js)), which rejects any string or
+template literal starting with a bare `/en/` or `/ru/` segment.
+
+`withLocale()` itself wraps SvelteKit's `resolve()` (`$app/paths`, since
+2.26), which checks its first argument against a generated union of every
+route in the app — a typo'd path is a build/`svelte-check` failure instead of
+a silently broken link. `withLocale(locale, pathname)` only accepts one of
+the fixed literal keys in its own `ROUTES` map (add a route there, not just
+under `src/routes/`, for it to be reachable this way); three narrower
+siblings cover what that can't:
+
+- `withLocaleDeck()` — the one route with a dynamic segment (`/learn/vocabulary/[deckId]`).
+- `withLocaleQuery()` — a fixed route with a query string appended (e.g. the
+  sign-in redirect's `?next=`).
+- `resolveRuntimePath()` — the couple of call sites that rebuild a path
+  computed at runtime (the current page's own pathname, or one derived from
+  it — "switch language on whatever page you're on", "go up one level")
+  rather than one of `ROUTES`'s literals, so it can't be checked against the
+  route list at compile time. Only ever call it with a pathname derived from
+  `page.url.pathname`, never from unvalidated input — see its doc comment.
+
+`eslint-plugin-svelte`'s `svelte/no-navigation-without-resolve` enforces the
+same thing for raw `href`/`goto()`/`pushState()`/`replaceState()` calls that
+don't go through any of the above — it recognizes a value as safe either by
+literally being a `resolve()` call, or (type-aware linting is on for this
+reason — see `eslint.config.js`'s `languageOptions.parserOptions`) by its
+static type being `ResolvedPathname`, which is what lets `Button.svelte`'s
+and `TopBubbleLink.svelte`'s own `href` prop types (not `string`) cover every
+caller automatically. `replaceState`/`pushState` with a mutated copy of
+`page.url` (SvelteKit's own shallow-routing pattern) is the one shape this
+rule has no way to bless — see the disable comments in
+`AlphabetTrainer.svelte` and `learn/vocabulary/[deckId]/+page.svelte` for why
+that's a deliberate, narrow exception, not a bypass.
 
 ## 6. Design mobile-first, verify the full device range
 
@@ -262,7 +305,8 @@ Two rules for [`src/lib/content/vocabulary/`](../src/lib/content/vocabulary/):
   when that deck's page is visited.
   [`catalog.ts`](../src/lib/content/vocabulary/catalog.ts) (deck ids and
   titles only, no words) is the one file in here that's safe to import from
-  anywhere, e.g. the topic list.
+  anywhere, e.g. the topic list. Enforced by `npm run lint:js`
+  (`no-restricted-imports` in [`eslint.config.js`](../eslint.config.js)).
 - **Every word's `armenian` field is capitalized** (e.g. `Ուշ`, not `ուշ`),
   even where normal running Armenian text would use lowercase. Deliberate,
   not a typo to "fix": capital letters look different enough from lowercase
@@ -325,3 +369,37 @@ builds on `docs/VOCABULARY_AUDIO.md`'s pipeline but adds two alphabet-specific
 decisions (send a letter's bare glyph as the prompt, and the letter `vo`
 itself needs the same "Ո"→"Վ" prompt fix vocabulary words do) that aren't
 obvious from the vocabulary doc alone.
+
+## 14. A component's own `transition` list must include `outline-color`
+
+[`app.css`](../src/app.css) gives every element an always-present, always-
+transparent `outline` and a `transition: outline-color var(--transition-fast)`
+on `*`, so the `:focus-visible` ring fades in/out instead of flashing. But
+`transition` is not additive across rules — whichever rule wins the cascade
+for an element supplies the *entire* list, it doesn't merge with `*`'s. Any
+component that declares its own `transition` (almost always for a hover
+effect: `background-color`, `border-color`, `filter`, ...) on a focusable
+element therefore silently drops the fade for that element unless
+`outline-color var(--transition-fast)` is added to its own list too — see
+[`Button.svelte`](../src/lib/components/Button.svelte)'s `.button`/`.primary`
+rules for the pattern.
+
+This bit every focusable custom element in the app at once (drill answers,
+vocabulary deck cards, grade buttons, alphabet tiles, the language picker,
+...) the moment the global rule was added, precisely because each already had
+its own competing `transition`. A new one-off interactive element (anything
+not built from [`Button.svelte`](../src/lib/components/Button.svelte), which
+already carries this correctly) will reintroduce the same silent gap unless
+its `transition` list explicitly carries `outline-color` too.
+
+Enforced by `npm run lint:css` — the local
+`local/transition-includes-outline-color` stylelint rule
+([`tooling/stylelint-rules/transition-includes-outline-color.js`](../tooling/stylelint-rules/transition-includes-outline-color.js))
+flags any `transition`/`transition-property` declaration missing
+`outline-color`. It can't tell a focusable element's transition from a purely
+decorative one's (that needs the markup, which a CSS-only rule can't see), so
+it flags every non-`all`/`none` `transition` declaration on principle — a
+genuinely non-focusable element (e.g.
+[`NavigationProgress.svelte`](../src/lib/components/NavigationProgress.svelte)'s
+`aria-hidden` progress bar) gets a `stylelint-disable-next-line` comment
+explaining why, not a rule change.

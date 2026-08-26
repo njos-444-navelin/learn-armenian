@@ -26,10 +26,12 @@
 	}
 
 	.r {
+		/* stylelint-disable-next-line scale-unlimited/declaration-strict-value -- the Armenian flag's own fixed red, not a theme decision (see the component's top comment); intentionally not a token. */
 		background: #b5504a;
 	}
 
 	.b {
+		/* stylelint-disable-next-line scale-unlimited/declaration-strict-value -- the Armenian flag's own fixed blue, same reasoning as .r above. */
 		background: #5b6f96;
 	}
 

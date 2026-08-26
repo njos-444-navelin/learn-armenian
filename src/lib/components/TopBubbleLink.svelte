@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { ResolvedPathname } from '$app/types';
 
 	interface BaseProps {
 		ariaLabel: string;
@@ -10,7 +11,7 @@
 	}
 
 	interface LinkProps extends BaseProps {
-		href: string;
+		href: ResolvedPathname;
 	}
 
 	interface TriggerProps extends BaseProps {
@@ -70,7 +71,12 @@
 		text-decoration: none;
 		color: var(--color-text-primary);
 		cursor: pointer;
-		transition: background-color var(--transition-fast);
+		/* outline-color included alongside background-color — see the
+		   comment on Button.svelte's base `.button` rule for why a
+		   component's own `transition` list must include it explicitly. */
+		transition:
+			background-color var(--transition-fast),
+			outline-color var(--transition-fast);
 		z-index: 20;
 	}
 

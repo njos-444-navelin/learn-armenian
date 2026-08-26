@@ -13,7 +13,7 @@
 	import { getWord } from '$lib/content/words/entries';
 	import type { Word } from '$lib/content/words/types';
 	import { getLocale, t } from '$lib/i18n/current';
-	import { withLocale } from '$lib/i18n/paths';
+	import { withLocaleQuery } from '$lib/i18n/paths';
 	import { heading, practiceLabel, practiceSignInHint, practiceSubtitleNew, practiceSubtitleWeakest } from '$lib/i18n/dictionaries/alphabetTrainer';
 	import AlphabetDrillQuestion from './AlphabetDrillQuestion.svelte';
 	import AlphabetLearnStep from './AlphabetLearnStep.svelte';
@@ -131,8 +131,8 @@
 
 	function clickPractice(): void {
 		if (!signedIn) {
-			const resumeTarget = `${withLocale(locale, '/learn/alphabet')}?resume=practice`;
-			void goto(withLocale(locale, `/account?next=${encodeURIComponent(resumeTarget)}`));
+			const resumeTarget = withLocaleQuery(locale, '/learn/alphabet', { resume: 'practice' });
+			void goto(withLocaleQuery(locale, '/account', { next: resumeTarget }));
 			return;
 		}
 		startPractice();
@@ -147,6 +147,7 @@
 		startPractice();
 		const url = new URL(page.url);
 		url.searchParams.delete('resume');
+		// eslint-disable-next-line svelte/no-navigation-without-resolve -- shallow routing (SvelteKit's own pattern for this: replaceState(url: string | URL, ...)) mutating a copy of the already-valid page.url to drop a one-shot query param; the pathname itself never changes, so there's no route to check against resolve()'s route list.
 		replaceState(url, page.state);
 	});
 
@@ -333,7 +334,9 @@
 		color: var(--color-on-primary);
 		cursor: pointer;
 		box-shadow: var(--shadow-md), 0 0 0 0 color-mix(in srgb, var(--color-primary) 35%, transparent);
-		transition: background-color var(--transition-fast);
+		transition:
+			background-color var(--transition-fast),
+			outline-color var(--transition-fast);
 		animation: practice-pulse 2.6s ease-out infinite;
 	}
 

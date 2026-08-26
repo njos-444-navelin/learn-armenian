@@ -1,11 +1,25 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { ResolvedPathname } from '$app/types';
 	import Spinner from './Spinner.svelte';
 
 	type Variant = 'primary' | 'secondary' | 'success' | 'error';
+	type Size = 'md' | 'sm';
+	/** Every in-app href is a resolve()-wrapped ResolvedPathname (see
+	 * Conventions #5); the one exception today is contact/+page.svelte's
+	 * `mailto:` link, so that's the only non-internal scheme allowed here —
+	 * widen this union if a future Button needs another (`tel:`, an external
+	 * `https:` link, ...). */
+	type Href = ResolvedPathname | `mailto:${string}`;
 
 	interface BaseProps {
 		variant?: Variant | undefined;
+		/** Defaults to the standard size. `"sm"` trims padding and font size
+		 * for a lower-emphasis action that doesn't need full visual weight
+		 * (e.g. delete account) — it still keeps the same min-height as the
+		 * standard size, since --tap-target-min is an accessibility floor
+		 * (Conventions §6), not a size to shrink below. */
+		size?: Size | undefined;
 		/** Pulses a glow around the button — reserved for rare, high-stakes
 		 * confirm actions (e.g. delete account). Pair with variant="error". */
 		glow?: boolean | undefined;
@@ -19,7 +33,7 @@
 	}
 
 	interface LinkProps extends BaseProps {
-		href: string;
+		href: Href;
 		ariaCurrent?: 'page' | undefined;
 		/** Fires alongside the browser's normal navigation — doesn't (and
 		 * can't) block or cancel it. For side effects that should happen
@@ -42,12 +56,14 @@
 
 	type Props = LinkProps | ActionProps;
 
-	let { variant = 'primary', children, ...rest }: Props = $props();
+	let { variant = 'primary', size = 'md', children, ...rest }: Props = $props();
 </script>
 
 {#if rest.href !== undefined}
+	<!-- eslint-disable svelte/no-navigation-without-resolve -- `rest.href` is Href (ResolvedPathname | mailto:...) here, narrowed by the {#if rest.href !== undefined} above (LinkProps is the only Props member with a non-undefined href) — confirmed by svelte-check, which reports no error here. eslint-plugin-svelte's type-aware check doesn't replicate that narrowing for a rest-destructured union prop; re-binding it via {@const} didn't help either. -->
 	<a
 		class="button {variant}"
+		class:sm={size === 'sm'}
 		class:glow={rest.glow}
 		class:opaque={rest.opaque}
 		href={rest.href}
@@ -56,9 +72,11 @@
 	>
 		{@render children()}
 	</a>
+	<!-- eslint-enable svelte/no-navigation-without-resolve -->
 {:else}
 	<button
 		class="button {variant}"
+		class:sm={size === 'sm'}
 		class:glow={rest.glow}
 		class:opaque={rest.opaque}
 		type={rest.type ?? 'button'}
@@ -89,14 +107,28 @@
 		font-size: var(--font-size-md);
 		text-decoration: none;
 		cursor: pointer;
+		/* outline-color is included here (not left to the global `*` rule in
+		   app.css) because this rule's own `transition` shorthand would
+		   otherwise fully replace it for any button/link — a later
+		   `transition` declaration doesn't merge with an earlier one, it
+		   overrides the whole list. Every other `transition` list in this
+		   file needs the same treatment for the same reason. */
 		transition:
 			background-color var(--transition-fast),
-			border-color var(--transition-fast);
+			border-color var(--transition-fast),
+			outline-color var(--transition-fast);
 	}
 
 	.button:disabled {
 		cursor: not-allowed;
 		opacity: 0.6;
+	}
+
+	/* min-height/min-width stay at --tap-target-min — see the `size` prop's
+	   doc comment above; only padding/font-size shrink. */
+	.sm {
+		padding: var(--space-2) var(--space-4);
+		font-size: var(--font-size-sm);
 	}
 
 	.primary {
@@ -108,7 +140,8 @@
 			background-color var(--transition-fast),
 			border-color var(--transition-fast),
 			box-shadow var(--transition-fast),
-			transform var(--transition-fast);
+			transform var(--transition-fast),
+			outline-color var(--transition-fast);
 	}
 
 	/* Extends the hoverable area past the bottom edge by more than the hover

@@ -60,6 +60,7 @@
 
 		const url = new URL(page.url);
 		url.searchParams.delete('resume');
+		// eslint-disable-next-line svelte/no-navigation-without-resolve -- shallow routing (SvelteKit's own pattern for this: replaceState(url: string | URL, ...)) mutating a copy of the already-valid page.url to drop a one-shot query param; the pathname itself never changes, so there's no route to check against resolve()'s route list.
 		replaceState(url, page.state);
 	});
 

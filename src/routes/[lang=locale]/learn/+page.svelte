@@ -146,7 +146,9 @@
 		text-align: left;
 		font-family: var(--font-family-body);
 		cursor: pointer;
-		transition: background-color var(--transition-fast);
+		transition:
+			background-color var(--transition-fast),
+			outline-color var(--transition-fast);
 	}
 
 	.hub-card:hover {
