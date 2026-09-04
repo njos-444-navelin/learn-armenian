@@ -260,20 +260,31 @@
 		list-style: none;
 	}
 
+	/* Positioned (not flex) — `.action` below is an absolutely-positioned
+	   sibling overlaid on top of `.deck`, not a flex item beside it. Keeping
+	   the button and the link as siblings rather than nesting a <button>
+	   inside an <a> (invalid — interactive elements can't nest) while still
+	   making the button read as "part of the card" visually. This also
+	   decouples the row's height entirely from the button's fixed 44px size:
+	   flexing them side by side previously left the row's height following
+	   whichever centered box happened to be tallest, which on a narrow
+	   phone (more text wrapping, so a genuinely taller card) still visually
+	   read as "the checkmark is squashing this" once the two were compared
+	   side by side — overlaying removes that comparison entirely. */
 	.row {
-		display: flex;
-		align-items: center;
-		gap: var(--space-2);
+		position: relative;
 	}
 
 	.deck {
 		display: flex;
-		flex: 1;
-		min-width: 0;
 		min-height: var(--tap-target-min);
 		align-items: center;
 		gap: var(--space-3);
-		padding: var(--space-3) var(--space-4);
+		/* Right padding clears the absolutely-positioned .action circle
+		   below (its own width plus a comfortable gap) so title/description
+		   text never renders underneath it — see docs/DESIGN.md's
+		   padding-vs-radius note. */
+		padding: var(--space-3) calc(var(--tap-target-min) + var(--space-4)) var(--space-3) var(--space-4);
 		border: 1.5px solid var(--color-border-soft);
 		border-radius: var(--radius-lg);
 		background: transparent;
@@ -324,14 +335,17 @@
 	}
 
 	.action {
+		position: absolute;
+		top: 50%;
+		right: var(--space-2);
 		display: flex;
-		flex: none;
 		align-items: center;
 		justify-content: center;
 		width: var(--tap-target-min);
 		height: var(--tap-target-min);
 		border-radius: var(--radius-pill);
 		cursor: pointer;
+		transform: translateY(-50%);
 		transition: background-color var(--transition-fast);
 	}
 
