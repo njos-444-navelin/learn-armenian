@@ -2,6 +2,7 @@
 	import { fade } from 'svelte/transition';
 	import { browser } from '$app/environment';
 	import { applyAction, enhance } from '$app/forms';
+	import { blurAfterClick } from '$lib/actions/blurAfterClick';
 	import type { AlphabetLetter } from '$lib/content/alphabet';
 	import { letterAudioSrc } from '$lib/content/alphabetAudio';
 	import { muteAudioQuestions } from '$lib/alphabet/audioMute';
@@ -153,7 +154,7 @@
 	<p class="prompt">{t(promptText)}</p>
 
 	{#if question.type === 'audio'}
-		<button type="button" class="audio-button" onclick={playAudio}>
+		<button type="button" class="audio-button" onclick={playAudio} use:blurAfterClick>
 			<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="40" height="40">
 				<path
 					d="M4 9.5v5h3.5L12 18V6L7.5 9.5H4Z"

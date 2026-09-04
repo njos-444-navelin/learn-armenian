@@ -4,6 +4,7 @@
 	import { fade } from 'svelte/transition';
 	import { enhance } from '$app/forms';
 	import { invalidate } from '$app/navigation';
+	import { blurAfterClick } from '$lib/actions/blurAfterClick';
 	import Button from './Button.svelte';
 	import SpeakerButton from './SpeakerButton.svelte';
 	import { fitText } from '$lib/actions/fitText';
@@ -195,6 +196,7 @@
 						aria-label={t(flipButtonLabel(flipped))}
 						in:cardEnter
 						out:fade={{ duration: 150 }}
+						use:blurAfterClick
 					>
 						<div class="card-inner">
 							<div class="face front">
@@ -204,12 +206,26 @@
 								</span>
 							</div>
 							<div class="face back">
-								<span class="word" use:fitText>{t(current.word.translation)}</span>
-								{#if current.word.register !== undefined}
-									<em class="register">{t(registerLabels[current.word.register])}</em>
-								{/if}
-								{#if current.word.note !== undefined}
-									<p class="note">{t(current.word.note)}</p>
+								<!-- Gated on `revealed`, not just always rendered — see the
+								     comment on `.card-inner` below: a WebKit/GPU-compositing
+								     timing race can briefly paint this face unrotated before
+								     `backface-visibility` takes effect. That's tolerable once
+								     it's genuinely empty (nothing readable to flash), which is
+								     what actually stops the "wrong word for a split second"
+								     bug — the vendor-prefixed CSS below is a real fix too, but
+								     this is the one that can't fail regardless of the browser's
+								     GPU-layer timing. `revealed` flips true in the same
+								     synchronous tick `flipped` does (see `flip()`), so a real
+								     flip still shows the translation immediately — nothing here
+								     delays the actual animation. -->
+								{#if revealed}
+									<span class="word" use:fitText>{t(current.word.translation)}</span>
+									{#if current.word.register !== undefined}
+										<em class="register">{t(registerLabels[current.word.register])}</em>
+									{/if}
+									{#if current.word.note !== undefined}
+										<p class="note">{t(current.word.note)}</p>
+									{/if}
 								{/if}
 							</div>
 						</div>
@@ -307,6 +323,13 @@
 	.card {
 		position: absolute;
 		inset: 1rem;
+		/* -webkit- prefix kept alongside the unprefixed property (not just on
+		   -webkit-transform-style below) — see the .card-inner comment: the
+		   plain properties alone weren't enough to stop the first-paint
+		   mirrored-face flash in practice, so this is now consistently
+		   prefixed everywhere in this 3D stack rather than assuming any one
+		   of these is "safe" to leave unprefixed. */
+		-webkit-perspective: 1200px;
 		perspective: 1200px;
 		cursor: pointer;
 	}
@@ -317,16 +340,19 @@
 		height: 100%;
 		/* stylelint-disable-next-line local/transition-includes-outline-color -- .card (the actual role="button" tabindex="0" element) has no competing transition of its own, so it already gets the fade from app.css's `*` rule; this is just its inner 3D-flip wrapper. */
 		transition: transform 0.5s;
-		/* -webkit- prefix genuinely required here — unlike perspective/
-		   backface-visibility below, Safari still needs this one even on
-		   current versions (kept as-is by the build's CSS minifier, which
-		   strips vendor prefixes it can confirm are unnecessary). */
 		-webkit-transform-style: preserve-3d;
 		transform-style: preserve-3d;
 		/* Promotes the card to its own compositing layer as soon as it
-		   mounts — without this, iOS Safari can briefly render the mirrored
+		   mounts — without this, WebKit/Blink can briefly render the mirrored
 		   back face on first paint of a freshly mounted card before
-		   self-correcting (WebKit backface-visibility timing bug). */
+		   self-correcting (a GPU-compositing-layer timing race, not specific
+		   to one engine). This alone turned out not to be reliable enough on
+		   its own (reported still happening after this landed) — the real
+		   belt-and-suspenders fix is gating the back face's actual content on
+		   `revealed` in the markup above, so there's nothing readable to
+		   flash even if this race still happens. Kept anyway: it's still the
+		   right hint for the browser, and it's what makes the *animated* flip
+		   itself composite smoothly once a card has been revealed once. */
 		transform: translateZ(0);
 	}
 
@@ -342,6 +368,7 @@
 		align-items: center;
 		justify-content: center;
 		gap: var(--space-2);
+		-webkit-backface-visibility: hidden;
 		backface-visibility: hidden;
 		border-radius: var(--radius-lg);
 		background: var(--color-surface);

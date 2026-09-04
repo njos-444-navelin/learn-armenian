@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { blurAfterClick } from '$lib/actions/blurAfterClick';
 	import { t } from '$lib/i18n/current';
 	import { playPronunciationLabel } from '$lib/i18n/dictionaries/vocabulary';
 
@@ -24,7 +25,7 @@
 	}
 </script>
 
-<button type="button" class="speaker" onclick={play} aria-label={t(playPronunciationLabel)}>
+<button type="button" class="speaker" onclick={play} aria-label={t(playPronunciationLabel)} use:blurAfterClick>
 	<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="20" height="20">
 		<path
 			d="M4 9.5v5h3.5L12 18V6L7.5 9.5H4Z"

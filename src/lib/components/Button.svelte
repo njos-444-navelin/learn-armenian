@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import type { ResolvedPathname } from '$app/types';
+	import { blurAfterClick } from '$lib/actions/blurAfterClick';
 	import Spinner from './Spinner.svelte';
 
 	type Variant = 'primary' | 'secondary' | 'success' | 'error';
@@ -69,6 +70,7 @@
 		href={rest.href}
 		aria-current={rest.ariaCurrent}
 		onclick={rest.onclick}
+		use:blurAfterClick
 	>
 		{@render children()}
 	</a>
@@ -83,6 +85,7 @@
 		disabled={rest.disabled || rest.loading}
 		aria-busy={rest.loading ? 'true' : undefined}
 		onclick={rest.onclick}
+		use:blurAfterClick
 	>
 		{#if rest.loading}
 			<Spinner />
