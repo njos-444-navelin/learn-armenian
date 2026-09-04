@@ -354,9 +354,7 @@
 		background: var(--color-surface);
 		color: var(--color-accent-800);
 		cursor: pointer;
-		transition:
-			background-color var(--transition-fast),
-			outline-color var(--transition-fast);
+		transition: background-color var(--transition-fast);
 	}
 
 	.audio-button:hover {
@@ -390,8 +388,7 @@
 		transition:
 			background-color var(--transition-fast),
 			border-color var(--transition-fast),
-			opacity var(--transition-fast),
-			outline-color var(--transition-fast);
+			opacity var(--transition-fast);
 	}
 
 	.options.glyph-options .option {
@@ -512,9 +509,7 @@
 		color: var(--color-text-secondary);
 		font-size: var(--font-size-sm);
 		cursor: pointer;
-		transition:
-			background-color var(--transition-fast),
-			outline-color var(--transition-fast);
+		transition: background-color var(--transition-fast);
 	}
 
 	.skip:hover {
@@ -548,9 +543,7 @@
 		font-weight: var(--font-heading-weight);
 		font-size: var(--font-size-sm);
 		cursor: pointer;
-		transition:
-			background-color var(--transition-fast),
-			outline-color var(--transition-fast);
+		transition: background-color var(--transition-fast);
 	}
 
 	.mute:hover {

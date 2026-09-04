@@ -370,36 +370,26 @@ decisions (send a letter's bare glyph as the prompt, and the letter `vo`
 itself needs the same "Ո"→"Վ" prompt fix vocabulary words do) that aren't
 obvious from the vocabulary doc alone.
 
-## 14. A component's own `transition` list must include `outline-color`
+## 14. Focus rings are never animated — no `transition` on `outline`/`outline-color`
 
-[`app.css`](../src/app.css) gives every element an always-present, always-
-transparent `outline` and a `transition: outline-color var(--transition-fast)`
-on `*`, so the `:focus-visible` ring fades in/out instead of flashing. But
-`transition` is not additive across rules — whichever rule wins the cascade
-for an element supplies the *entire* list, it doesn't merge with `*`'s. Any
-component that declares its own `transition` (almost always for a hover
-effect: `background-color`, `border-color`, `filter`, ...) on a focusable
-element therefore silently drops the fade for that element unless
-`outline-color var(--transition-fast)` is added to its own list too — see
-[`Button.svelte`](../src/lib/components/Button.svelte)'s `.button`/`.primary`
-rules for the pattern.
+[`app.css`](../src/app.css) shows/hides the `:focus-visible` ring instantly
+(`:focus { outline: none }`, `:focus-visible { outline: 3px solid
+var(--color-focus-ring) }`), with no `transition` on `outline`/`outline-color`
+anywhere in the app. Never add one — not globally, not on a single component.
 
-This bit every focusable custom element in the app at once (drill answers,
-vocabulary deck cards, grade buttons, alphabet tiles, the language picker,
-...) the moment the global rule was added, precisely because each already had
-its own competing `transition`. A new one-off interactive element (anything
-not built from [`Button.svelte`](../src/lib/components/Button.svelte), which
-already carries this correctly) will reintroduce the same silent gap unless
-its `transition` list explicitly carries `outline-color` too.
-
-Enforced by `npm run lint:css` — the local
-`local/transition-includes-outline-color` stylelint rule
-([`tooling/stylelint-rules/transition-includes-outline-color.js`](../tooling/stylelint-rules/transition-includes-outline-color.js))
-flags any `transition`/`transition-property` declaration missing
-`outline-color`. It can't tell a focusable element's transition from a purely
-decorative one's (that needs the markup, which a CSS-only rule can't see), so
-it flags every non-`all`/`none` `transition` declaration on principle — a
-genuinely non-focusable element (e.g.
-[`NavigationProgress.svelte`](../src/lib/components/NavigationProgress.svelte)'s
-`aria-hidden` progress bar) gets a `stylelint-disable-next-line` comment
-explaining why, not a rule change.
+This used to work the other way (an always-present, transparent `outline`
+plus a `transition: outline-color` on `*`, so the ring faded in/out) but that
+turned an intermittent Firefox/Chrome bug into a visible, repeated glitch: a
+button that keeps DOM focus after a pointer click (correctly showing no ring,
+since `:focus-visible` doesn't match a pointer click) could have that
+still-focused element's `:focus-visible` status spuriously re-evaluated as
+*matching* for a single style-recalc pass whenever a later, unrelated
+interaction happened elsewhere on the page — e.g. tapping a "tap to replay"
+button, then picking an answer option, briefly re-showed a ring on the replay
+button. Confirmed on Firefox (Linux and Android) and Chrome (Android), so not
+one device or engine. With the transition in place, that one-frame recalc
+glitch played out as a ~150ms fade-in/fade-out flash; without it, the same
+glitch (if it still happens at all) is at most a single imperceptible frame.
+See [`blurAfterClick`](../src/lib/actions/blurAfterClick.ts) for a related,
+narrower mitigation (blurring an element right after a non-keyboard click) —
+kept alongside this rule, not a replacement for it.

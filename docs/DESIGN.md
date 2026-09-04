@@ -367,6 +367,16 @@ isn't taking the learner anywhere.
   `transition` — it is not inherited from anywhere, and a bubble button once
   shipped with a hover color change but no `transition` at all, which read as
   an abrupt flicker instead of a hover.
+- **Focus rings are not animated.** `outline`/`outline-color` never appears
+  in a `transition` list, anywhere — see
+  [`CONVENTIONS.md`](CONVENTIONS.md#14-focus-rings-are-never-animated--no-transition-on-outlineoutline-color)
+  §14 for the full story. In short: an earlier version faded the
+  `:focus-visible` ring in/out, which turned a rare Firefox/Chrome
+  `:focus-visible` re-evaluation glitch (a stale-but-unfocused element's ring
+  spuriously repainting after a later, unrelated interaction) into a visible,
+  repeated flash. Removing the animation didn't fix the underlying browser
+  quirk, but it shrank its worst-case visible symptom from a ~150ms flash
+  down to at most one imperceptible frame.
 - **Primary button hover/press physicality**: at rest the primary button
   carries `--shadow-sm`; hovering raises it to `--shadow-md` with a
   `translateY(-2px)` lift, and pressing settles it back to `--shadow-sm`

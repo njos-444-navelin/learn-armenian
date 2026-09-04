@@ -131,8 +131,7 @@
 		cursor: pointer;
 		transition:
 			background-color var(--transition-fast),
-			color var(--transition-fast),
-			outline-color var(--transition-fast);
+			color var(--transition-fast);
 	}
 
 	.case-option.active {
@@ -180,9 +179,7 @@
 		/* A per-ramp-step hover token for 10 dynamic background colors isn't
 		   worth precomputing — brightness() darkens whichever tone is already
 		   set, matching the "darken the element's own color" rule uniformly. */
-		transition:
-			filter var(--transition-fast),
-			outline-color var(--transition-fast);
+		transition: filter var(--transition-fast);
 	}
 
 	.tile:hover {

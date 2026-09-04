@@ -48,28 +48,22 @@ textarea {
 	color: inherit;
 }
 
-/* Safari applies its own default blue outline to plain :focus more readily
-   than Chrome does on a mouse click (its :focus-visible heuristic differs),
-   so without this it can leak through even though only :focus-visible is
-   styled below. */
-/* The outline is always present at its full width/offset, just
-   transparent by default — :focus-visible below only swaps outline-color,
-   never the outline shorthand itself. outline-style is a discrete value
-   (there's no "halfway" between none and solid to interpolate), so
-   animating a none → 3px solid jump can't fade; animating transparent →
-   an opaque color can. */
-* {
-	outline: 3px solid transparent;
-	outline-offset: 2px;
-	transition: outline-color var(--transition-fast);
-}
-
-:focus:not(:focus-visible) {
+/* Deliberately not animated — see docs/DESIGN.md's Motion section ("Focus
+   rings are not animated") for why. A previous version gave every element
+   an always-present, transparent outline plus a `transition: outline-color`
+   so the ring would fade in/out instead of snapping; that made a real
+   Firefox/Chrome bug (a stale-but-unfocused element's :focus-visible match
+   spuriously recomputed for one style-recalc pass after a later, unrelated
+   interaction) visible as an animated flash instead of an imperceptible
+   single-frame flicker. Plain instant show/hide, straight from
+   :focus-visible, has no duration for that flicker to play out over. */
+:focus {
 	outline: none;
 }
 
 :focus-visible {
-	outline-color: var(--color-focus-ring);
+	outline: 3px solid var(--color-focus-ring);
+	outline-offset: 2px;
 }
 
 h1,

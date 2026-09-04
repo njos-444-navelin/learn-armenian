@@ -71,12 +71,7 @@
 		text-decoration: none;
 		color: var(--color-text-primary);
 		cursor: pointer;
-		/* outline-color included alongside background-color — see the
-		   comment on Button.svelte's base `.button` rule for why a
-		   component's own `transition` list must include it explicitly. */
-		transition:
-			background-color var(--transition-fast),
-			outline-color var(--transition-fast);
+		transition: background-color var(--transition-fast);
 		z-index: 20;
 	}
 

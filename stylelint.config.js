@@ -1,9 +1,5 @@
 export default {
-	plugins: [
-		'stylelint-declaration-strict-value',
-		// Encodes Conventions #14 — see the file itself for the full rationale.
-		'./tooling/stylelint-rules/transition-includes-outline-color.js'
-	],
+	plugins: ['stylelint-declaration-strict-value'],
 	extends: ['stylelint-config-recommended'],
 	overrides: [
 		{
@@ -51,8 +47,6 @@ export default {
 				message:
 					'Use a var(--color-...) token from tokens.css instead of a literal color (Conventions #2). Add a new token there if one doesn\'t exist yet.'
 			}
-		],
-
-		'local/transition-includes-outline-color': true
+		]
 	}
 };

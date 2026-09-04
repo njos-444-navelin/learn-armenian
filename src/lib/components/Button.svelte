@@ -110,16 +110,9 @@
 		font-size: var(--font-size-md);
 		text-decoration: none;
 		cursor: pointer;
-		/* outline-color is included here (not left to the global `*` rule in
-		   app.css) because this rule's own `transition` shorthand would
-		   otherwise fully replace it for any button/link — a later
-		   `transition` declaration doesn't merge with an earlier one, it
-		   overrides the whole list. Every other `transition` list in this
-		   file needs the same treatment for the same reason. */
 		transition:
 			background-color var(--transition-fast),
-			border-color var(--transition-fast),
-			outline-color var(--transition-fast);
+			border-color var(--transition-fast);
 	}
 
 	.button:disabled {
@@ -143,8 +136,7 @@
 			background-color var(--transition-fast),
 			border-color var(--transition-fast),
 			box-shadow var(--transition-fast),
-			transform var(--transition-fast),
-			outline-color var(--transition-fast);
+			transform var(--transition-fast);
 	}
 
 	/* Extends the hoverable area past the bottom edge by more than the hover

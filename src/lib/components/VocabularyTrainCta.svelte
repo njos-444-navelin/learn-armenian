@@ -62,9 +62,7 @@
 		color: var(--color-on-primary);
 		text-decoration: none;
 		box-shadow: var(--shadow-md), 0 0 0 0 color-mix(in srgb, var(--color-primary) 35%, transparent);
-		transition:
-			background-color var(--transition-fast),
-			outline-color var(--transition-fast);
+		transition: background-color var(--transition-fast);
 		animation: practice-pulse 2.6s ease-out infinite;
 	}
 

@@ -279,9 +279,7 @@
 		background: transparent;
 		text-decoration: none;
 		color: var(--color-text-primary);
-		transition:
-			background-color var(--transition-fast),
-			outline-color var(--transition-fast);
+		transition: background-color var(--transition-fast);
 	}
 
 	.deck.added {
@@ -334,9 +332,7 @@
 		height: var(--tap-target-min);
 		border-radius: var(--radius-pill);
 		cursor: pointer;
-		transition:
-			background-color var(--transition-fast),
-			outline-color var(--transition-fast);
+		transition: background-color var(--transition-fast);
 	}
 
 	.action:disabled {

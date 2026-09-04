@@ -229,9 +229,7 @@
 		text-decoration: underline;
 		text-underline-offset: 3px;
 		cursor: pointer;
-		transition:
-			color var(--transition-fast),
-			outline-color var(--transition-fast);
+		transition: color var(--transition-fast);
 	}
 
 	.remove-link:hover {

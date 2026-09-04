@@ -341,9 +341,7 @@
 		background: var(--color-surface);
 		color: var(--color-text-primary);
 		text-decoration: none;
-		transition:
-			background-color var(--transition-fast),
-			outline-color var(--transition-fast);
+		transition: background-color var(--transition-fast);
 	}
 
 	.stat-card:hover {

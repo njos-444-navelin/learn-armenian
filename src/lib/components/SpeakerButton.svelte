@@ -55,8 +55,7 @@
 		cursor: pointer;
 		transition:
 			background-color var(--transition-fast),
-			color var(--transition-fast),
-			outline-color var(--transition-fast);
+			color var(--transition-fast);
 	}
 
 	.speaker:hover {

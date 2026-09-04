@@ -234,9 +234,7 @@
 		background: none;
 		color: var(--color-text-secondary);
 		cursor: pointer;
-		transition:
-			background-color var(--transition-fast),
-			outline-color var(--transition-fast);
+		transition: background-color var(--transition-fast);
 	}
 
 	.cross:hover {

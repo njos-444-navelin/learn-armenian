@@ -338,7 +338,6 @@
 		position: relative;
 		width: 100%;
 		height: 100%;
-		/* stylelint-disable-next-line local/transition-includes-outline-color -- .card (the actual role="button" tabindex="0" element) has no competing transition of its own, so it already gets the fade from app.css's `*` rule; this is just its inner 3D-flip wrapper. */
 		transition: transform 0.5s;
 		-webkit-transform-style: preserve-3d;
 		transform-style: preserve-3d;
@@ -456,8 +455,7 @@
 		cursor: pointer;
 		transition:
 			background-color var(--transition-fast),
-			opacity var(--transition-fast),
-			outline-color var(--transition-fast);
+			opacity var(--transition-fast);
 	}
 
 	/* Reserves the row's height and position before the card is flipped, so
