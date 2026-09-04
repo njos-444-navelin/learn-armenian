@@ -1,4 +1,5 @@
 import { brandName } from './common';
+import { ruWordForm } from '../ruPlural';
 import type { Translated } from '../types';
 
 export const pageTitle: Translated = {
@@ -83,17 +84,6 @@ export function alphabetMasteryLabel(percent: number): Translated {
 }
 
 export const vocabularyCardLabel: Translated = { en: 'Vocabulary', ru: 'Словарь' };
-
-/** Russian declines "слово" by count (1 слово, 2-4 слова, 5+ слов) — English
- * only needs the singular/plural split `collectionCountLabel` below already
- * makes inline. */
-function ruWordForm(count: number): string {
-	const mod10 = count % 10;
-	const mod100 = count % 100;
-	if (mod10 === 1 && mod100 !== 11) return 'слово';
-	if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'слова';
-	return 'слов';
-}
 
 /** Dynamic — see Conventions §1. */
 export function collectionCountLabel(count: number): Translated {

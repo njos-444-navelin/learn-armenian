@@ -7,14 +7,17 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
 	import Seo from '$lib/components/Seo.svelte';
+	import VocabularyDeckIcon from '$lib/components/VocabularyDeckIcon.svelte';
+	import VocabularyTrainCta from '$lib/components/VocabularyTrainCta.svelte';
 	import VocabularyWordList from '$lib/components/VocabularyWordList.svelte';
 	import { t } from '$lib/i18n/current';
 	import { cancelLabel } from '$lib/i18n/dictionaries/common';
 	import {
 		addToCollectionLabel,
-		addedToCollectionLabel,
 		deckPageDescription,
 		deckPageTitle,
+		deckSubtitle,
+		myCollectionHeading,
 		removeDeckFailedMessage,
 		removeDeckHeading,
 		removeDeckLabel,
@@ -103,23 +106,61 @@
 <Seo title={deckPageTitle(data.deck.title)} description={deckPageDescription(data.deck.title)} />
 
 <PageShell>
-	<h1>{t(data.deck.title)}</h1>
+	<div class="hero">
+		<VocabularyDeckIcon icon={data.deck.icon} size="lg" />
+		<h1>{t(data.deck.title)}</h1>
+		<p class="subtitle">{t(deckSubtitle(data.deck))}</p>
+
+		{#if added}
+			<div class="collection-status">
+				<span class="chip">
+					<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="15" height="15">
+						<path
+							d="M20 6 9 17l-5-5"
+							stroke="currentColor"
+							stroke-width="2.75"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
+					{t(myCollectionHeading)}
+				</span>
+				<button type="button" class="remove-link" onclick={() => (showRemoveModal = true)}>
+					{t(removeDeckLabel)}
+				</button>
+			</div>
+		{/if}
+	</div>
 
 	<VocabularyWordList deckId={data.deck.id} words={data.words} />
 
-	<FloatingActionBar>
-		{#if added}
-			<Button type="button" variant="success" onclick={() => (showRemoveModal = true)}>
-				{t(addedToCollectionLabel)}
-			</Button>
-		{:else}
+	{#if added}
+		<VocabularyTrainCta />
+	{:else}
+		<FloatingActionBar>
 			<form method="POST" action="?/addToCollection" use:enhance={submitAdd()} bind:this={addForm}>
 				<Button type="submit" variant="primary" loading={pending} disabled={pending}>
+					<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="19" height="19">
+						<path
+							d="M5 12h14"
+							stroke="currentColor"
+							stroke-width="2.75"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+						<path
+							d="M12 5v14"
+							stroke="currentColor"
+							stroke-width="2.75"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
 					{t(addToCollectionLabel)}
 				</Button>
 			</form>
-		{/if}
-	</FloatingActionBar>
+		</FloatingActionBar>
+	{/if}
 </PageShell>
 
 {#if showRemoveModal}
@@ -140,7 +181,64 @@
 {/if}
 
 <style>
-	h2 {
+	.hero {
+		display: flex;
+		width: 100%;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-3);
+	}
+
+	.subtitle {
+		margin: 0;
+		color: var(--color-text-secondary);
+		font-size: var(--font-size-sm);
+	}
+
+	.collection-status {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+	}
+
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		padding: var(--space-1) var(--space-3);
+		border-radius: var(--radius-pill);
+		background: var(--color-surface);
+		color: var(--color-accent-700);
+		font-size: var(--font-size-sm);
+		font-weight: 600;
+	}
+
+	.remove-link {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		min-height: var(--tap-target-min);
+		padding: var(--space-1) var(--space-3);
+		border: none;
+		border-radius: var(--radius-pill);
+		background: none;
+		color: var(--color-text-secondary);
+		font-size: var(--font-size-sm);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+		cursor: pointer;
+		transition:
+			color var(--transition-fast),
+			outline-color var(--transition-fast);
+	}
+
+	.remove-link:hover {
+		color: var(--color-error);
+	}
+
+	#remove-deck-heading {
 		margin: 0;
 		font-size: var(--font-size-lg);
 	}

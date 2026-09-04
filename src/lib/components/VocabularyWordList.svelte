@@ -16,21 +16,19 @@
 <ul class="words">
 	{#each words as word (word.id)}
 		<li>
-			<div class="row">
-				<span class="armenian-group">
+			<div class="info">
+				<div class="row">
 					<span class="armenian" lang="hy">{word.armenian}</span>
-					<SpeakerButton src={wordAudioSrc(deckId, word.id)} />
-				</span>
-				<span class="translation">
-					{t(word.translation)}
+					<span class="translation">{t(word.translation)}</span>
 					{#if word.register !== undefined}
 						<em class="register">{t(registerLabels[word.register])}</em>
 					{/if}
-				</span>
+				</div>
+				{#if word.note !== undefined}
+					<p class="note">{t(word.note)}</p>
+				{/if}
 			</div>
-			{#if word.note !== undefined}
-				<p class="note">{t(word.note)}</p>
-			{/if}
+			<SpeakerButton src={wordAudioSrc(deckId, word.id)} />
 		</li>
 	{/each}
 </ul>
@@ -48,22 +46,31 @@
 	}
 
 	.words li {
-		padding: var(--space-3) var(--space-4);
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		/* Tighter on the trailing edge, where the speaker button already
+		   supplies its own padding — see docs/DESIGN.md's padding-vs-radius
+		   note for why the leading edge (no button to share space with)
+		   still needs the full var(--space-4). */
+		padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
 		border-radius: var(--radius-lg);
 		background: var(--color-surface);
+	}
+
+	.info {
+		display: flex;
+		min-width: 0;
+		flex: 1;
+		flex-direction: column;
+		gap: 0.1rem;
 	}
 
 	.row {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
-		gap: var(--space-3);
-	}
-
-	.armenian-group {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--space-1);
+		gap: var(--space-2);
 	}
 
 	.armenian {
@@ -76,14 +83,13 @@
 	}
 
 	.register {
-		margin-inline-start: var(--space-1);
 		color: var(--color-text-secondary);
 		font-size: var(--font-size-sm);
 		font-style: italic;
 	}
 
 	.note {
-		margin: var(--space-1) 0 0;
+		margin: 0;
 		color: var(--color-text-secondary);
 		font-size: var(--font-size-sm);
 	}

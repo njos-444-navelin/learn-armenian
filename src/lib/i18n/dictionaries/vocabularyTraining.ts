@@ -18,6 +18,14 @@ export const wordsToPracticeHint: Translated = {
 	ru: 'Есть слова для практики'
 };
 
+/** Shown as the floating "Train vocabulary" button's subtitle (see
+ * `VocabularyTrainCta.svelte`) when `wordsToPracticeHint` doesn't apply —
+ * i.e. every added deck is fully caught up right now. */
+export const nothingDueYetLabel: Translated = {
+	en: 'Nothing due yet',
+	ru: 'Пока нечего повторять'
+};
+
 // --- Training page (/learn/vocabulary/train) ---
 
 export const pageTitle: Translated = {

@@ -10,10 +10,24 @@ import type { VocabularyDeck } from './types';
 export const VOCABULARY_CATALOG: readonly VocabularyDeck[] = [
 	{
 		id: 'greetings',
-		title: { en: 'Greetings', ru: 'Приветствия' }
+		title: { en: 'Greetings', ru: 'Приветствия' },
+		description: {
+			en: 'Hello, goodbye and how are you',
+			ru: 'Здравствуйте, до свидания и как дела'
+		},
+		level: 'beginner',
+		wordCount: 20,
+		icon: 'hand'
 	},
 	{
 		id: 'verbs-1',
-		title: { en: 'Essential verbs (pt. 1)', ru: 'Основные глаголы (часть 1)' }
+		title: { en: 'Essential verbs (pt. 1)', ru: 'Основные глаголы (часть 1)' },
+		description: {
+			en: "The twenty verbs you'll use daily",
+			ru: 'Двадцать глаголов, которые нужны каждый день'
+		},
+		level: 'beginner',
+		wordCount: 20,
+		icon: 'zap'
 	}
 ];
