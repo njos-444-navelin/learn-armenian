@@ -499,6 +499,25 @@ isn't taking the learner anywhere.
   unrelated to the actual animation, so don't trust that technique alone
   for this kind of check; a real screenshot (or eyes on a device) settles
   it.
+
+  Widening `.card-clip` this way surfaced a second, easy-to-miss bug:
+  `.card` (a child of `.card-clip`) is `position: absolute` with its own
+  `inset`, which CSS resolves against `.card`'s *actual* positioning
+  ancestor — `.card-clip`, the nearest element with a `position` other than
+  `static` — not `.card-slot`, the box this is conceptually "supposed to"
+  fill. With `.card-clip`'s old *symmetric* `-1rem` inset, `.card`'s own
+  `inset: 1rem` happened to cancel it out exactly on every side, landing
+  `.card` back on `.card-slot`'s true bounds — a coincidence that worked
+  but was easy to mistake for `.card` being sized relative to `.card-slot`
+  directly. Once `.card-clip`'s inset became asymmetric (1rem on three
+  sides, 11rem on the right), that cancellation broke on the widened side:
+  `.card` itself — not just its clip region — rendered genuinely 10rem too
+  wide on the right, reported as the resting (non-animating) card looking
+  visibly asymmetric. Fixed by giving `.card`'s own `inset` the matching
+  asymmetric shape (`1rem 11rem 1rem 1rem`) so it once again cancels
+  `.card-clip`'s exactly. These two rules' numbers have to mirror each
+  other precisely — check that pairing on every side, not just the one you
+  changed, any time either rule's `inset` moves again.
 - **A conditionally-taller footer shifts everything above it, even when
   it's fixed-position.** `AlphabetDrillQuestion.svelte`'s answer footer
   reveals a feedback card only after an option is picked — sizing the

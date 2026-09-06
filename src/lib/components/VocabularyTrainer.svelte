@@ -320,24 +320,39 @@
 	   app-wide), just keeping the animation visually contained to
 	   "somewhere around the card" rather than technically free to render
 	   anywhere on the page. Extends 1rem past `.card-slot` on the top/
-	   bottom/left — and `.card` pulls back in by the same 1rem — purely so
-	   the card's resting box-shadow has room to render instead of being
-	   clipped flush against its own edge. The right side extends 10rem, to
-	   comfortably cover `cardEnter()`'s 60%-of-own-width slide (at most 9rem
-	   for a max-width:17rem card, i.e. 15rem of actual card width minus its
-	   own 2×1rem inset) plus a little shadow room, without needing to be
-	   exact — unlike before this was safe to widen (see the previous
-	   version of this comment in git history), a few extra rem of slack
-	   here no longer risks reintroducing horizontal page scroll. */
+	   bottom/left — and `.card` pulls back in by the same 1rem on those
+	   three sides — purely so the card's resting box-shadow has room to
+	   render instead of being clipped flush against its own edge. The right
+	   side extends 11rem, to comfortably cover `cardEnter()`'s
+	   60%-of-own-width slide (at most 10.2rem, for a card at
+	   `.card-slot`'s own max-width:17rem — `.card`'s insets below cancel
+	   this element's exactly on every other side, so `.card`'s actual width
+	   equals `.card-slot`'s, not something smaller) plus a little shadow
+	   room. `.card`'s own inset must mirror these exact numbers — see its
+	   comment. Being generous here no longer risks page overflow the way it
+	   used to (see git history for the version of this comment from before
+	   PageShell's `<main>` took over that job). */
 	.card-clip {
 		position: absolute;
-		inset: -1rem -10rem -1rem -1rem;
+		inset: -1rem -11rem -1rem -1rem;
 		overflow: hidden;
 	}
 
 	.card {
 		position: absolute;
-		inset: 1rem;
+		/* Not a plain `1rem` on every side — `.card`'s positioning ancestor
+		   is `.card-clip` (the nearest `position` ancestor CSS actually uses
+		   for `inset`, regardless of `.card-slot` being the box this is
+		   conceptually "supposed to" sit within), so this has to cancel out
+		   `.card-clip`'s own asymmetric inset exactly, side for side, or
+		   `.card` itself ends up shifted/stretched by whatever gap is left
+		   over — which is exactly what happened here: widening
+		   `.card-clip`'s right inset to fit the entrance slide, without
+		   updating this to match, made the resting (non-animating) card
+		   itself 10rem too wide on the right, not just its animation's clip
+		   region. These two rules' numbers must mirror each other exactly;
+		   don't change one without the other. */
+		inset: 1rem 11rem 1rem 1rem;
 		/* -webkit- prefix kept alongside the unprefixed property (not just on
 		   -webkit-transform-style below) — see the .card-inner comment: the
 		   plain properties alone weren't enough to stop the first-paint
