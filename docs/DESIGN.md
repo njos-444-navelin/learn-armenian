@@ -470,6 +470,26 @@ isn't taking the learner anywhere.
   together on purpose), it has to happen outside the page's normal
   document flow (e.g. absolutely positioned during the transition only),
   not inside a plain centered flex column.
+- **A clip box meant to hide an off-screen slide-in has to actually reveal
+  the distance travelled, not just leave room for a resting box-shadow.**
+  [`VocabularyTrainer.svelte`](../src/lib/components/VocabularyTrainer.svelte)'s
+  flashcard slides a new card in from the right (`cardEnter()`) inside
+  `.card-clip`, an `overflow: hidden` box that exists so the slide wipes in
+  from a fixed edge instead of growing the page's own scrollable width.
+  Early on, `cardEnter` translated the card a full 100% of its own width
+  (~15rem) while `.card-clip` only extended 1rem past the card's resting
+  edge — sized purely for the resting shadow, not the animation — so the
+  incoming card sat outside that window, invisible, for nearly the entire
+  380ms transition and only entered the visible area in the last few
+  percent of it. Looked like the card just appeared rather than slid in,
+  reported as the app's right edge looking "hidden under a blanket." Fixed
+  by shrinking the slide to a small fixed distance (2.5rem) and widening
+  the clip specifically on the right to reveal all of it (3rem) — small
+  enough to still fit inside the real gutter beside a centered,
+  max-width:17rem card at 375px, confirmed with
+  `document.documentElement.scrollWidth` rather than assumed, since a
+  wider first attempt did reintroduce the exact page-overflow problem the
+  tight clip was there to prevent.
 - **A conditionally-taller footer shifts everything above it, even when
   it's fixed-position.** `AlphabetDrillQuestion.svelte`'s answer footer
   reveals a feedback card only after an option is picked — sizing the
