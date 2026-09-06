@@ -79,19 +79,21 @@
 	/** A new card slides in from the right with a slight clockwise tilt,
 	 * fading in as it settles — deliberately distinct from the flip
 	 * transform so a fresh card reads as a new card, not as the previous one
-	 * un-flipping back to its front face. `CARD_ENTER_SLIDE_REM` (a fixed
-	 * distance, not a percentage of the card's own width) has to stay in
-	 * sync with `.card-clip`'s right inset below — see that rule's own
-	 * comment for why. */
-	const CARD_ENTER_SLIDE_REM = 2.5;
-
+	 * un-flipping back to its front face. 60% of the card's own width reads
+	 * as a clear, deliberate arrival rather than a small nudge (confirmed by
+	 * screenshotting mid-transition: the card sits well off to the right,
+	 * clearly still arriving, not just settling) — a percentage rather than
+	 * a fixed distance so it stays proportional if the card's own size ever
+	 * changes. Only safe to go this large because `.card-clip` below no
+	 * longer has to be the thing preventing page overflow — PageShell's
+	 * `<main>` clips at the real viewport edge now, so this can travel
+	 * however far looks right. */
 	function cardEnter(_node: Element, params: { duration?: number } = {}) {
 		const duration = params.duration ?? 380;
 		return {
 			duration,
 			easing: cubicOut,
-			css: (t: number, u: number) =>
-				`transform: translateX(${u * CARD_ENTER_SLIDE_REM}rem) rotate(${u * 10}deg); opacity: ${t};`
+			css: (t: number, u: number) => `transform: translateX(${u * 60}%) rotate(${u * 10}deg); opacity: ${t};`
 		};
 	}
 
@@ -312,33 +314,24 @@
 		aspect-ratio: 3 / 4;
 	}
 
-	/* Clips the incoming card's slide-in so it wipes in from this box's own
-	   right edge instead of the browser briefly growing the page's
-	   scrollable width to fit it. Extends 1rem past `.card-slot` on the top/
+	/* Frames the incoming card's slide-in to a generous but still bounded
+	   area — not the thing preventing page overflow anymore (that's
+	   PageShell's `<main>`, which clips at the real viewport edge
+	   app-wide), just keeping the animation visually contained to
+	   "somewhere around the card" rather than technically free to render
+	   anywhere on the page. Extends 1rem past `.card-slot` on the top/
 	   bottom/left — and `.card` pulls back in by the same 1rem — purely so
 	   the card's resting box-shadow has room to render instead of being
-	   clipped flush against its own edge.
-
-	   The right side extends further (0.5rem shadow allowance +
-	   `cardEnter()`'s `CARD_ENTER_SLIDE_REM`, currently 2.5rem, so 3rem
-	   total) — it used to match the other three sides exactly, which
-	   clipped the incoming card for nearly all of its slide (back when
-	   `cardEnter` translated it a full 100% of its own width, ~15rem,
-	   before this box ever revealed it) and made the entrance read as an
-	   abrupt appearance rather than a slide, described as the right edge of
-	   the app looking "hidden under a blanket." `cardEnter`'s distance was
-	   shrunk to a fixed 2.5rem specifically so this box's own (always
-	   present, not just mid-animation) footprint stays inside the real
-	   gutter beside a centered, max-width:17rem card at 375px — measured at
-	   ~3.2rem there; a wider right inset than that reintroduces actual
-	   horizontal page scroll (confirmed via `document.documentElement
-	   .scrollWidth` at 375px — this box's own box, not just its visible
-	   content, counts toward that regardless of whether a card is
-	   animating). These two numbers have to move together; don't change one
-	   without the other, and re-check scrollWidth at 375px after. */
+	   clipped flush against its own edge. The right side extends 10rem, to
+	   comfortably cover `cardEnter()`'s 60%-of-own-width slide (at most 9rem
+	   for a max-width:17rem card, i.e. 15rem of actual card width minus its
+	   own 2×1rem inset) plus a little shadow room, without needing to be
+	   exact — unlike before this was safe to widen (see the previous
+	   version of this comment in git history), a few extra rem of slack
+	   here no longer risks reintroducing horizontal page scroll. */
 	.card-clip {
 		position: absolute;
-		inset: -1rem -3rem -1rem -1rem;
+		inset: -1rem -10rem -1rem -1rem;
 		overflow: hidden;
 	}
 

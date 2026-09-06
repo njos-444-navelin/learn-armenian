@@ -20,6 +20,15 @@
 		min-height: 100dvh;
 		align-items: center;
 		justify-content: center;
+		/* A page-wide safety net for anything that deliberately slides in
+		   from off to one side (see VocabularyTrainer.svelte's flashcard
+		   entrance) — clips at this element's own edge, which on every page
+		   using PageShell is effectively the real viewport edge, so a slide
+		   can travel however far it needs to for the effect to read clearly
+		   without ever growing the page's own scrollable width. No page
+		   currently relies on visible horizontal overflow from within
+		   `<main>`, so this has no other effect. */
+		overflow-x: hidden;
 		/* Extra top clearance: the back/language bubbles are fixed at the top of
 		   every locale page (see [lang=locale]/+layout.svelte) and would otherwise
 		   overlap a page's heading. */
