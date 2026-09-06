@@ -79,14 +79,19 @@
 	/** A new card slides in from the right with a slight clockwise tilt,
 	 * fading in as it settles — deliberately distinct from the flip
 	 * transform so a fresh card reads as a new card, not as the previous one
-	 * un-flipping back to its front face. */
+	 * un-flipping back to its front face. `CARD_ENTER_SLIDE_REM` (a fixed
+	 * distance, not a percentage of the card's own width) has to stay in
+	 * sync with `.card-clip`'s right inset below — see that rule's own
+	 * comment for why. */
+	const CARD_ENTER_SLIDE_REM = 2.5;
+
 	function cardEnter(_node: Element, params: { duration?: number } = {}) {
 		const duration = params.duration ?? 380;
 		return {
 			duration,
 			easing: cubicOut,
 			css: (t: number, u: number) =>
-				`transform: translateX(${u * 100}%) rotate(${u * 10}deg); opacity: ${t};`
+				`transform: translateX(${u * CARD_ENTER_SLIDE_REM}rem) rotate(${u * 10}deg); opacity: ${t};`
 		};
 	}
 
@@ -307,16 +312,33 @@
 		aspect-ratio: 3 / 4;
 	}
 
-	/* Clips the incoming card's slide-in (it starts a full card-width to the
-	   right, per `cardEnter` below) so it wipes in from this box's own right
-	   edge instead of the browser briefly growing the page's scrollable
-	   width to fit it. Extends 1rem past `.card-slot` on every side — and
-	   `.card` pulls back in by the same 1rem — purely so the card's resting
-	   box-shadow still has room to render instead of being clipped flush
-	   against its own edge. */
+	/* Clips the incoming card's slide-in so it wipes in from this box's own
+	   right edge instead of the browser briefly growing the page's
+	   scrollable width to fit it. Extends 1rem past `.card-slot` on the top/
+	   bottom/left — and `.card` pulls back in by the same 1rem — purely so
+	   the card's resting box-shadow has room to render instead of being
+	   clipped flush against its own edge.
+
+	   The right side extends further (0.5rem shadow allowance +
+	   `cardEnter()`'s `CARD_ENTER_SLIDE_REM`, currently 2.5rem, so 3rem
+	   total) — it used to match the other three sides exactly, which
+	   clipped the incoming card for nearly all of its slide (back when
+	   `cardEnter` translated it a full 100% of its own width, ~15rem,
+	   before this box ever revealed it) and made the entrance read as an
+	   abrupt appearance rather than a slide, described as the right edge of
+	   the app looking "hidden under a blanket." `cardEnter`'s distance was
+	   shrunk to a fixed 2.5rem specifically so this box's own (always
+	   present, not just mid-animation) footprint stays inside the real
+	   gutter beside a centered, max-width:17rem card at 375px — measured at
+	   ~3.2rem there; a wider right inset than that reintroduces actual
+	   horizontal page scroll (confirmed via `document.documentElement
+	   .scrollWidth` at 375px — this box's own box, not just its visible
+	   content, counts toward that regardless of whether a card is
+	   animating). These two numbers have to move together; don't change one
+	   without the other, and re-check scrollWidth at 375px after. */
 	.card-clip {
 		position: absolute;
-		inset: -1rem;
+		inset: -1rem -3rem -1rem -1rem;
 		overflow: hidden;
 	}
 
