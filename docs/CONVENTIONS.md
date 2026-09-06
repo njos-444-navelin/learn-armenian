@@ -303,10 +303,18 @@ Two rules for [`src/lib/content/vocabulary/`](../src/lib/content/vocabulary/):
   [`loadDeck.ts`](../src/lib/content/vocabulary/loadDeck.ts), which uses
   `import.meta.glob` so Vite keeps each deck in its own chunk, fetched only
   when that deck's page is visited.
-  [`catalog.ts`](../src/lib/content/vocabulary/catalog.ts) (deck ids and
-  titles only, no words) is the one file in here that's safe to import from
-  anywhere, e.g. the topic list. Enforced by `npm run lint:js`
+  [`catalog.ts`](../src/lib/content/vocabulary/catalog.ts) — deck ids,
+  titles, descriptions, levels, word counts and icons, but never the words
+  themselves — is the one file in here that's safe to import from anywhere,
+  e.g. the topic list. Enforced by `npm run lint:js`
   (`no-restricted-imports` in [`eslint.config.js`](../eslint.config.js)).
+- **A deck's `wordCount` in `catalog.ts` must match its own file's actual
+  word count.** Kept as a plain number rather than derived from the words
+  themselves, specifically so the catalog stays free of word data per the
+  rule above — which means nothing enforces it automatically. Update it by
+  hand in the same change that adds or removes a word from a
+  `decks/<id>.ts` file, the same way §11 below asks for a new audio clip in
+  that same change.
 - **Every word's `armenian` field is capitalized** (e.g. `Ուշ`, not `ուշ`),
   even where normal running Armenian text would use lowercase. Deliberate,
   not a typo to "fix": capital letters look different enough from lowercase

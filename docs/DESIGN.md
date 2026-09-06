@@ -116,6 +116,17 @@ than the base token — same principle as the hover rule above: don't
 reach for a neutral ramp step just because its hex value happens to
 look close enough.
 
+**Deliberate exception: [`VocabularyDeckIcon.svelte`](../src/lib/components/VocabularyDeckIcon.svelte)'s
+fill *is* the meaning, not decoration.** The circle behind a deck's topic
+glyph is solid terracotta (`--color-accent-700`) with a cream glyph for a
+deck in the learner's collection, and warm sand
+(`--color-neutral-300`/`--color-neutral-800`) for one they haven't added —
+collection membership, not a flat "--color-background" badge. This isn't
+the rule above quietly being broken: it's the "reserve tinted backgrounds
+for small elements" exception further down applied to a badge that
+actually carries a state, the same way the vocabulary trainer's
+grade-button tints do.
+
 ### The `--color-primary` outline/border means "selected," not "hovered"
 
 A 1.5px `--color-primary` border on an otherwise-transparent-bordered card
@@ -345,6 +356,34 @@ worth knowing if this icon is ever redrawn:
   own bottom. The current path (branch ~y 13.5 of an 18.5-tall glyph,
   ending ~y 18.2) reflects the measured version, not the eyeballed
   one.
+
+**Vocabulary deck icons follow the topic, not a matched-set rule.** Unlike
+the `/learn` hub menu above (one icon per *feature*, all drawn to look like
+a family), [`VocabularyDeckIcon.svelte`](../src/lib/components/VocabularyDeckIcon.svelte)
+picks a different concrete glyph per *deck* — a hand for Greetings, a bolt
+for verbs — because a growing catalog of topics (food, home, travel, ...)
+needs each one to be recognizable at a glance in a list, the way the
+alphabet trainer's per-letter tiles don't need to look like a set so much
+as look like their own letter. Same 24×24 viewBox and `stroke-width="2.75"`
+as everywhere else in the app; extend `VocabularyDeckIconId` in
+[`types.ts`](../src/lib/content/vocabulary/types.ts) and this component's
+own icon lookup when a new deck needs a shape that doesn't exist yet,
+rather than reusing an unrelated deck's icon just to avoid adding one.
+
+**An action button overlaid on a card link is absolutely positioned, not a
+flex sibling.** [`VocabularyDeckList.svelte`](../src/lib/components/VocabularyDeckList.svelte)'s
+add/remove circle sits on top of the deck card, not beside it — both are
+real DOM siblings (a `<button>` can't validly nest inside the card's own
+`<a>`), but the button is `position: absolute`, not a flex item the row
+centers next to the card. That's not just a visual choice: flexing them
+side by side made the row's height follow whichever of the two boxes was
+taller, which on a narrow phone (more description-text wrapping, so a
+genuinely taller card) read as the small fixed-size button "squashing" the
+card next to it once the two were compared side by side. Overlaying removes
+the comparison entirely — the row's height is just the card's own content
+height, and the button floats centered on top of it via `top: 50%` +
+`transform: translateY(-50%)`, clipped from underlapping text by the
+card's own right padding (`calc(var(--tap-target-min) + var(--space-4))`).
 
 **A primary (`--color-primary`-filled) button that navigates to a new
 screen or flow gets a trailing arrow, not a chevron-in-a-circle.** A full
