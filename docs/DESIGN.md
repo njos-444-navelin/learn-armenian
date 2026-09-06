@@ -471,25 +471,34 @@ isn't taking the learner anywhere.
   document flow (e.g. absolutely positioned during the transition only),
   not inside a plain centered flex column.
 - **A clip box meant to hide an off-screen slide-in has to actually reveal
-  the distance travelled, not just leave room for a resting box-shadow.**
+  the distance travelled, not just leave room for a resting box-shadow —
+  and the page itself, not a tightly-sized local clip, should usually be
+  what prevents the overflow.**
   [`VocabularyTrainer.svelte`](../src/lib/components/VocabularyTrainer.svelte)'s
-  flashcard slides a new card in from the right (`cardEnter()`) inside
-  `.card-clip`, an `overflow: hidden` box that exists so the slide wipes in
-  from a fixed edge instead of growing the page's own scrollable width.
-  Early on, `cardEnter` translated the card a full 100% of its own width
-  (~15rem) while `.card-clip` only extended 1rem past the card's resting
-  edge — sized purely for the resting shadow, not the animation — so the
-  incoming card sat outside that window, invisible, for nearly the entire
-  380ms transition and only entered the visible area in the last few
-  percent of it. Looked like the card just appeared rather than slid in,
-  reported as the app's right edge looking "hidden under a blanket." Fixed
-  by shrinking the slide to a small fixed distance (2.5rem) and widening
-  the clip specifically on the right to reveal all of it (3rem) — small
-  enough to still fit inside the real gutter beside a centered,
-  max-width:17rem card at 375px, confirmed with
-  `document.documentElement.scrollWidth` rather than assumed, since a
-  wider first attempt did reintroduce the exact page-overflow problem the
-  tight clip was there to prevent.
+  flashcard slides a new card in from the right (`cardEnter()`, 60% of the
+  card's own width) inside `.card-clip`, an `overflow: hidden` box that
+  frames the animation. Early on, `cardEnter` translated the card a full
+  100% of its own width (~15rem) while `.card-clip` only extended 1rem past
+  the card's resting edge — sized purely for the resting shadow, not the
+  animation — so the incoming card sat outside that window, invisible, for
+  nearly the entire 380ms transition and only entered the visible area in
+  the last few percent of it. Looked like the card just appeared rather
+  than slid in, reported as the app's right edge looking "hidden under a
+  blanket." A first fix shrank the slide to fit inside a small,
+  conservatively-sized local clip (confirmed safe with
+  `document.documentElement.scrollWidth`, since a wider attempt did
+  reintroduce real page overflow at 375px) — technically correct, but the
+  resulting motion read as a small nudge rather than a clear arrival. The
+  real fix was recognizing the *page*, not this one component's clip box,
+  should be the thing preventing overflow: PageShell's `<main>` now clips
+  at its own edge (effectively the real viewport edge, on every page), so
+  `.card-clip` only needs to be generously sized for the animation to look
+  right, not conservatively sized to avoid growing the page. Verified with
+  a screenshot taken mid-transition — JS-based frame sampling of the
+  transform repeatedly read as "stuck" in this environment for reasons
+  unrelated to the actual animation, so don't trust that technique alone
+  for this kind of check; a real screenshot (or eyes on a device) settles
+  it.
 - **A conditionally-taller footer shifts everything above it, even when
   it's fixed-position.** `AlphabetDrillQuestion.svelte`'s answer footer
   reveals a feedback card only after an option is picked — sizing the
