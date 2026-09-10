@@ -274,39 +274,41 @@ speech — it would have deleted the word. Three conditions prevent that:
 
 If any fails, keep the clip whole. Silence is cheap; a truncated word is not.
 
-### The glued breath: a spectral test, but only below the voiced floor
+### The glued breath: fixable by hand, NOT safe to automate
 
-Some inhales never rise above the noise gate at all. They ride straight out of
-the word's decay, so there is no `[gap][blip]` for the rule above to find —
-the clip just ends in a faint hiss. `bread-shop` line 04 was one: speech ends
-at 0.87 s, and from 0.97 s the level is only −45 to −49 dB while its
-high-frequency content jumps from −15 dB to −4 dB relative. Quiet, broadband,
-and audible as a little gasp.
+Some inhales never rise above the noise gate. They ride straight out of the
+word's decay, so there is no `[gap][blip]` for the rule above to find — the
+clip just ends in a faint hiss. `bread-shop` line 04 was one: speech ends at
+0.87 s, and from 0.97 s the level is only −45 to −49 dB while its
+high-frequency content jumps from −15 dB to −4 dB relative.
 
-The obvious fix — compare high-band energy in the tail against the body — is
-**wrong as stated, and was rejected here once already.** Applied to a whole
-clip it flags `Ես` (/s/), `Այս` (/s/), `Ինչ` (/tʃ/) and `Ոչ` (/tʃ/): all
-word-final fricatives and affricates, all false positives. A spectrum alone
-cannot tell a sibilant from an inhale.
+Cutting that one by hand was right, and it worked. **Do not turn it into an
+automatic pass.** The obvious rule — find the last frame above a −38 dB
+"voiced floor", then trim what follows if it is quiet and broadband — was
+tried here, and it is a **sibilant detector, not a breath detector**:
 
-What makes it safe is **bounding it by level first**:
+| final sound | words tested | rule fires |
+|---|---|---|
+| fricative or affricate | `mis`, `yes`, `ays`, `voch`, `inch`, `hats` | **4 of 6** |
+| vowel or nasal | `dzu`, `sa`, `da`, `te`, `em`, `en` | **0 of 6** |
 
-1. Find the last frame louder than a voiced floor of **−38 dB**. That is the
-   end of unambiguous speech. A word-final /s/ or /tʃ/ is loud, so it sits
-   *above* the floor and is never a candidate — the level gate does the
-   protecting, not the spectrum.
-2. Look only at what follows. If it lasts more than ~80 ms, sits below the
-   floor, and is **more than 6 dB more high-frequency than the body**, it is
-   an inhale rather than a natural decay.
-3. Cut at the voiced end plus 60 ms, fade 50 ms.
+The tempting guard — "a word-final fricative is loud, so the level gate
+protects it" — **is false.** Armenian word-final /s/ in this voice measures
+**−41 to −44 dB**, below the −38 dB floor, with a high-frequency delta of
++9 to +13 dB: exactly the signature the rule looks for. Left to run, it would
+have cut 0.11–0.17 s off every take of `Միս` — the /s/ itself.
 
-So the spectrum is only ever asked to separate *quiet hiss* from *quiet
-decay* — never fricative from breath. Run across all eleven `bread-shop`
-lines the rule fired on exactly one, line 04, and called the other ten clean;
-that specificity is the check that it is not over-firing.
+Note that line 04 ends in /m/. It was safe *because of the phoneme*, not
+because of the threshold.
 
-Re-cut from the **original mp3**, not from the installed `.m4a` — otherwise
-the clip is AAC-encoded twice for no reason.
+So the procedure is:
+
+1. Only reach for this when a human reports an audible gasp on a specific
+   clip. It is a diagnostic aid, never a batch job.
+2. Check what the word or line **ends with**. If that is a fricative or an
+   affricate (ս, շ, չ, ց, ժ, զ, խ, հ), do not trim — pick a different take.
+3. Otherwise cut at the voiced end plus 60 ms with a 50 ms fade, re-cutting
+   from the **original mp3** so the clip is not AAC-encoded twice.
 
 Counter-intuitively, lowering the noise floor finds *fewer* breaths, not
 more — a quiet inhale merges into the word's decay and stops being a separate
@@ -427,13 +429,10 @@ was upgraded to a paid plan — if generation starts failing with a
 
 ### Current coverage
 
-As of 2026-09-10, **88 of the 89 words in `entries.ts` have a clip**, every
-one of them chosen by a human from at least four takes via the picker
-described above, and every one passed through the breath trim. That includes
-the eighteen words the bread-shop dialogue introduced.
-
-The one gap is **`mis` (Միս, "meat")** — its takes were generated and
-reviewed but no verdict came back, so it is still without a clip.
+As of 2026-09-10, **all 89 words in `entries.ts` have a clip** — every one
+chosen by a human from at least four takes via the picker described above,
+and every one passed through the gap-based breath trim. That includes the
+eighteen words the bread-shop dialogue introduced.
 
 Six words — `em`, `chem`, `da`, `isk`, `te`, `kat` — were rejected on a first
 pass as "low energy" and re-rolled at eight takes each, split into a plain arm
