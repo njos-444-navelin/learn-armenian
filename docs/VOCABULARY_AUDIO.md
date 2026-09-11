@@ -150,7 +150,12 @@ Armenian orthography has a rule ElevenLabs' TTS does not know: a
 pronounced "vonts" — not "onts". `Որ` ("which/that") is "vor", not "or". This
 holds for essentially every word that starts with a standalone "Ո".
 
-Two situations where that does **not** apply — leave these alone:
+Three situations where that does **not** apply — leave these alone:
+- **A "Ո" that is not the first letter.** The rule is about word-*initial*
+  position only. `Չորս` ("four") has its Ո second, so it is a plain /o/ —
+  "chors", never "chvors" — and the prompt is already correct as spelled.
+  Worth stating because the trap is to pattern-match on the letter rather
+  than its position.
 - **The digraph "Ու"** (Ո followed by ւ) is pronounced /u/, not /vo/ or
   /voo/ — e.g. `Ուշ` ("late") is "ush". If a word starts with "Ու" (two
   letters, not one), it's already fine as literally spelled.
