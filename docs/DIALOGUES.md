@@ -179,16 +179,23 @@ on top:
   Tappable words carry no resting mark, so a one-line hint above the
   transcript says they're tappable — "reveal a line, then tap any word" in
   Listen mode with nothing shown, "tap any word" once something is
-  readable — and empties (keeping its height) after the learner's first
-  word, per visit; same treatment as the trainer's "tap to reveal" hint.
+  readable. It stays: an earlier version emptied it on the first tap, and
+  that shifted the transcript under the learner's finger while they were
+  reading a popover.
   Tapping Listen re-blurs every line, the eye-revealed ones included —
   it's "hide the text again", not merely a mode switch, which is why the
   Listen radio listens for `click` rather than `change` (a radio that's
   already checked fires no `change`, and this has to work from inside
   Listen mode too).
 - **Playback** is [`DialoguePlayback`](../src/lib/dialogues/playback.svelte.ts):
-  one `<audio>`, one line at a time. The play button on a line plays just
-  that line; "Play all" in the fixed bottom bar walks from the cursor to the
+  one `<audio>` element per line, one line playing at a time. Every line's
+  clip is fetched as soon as the player is on the client (`preload()`), and
+  the clips of the words a learner can tap are warmed into the HTTP cache
+  with a low-priority `fetch` — a learner who opens a dialogue will play
+  most of it, the files are ~10 KB each, and a tap should start the sound
+  at once. One element per line rather than one element with a swapped
+  `src` is what makes the preload stick: swapping `src` drops the buffer.
+  The play button on a line plays just that line; "Play all" in the fixed bottom bar walks from the cursor to the
   end with a short gap between lines, and the stop button rewinds. The bar
   switches to its in-progress layout (stop + "n / N") on the *first* line
   played, alone or via play-all — it keys off `playback.started`, not
@@ -258,6 +265,12 @@ mockup, recorded so they don't get re-litigated:
   to take the dialogue back off the done list (see Progress) instead of
   marking it done a second time, which is what the button used to do and
   read as a stale instruction on a finished dialogue.
+- **Under 420px the mode toggle is icons only.** A 360px-wide phone (a
+  Fairphone 6; most Android mid-rangers) can't fit «Слушать», «Читать», the
+  stop button and the play-all counter in one pill — «Читать» was clipped
+  mid-word — so below 420px the two mode options show their icons a little
+  larger with the labels kept for assistive tech (app.css's sr-only
+  pattern, inlined). Checked at 360px in both languages.
 - **The per-line reveal/translate buttons are 2rem, under the 44px tap
   floor.** Two of them stack inside a bubble whose height a single line of
   text sets; the play button and the words themselves are the line's real

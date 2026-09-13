@@ -4,6 +4,7 @@
 	import { SvelteSet } from 'svelte/reactivity';
 	import { blurAfterClick } from '$lib/actions/blurAfterClick';
 	import { lineAudioSrc } from '$lib/content/dialogues/audio';
+	import { wordAudioSrc } from '$lib/content/words/audio';
 	import type { Dialogue } from '$lib/content/dialogues/types';
 	import { getWord } from '$lib/content/words/entries';
 	import { DialoguePlayback } from '$lib/dialogues/playback.svelte';
@@ -79,16 +80,26 @@
 	const playback = untrack(
 		() => new DialoguePlayback(dialogue.lines.length, (index) => lineAudioSrc(dialogue.id, index))
 	);
-	$effect(() => () => playback.destroy());
+	// On the client, fetch every line's clip right away, and warm the clips
+	// of the words a learner can tap — the line clips are what a tap has to
+	// start instantly (see DialoguePlayback); the word clips just need to be
+	// in the HTTP cache for SpeakerButton, so a low-priority fetch is enough.
+	$effect(() => {
+		playback.preload();
+		const wordIds = new Set<string>();
+		for (const line of dialogue.lines) for (const token of line.tokens) if (token.wordId !== undefined) wordIds.add(token.wordId);
+		for (const wordId of wordIds) void fetch(wordAudioSrc(wordId), { priority: 'low' }).catch(() => undefined);
+		return () => playback.destroy();
+	});
 
 	let lineCount = $derived(dialogue.lines.length);
-	/** Until the learner has opened a word, a line above the transcript
-	 * says the words are tappable — nothing else on the page does, since
-	 * tappable words carry no resting mark (see DialogueLineBubble). Which
-	 * version depends on whether anything is readable yet. */
-	let wordHint = $derived(
-		tapped.length > 0 ? null : mode === 'read' || revealed.size > 0 ? tapWordHint : revealThenTapHint
-	);
+	/** A line above the transcript says the words are tappable — nothing
+	 * else on the page does, since tappable words carry no resting mark
+	 * (see DialogueLineBubble). Which version depends on whether anything
+	 * is readable yet; it never empties — clearing it on the first tap
+	 * shifted the whole transcript right as the learner was reading a
+	 * popover. */
+	let wordHint = $derived(mode === 'read' || revealed.size > 0 ? tapWordHint : revealThenTapHint);
 	let inProgress = $derived(playback.started);
 	let progressPercent = $derived(inProgress ? ((playback.cursor + 1) / lineCount) * 100 : 0);
 
@@ -180,7 +191,7 @@
 
 	<DialogueRuleCard rule={dialogue.rule} />
 
-	<p class="hint" aria-hidden={wordHint === null}>{wordHint === null ? '' : t(wordHint)}</p>
+	<p class="hint">{t(wordHint)}</p>
 
 	<div class="lines">
 		{#each dialogue.lines as line, lineIndex (lineIndex)}
@@ -242,7 +253,7 @@
 						<path d="M4 15a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2z" />
 						<path d="M20 15a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2z" />
 					</svg>
-					{t(listenModeLabel)}
+					<span class="seg-text">{t(listenModeLabel)}</span>
 				</label>
 				<label class="seg-opt" class:checked={mode === 'read'}>
 					<input type="radio" name="dialogue-mode" value="read" checked={mode === 'read'} onchange={() => setMode('read')} />
@@ -250,7 +261,7 @@
 						<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
 						<circle cx="12" cy="12" r="2.8" />
 					</svg>
-					{t(readModeLabel)}
+					<span class="seg-text">{t(readModeLabel)}</span>
 				</label>
 			</div>
 			{#if inProgress}
@@ -341,10 +352,8 @@
 		margin-top: var(--space-2);
 	}
 
-	/* Same quiet line as the trainer's "tap to reveal" hint; keeps its
-	   height when it empties so the lines below don't jump. */
+	/* Same quiet line as the trainer's "tap to reveal" hint. */
 	.hint {
-		min-height: 1.5em;
 		margin: 0;
 		font-size: var(--font-size-sm);
 		color: var(--color-text-secondary);
@@ -440,6 +449,32 @@
 	.seg-opt:has(input:focus-visible) {
 		outline: 3px solid var(--color-focus-ring);
 		outline-offset: -3px;
+	}
+
+	/* On a narrow phone (360 CSS px is common — a Fairphone 6, most
+	   Android mid-rangers) the bar can't fit two labelled mode options, a
+	   stop button and the play-all counter: the Russian labels alone need
+	   ~200px and "Читать" was clipped mid-word. Below 420px the mode
+	   options are icons only, a little larger, with the labels kept for
+	   assistive tech (the same sr-only pattern as app.css). */
+	@media (max-width: 420px) {
+		.seg-opt {
+			padding: 0 var(--space-3);
+		}
+
+		.seg-opt svg {
+			width: 18px;
+			height: 18px;
+		}
+
+		.seg-text {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
+		}
 	}
 
 	.stop,

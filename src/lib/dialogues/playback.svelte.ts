@@ -1,9 +1,17 @@
 /**
- * Line-by-line playback for the dialogue player: one `<audio>` element,
- * one line at a time, with an optional "play all" mode that walks the
- * dialogue from the cursor to the end. Reactive (`$state`) so the player
- * component renders straight from it; owns nothing about the DOM beyond the
- * audio element it creates lazily on first play.
+ * Line-by-line playback for the dialogue player: one `<audio>` element per
+ * line, one line playing at a time, with an optional "play all" mode that
+ * walks the dialogue from the cursor to the end. Reactive (`$state`) so the
+ * player component renders straight from it; owns nothing about the DOM
+ * beyond the audio elements it creates.
+ *
+ * Every line's clip is fetched up front (`preload()`, called from the
+ * player once it's on the client — `Audio` doesn't exist during SSR): a
+ * learner who opens a dialogue is going to play most of it, the clips are
+ * ~10 KB each, and a tap on a line should start the sound at once rather
+ * than after a network round trip. One element per line, rather than one
+ * element with a swapped `src`, is what makes that work — a swapped src
+ * discards the buffered data.
  *
  * Until a dialogue's line clips are generated (see docs/DIALOGUES.md), a
  * line's file 404s. Rather than stall "play all" on the first missing file,
@@ -37,7 +45,8 @@ export class DialoguePlayback {
 
 	private readonly lineCount: number;
 	private readonly srcFor: (index: number) => string;
-	private audio: HTMLAudioElement | undefined;
+	private readonly audios: (HTMLAudioElement | undefined)[];
+	private current: HTMLAudioElement | undefined;
 	private timer: ReturnType<typeof setTimeout> | undefined;
 	/** Bumped on every start/stop so a stale `ended`/timer from a previous
 	 * play can't advance the cursor after the user has moved on. */
@@ -46,6 +55,12 @@ export class DialoguePlayback {
 	constructor(lineCount: number, srcFor: (index: number) => string) {
 		this.lineCount = lineCount;
 		this.srcFor = srcFor;
+		this.audios = new Array<HTMLAudioElement | undefined>(lineCount).fill(undefined);
+	}
+
+	/** Fetches every line's clip now. Client only; safe to call more than once. */
+	preload(): void {
+		for (let index = 0; index < this.lineCount; index++) this.ensureAudio(index);
 	}
 
 	/** Plays one line on its own — cancels play-all if it was running. */
@@ -77,8 +92,9 @@ export class DialoguePlayback {
 	/** Call from the owning component's teardown. */
 	destroy(): void {
 		this.silence();
-		this.audio?.removeAttribute('src');
-		this.audio = undefined;
+		for (const audio of this.audios) audio?.removeAttribute('src');
+		this.audios.fill(undefined);
+		this.current = undefined;
 	}
 
 	private start(index: number): void {
@@ -88,7 +104,8 @@ export class DialoguePlayback {
 		this.cursor = index;
 		this.started = true;
 
-		const audio = this.ensureAudio();
+		const audio = this.ensureAudio(index);
+		this.current = audio;
 		const finish = (): void => {
 			if (generation !== this.generation) return;
 			this.onLineEnded();
@@ -101,7 +118,6 @@ export class DialoguePlayback {
 			if (generation !== this.generation) return;
 			this.timer = setTimeout(finish, MISSING_CLIP_MS);
 		};
-		audio.src = this.srcFor(index);
 		audio.currentTime = 0;
 		void audio.play().catch(() => {
 			if (generation !== this.generation || this.timer !== undefined) return;
@@ -133,19 +149,21 @@ export class DialoguePlayback {
 			clearTimeout(this.timer);
 			this.timer = undefined;
 		}
-		if (this.audio !== undefined) {
-			this.audio.onended = null;
-			this.audio.onerror = null;
-			this.audio.pause();
+		if (this.current !== undefined) {
+			this.current.onended = null;
+			this.current.onerror = null;
+			this.current.pause();
 		}
 		this.playing = null;
 	}
 
-	private ensureAudio(): HTMLAudioElement {
-		if (this.audio === undefined) {
-			this.audio = new Audio();
-			this.audio.preload = 'auto';
+	private ensureAudio(index: number): HTMLAudioElement {
+		let audio = this.audios[index];
+		if (audio === undefined) {
+			audio = new Audio(this.srcFor(index));
+			audio.preload = 'auto';
+			this.audios[index] = audio;
 		}
-		return this.audio;
+		return audio;
 	}
 }
