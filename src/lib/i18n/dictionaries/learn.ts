@@ -28,7 +28,7 @@ export const alphabetTrainerLabel: Translated = {
 
 export const alphabetTrainerHint: Translated = {
 	en: 'Learn the Armenian letters',
-	ru: 'Изучите армянский алфавит'
+	ru: 'Изучайте армянский алфавит'
 };
 
 export const vocabularyTrainerLabel: Translated = {
@@ -47,8 +47,8 @@ export const dialoguesLabel: Translated = {
 };
 
 export const dialoguesHint: Translated = {
-	en: 'Listen first, then read along',
-	ru: 'Сначала слушайте, потом читайте'
+	en: 'Listen, read and translate',
+	ru: 'Слушайте, читайте и переводите'
 };
 
 export const moreToComeLabel: Translated = {
