@@ -2,6 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { isSafeInternalPath } from '$lib/i18n/paths';
 import { ALPHABET } from '$lib/content/alphabet';
 import { LEVEL_MAX } from '$lib/alphabet/mastery';
+import { DIALOGUE_CATALOG } from '$lib/content/dialogues/catalog';
 import { VOCABULARY_CATALOG } from '$lib/content/vocabulary/catalog';
 import { loadDeckWords } from '$lib/content/vocabulary/loadDeck';
 import { cardStateFromRow, isDue } from '$lib/srs/scheduler';
@@ -10,16 +11,24 @@ import type { Actions, PageServerLoad } from './$types';
 /**
  * Stats for the signed-in dashboard's progress cards: alphabet mastery (the
  * learner's 0-10 drill level per letter, averaged across the whole
- * alphabet) and the vocabulary collection's size split into a total and a
+ * alphabet), the vocabulary collection's size split into a total and a
  * due-right-now count — unlike `hasWordsToPractice` in the locale layout's
  * load (a cheap existence check that short-circuits on the first match, run
  * on every signed-in page load app-wide), this tallies every word across
  * every added deck, so it only runs here on the one page that needs the
- * precise numbers.
+ * precise numbers — and how many of the catalog's dialogues are completed.
  */
 export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => {
+	const dialoguesTotalCount = DIALOGUE_CATALOG.length;
+	const empty = {
+		alphabetMasteryPercent: 0,
+		vocabularyWordCount: 0,
+		vocabularyDueCount: 0,
+		dialoguesCompletedCount: 0,
+		dialoguesTotalCount
+	};
 	if (claims === null) {
-		return { alphabetMasteryPercent: 0, vocabularyWordCount: 0, vocabularyDueCount: 0 };
+		return empty;
 	}
 
 	const { data: alphabetRows, error: alphabetError } = await supabase
@@ -41,6 +50,24 @@ export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => 
 		alphabetMasteryPercent = Math.round((totalLevel / (ALPHABET.length * LEVEL_MAX)) * 100);
 	}
 
+	// Only dialogues still in the catalog count, so a row left behind by a
+	// removed dialogue can't push "completed" past "total".
+	const { data: dialogueRows, error: dialoguesError } = await supabase
+		.from('user_dialogue_progress')
+		.select('dialogue_id')
+		.eq('user_id', claims.sub);
+
+	let dialoguesCompletedCount = 0;
+	if (dialoguesError) {
+		console.error('account: failed to load dialogue progress', dialoguesError);
+	} else {
+		dialoguesCompletedCount = dialogueRows.filter((row) =>
+			DIALOGUE_CATALOG.some((dialogue) => dialogue.id === row.dialogue_id)
+		).length;
+	}
+
+	const partial = { ...empty, alphabetMasteryPercent, dialoguesCompletedCount };
+
 	const { data: addedDecks, error: decksError } = await supabase
 		.from('user_vocabulary_decks')
 		.select('deck_id')
@@ -48,12 +75,12 @@ export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => 
 
 	if (decksError) {
 		console.error('account: failed to load added decks', decksError);
-		return { alphabetMasteryPercent, vocabularyWordCount: 0, vocabularyDueCount: 0 };
+		return partial;
 	}
 
 	const deckIds = addedDecks.map((row) => row.deck_id as string);
 	if (deckIds.length === 0) {
-		return { alphabetMasteryPercent, vocabularyWordCount: 0, vocabularyDueCount: 0 };
+		return partial;
 	}
 
 	const { data: progressRows, error: progressError } = await supabase
@@ -64,7 +91,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => 
 
 	if (progressError) {
 		console.error('account: failed to load vocabulary progress', progressError);
-		return { alphabetMasteryPercent, vocabularyWordCount: 0, vocabularyDueCount: 0 };
+		return partial;
 	}
 
 	const progressByKey = new Map(
@@ -89,7 +116,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => 
 		}
 	}
 
-	return { alphabetMasteryPercent, vocabularyWordCount, vocabularyDueCount };
+	return { ...partial, vocabularyWordCount, vocabularyDueCount };
 };
 
 export const actions: Actions = {

@@ -260,16 +260,15 @@ DB involved): muting with a short synthetic duration, confirming
 once the duration passes, and that a corrupted stored value is treated as
 unmuted and cleaned up rather than thrown on.
 
-## The words registry, and why letters reference it instead of embedding examples
+## The word library, and why letters reference it instead of embedding examples
 
-Every letter's "in a word" example(s) are ids into
-[`src/lib/content/words/entries.ts`](../src/lib/content/words/entries.ts),
-not inline text on the `AlphabetLetter` itself — see the module comment
-there for the full reasoning (a flat, cross-feature word registry meant to
-also back a future Dialogues feature and dictionary; deliberately not
-merged with `vocabulary/decks/*.ts`, which is a separate, larger, explicitly
-deferred refactor). Most letters reference one word; two only for the
-letters whose sound genuinely depends on position in a word:
+Every letter's "in a word" example(s) are ids into the app-wide word
+library, [`src/lib/content/words/entries.ts`](../src/lib/content/words/entries.ts),
+not inline text on the `AlphabetLetter` itself — the same library the
+vocabulary decks list their words from and dialogues link their tokens to
+(Conventions §10), so an example word here is defined and recorded once,
+however many features show it. Most letters reference one word; two only
+for the letters whose sound genuinely depends on position in a word:
 
 - `yech` (Ե): `dzez` (mid-word "eh") then `yereko` (word-initial "yeh").
 - `vo` (Ո): `mot` (mid-word plain "o") then `vonts` (word-initial "vo").

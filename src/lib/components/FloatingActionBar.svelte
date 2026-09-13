@@ -42,7 +42,7 @@
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-lg);
 		box-shadow: var(--shadow-sm);
-		z-index: 10;
+		z-index: var(--z-floating-bar);
 		/* This bar is fixed and can end up overlapping scrollable content
 		   behind it on a short viewport (a `bare` caller's actual content
 		   doesn't always fill its full reserved box — a small centered

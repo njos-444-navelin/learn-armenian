@@ -47,8 +47,8 @@ export const dialoguesLabel: Translated = {
 };
 
 export const dialoguesHint: Translated = {
-	en: 'Coming soon',
-	ru: 'Скоро появится'
+	en: 'Listen first, then read along',
+	ru: 'Сначала слушайте, потом читайте'
 };
 
 export const moreToComeLabel: Translated = {

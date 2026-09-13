@@ -293,39 +293,76 @@ This does **not** apply to infinitive-form verbs (`Проверить себя`,
 they're register-neutral and are the normal convention for button labels
 regardless of this rule.
 
-## 10. Vocabulary decks are code-split and always capitalized
+## 10. Words live in one shared library; decks and dialogues reference it by id
 
-Two rules for [`src/lib/content/vocabulary/`](../src/lib/content/vocabulary/):
+There is exactly one definition of any word in the app —
+[`src/lib/content/words/entries.ts`](../src/lib/content/words/entries.ts),
+the word library — and exactly one pronunciation clip for it
+(`static/audio/words/<id>.m4a`, see §11). Every feature that shows or
+plays a word points at that entry by id rather than carrying its own copy:
 
-- **Never import a file under `decks/*.ts` directly.** The whole point of
-  giving each deck its own file is that a learner who opens one deck never
-  downloads another deck's words — go through `loadDeckWords()` in
-  [`loadDeck.ts`](../src/lib/content/vocabulary/loadDeck.ts), which uses
-  `import.meta.glob` so Vite keeps each deck in its own chunk, fetched only
-  when that deck's page is visited.
-  [`catalog.ts`](../src/lib/content/vocabulary/catalog.ts) — deck ids,
-  titles, descriptions, levels, word counts and icons, but never the words
-  themselves — is the one file in here that's safe to import from anywhere,
-  e.g. the topic list. Enforced by `npm run lint:js`
+- A **vocabulary deck** (`src/lib/content/vocabulary/decks/<deckId>.ts`) is
+  an ordered `WORD_IDS` list, nothing more. The deck owns the selection and
+  order; the library owns the words.
+- The **alphabet trainer**'s "in a word" examples are `exampleWordIds` on
+  each letter.
+- A **dialogue** (`src/lib/content/dialogues/dialogues/<id>.ts`) links each
+  spoken token — an inflected form like `հա՞ցը` — to the library word it's
+  a form of (`wordId: 'hats'`), so the tap-to-look-up popover shows the base
+  form and plays the shared clip. A token only carries its own `gloss`/`note`
+  where the in-context meaning differs from the library entry's.
+
+Rules that follow from that:
+
+- **Never duplicate a word to make it available somewhere new.** If a deck
+  or dialogue needs a word the library doesn't have, add it to `entries.ts`
+  (with its clip, §11) and reference the id. If a word already exists under
+  a slightly different translation than the new context wants, that's a
+  token `gloss` (dialogues) or a `note`, not a second entry — see how
+  `uzel` serves both the verbs deck ("To want") and the dialogue's
+  `ուզում եմ` ("want").
+- **Word ids are one flat namespace.** `entries.ts` throws at module load
+  on a duplicate id, and `loadDeckWords()`/`loadDialogue()` throw on an id
+  the library doesn't have, so a typo fails on the first page that loads the
+  content rather than rendering a silently shorter list. Keep the id a
+  transliteration of the word (`khaghal`, not `play`), matching the existing
+  entries — `xaghal`/`khaghal` once coexisted as two ids for one word and
+  had to be merged.
+- **Never import a `decks/*.ts` or `dialogues/dialogues/*.ts` file
+  directly.** Go through `loadDeckWords()` in
+  [`loadDeck.ts`](../src/lib/content/vocabulary/loadDeck.ts) and
+  `loadDialogue()` in
+  [`loadDialogue.ts`](../src/lib/content/dialogues/loadDialogue.ts): that's
+  where the ids are resolved and validated, and each file stays its own
+  lazily-loaded chunk so browsing the catalog never pulls the content in.
+  [`vocabulary/catalog.ts`](../src/lib/content/vocabulary/catalog.ts) and
+  [`dialogues/catalog.ts`](../src/lib/content/dialogues/catalog.ts) — ids,
+  titles, counts, but never the content itself — are the files that are
+  safe to import from anywhere. Enforced by `npm run lint:js`
   (`no-restricted-imports` in [`eslint.config.js`](../eslint.config.js)).
-- **A deck's `wordCount` in `catalog.ts` must match its own file's actual
-  word count.** Kept as a plain number rather than derived from the words
-  themselves, specifically so the catalog stays free of word data per the
-  rule above — which means nothing enforces it automatically. Update it by
-  hand in the same change that adds or removes a word from a
-  `decks/<id>.ts` file, the same way §11 below asks for a new audio clip in
-  that same change.
+- **A deck's `wordCount` and a dialogue's `lineCount` in their catalogs must
+  match the content file.** Kept as plain numbers so the catalogs stay free
+  of content; `loadDialogue()` checks its count at load time, a deck's is
+  checked by hand. Update it in the same change that adds or removes an
+  entry.
 - **Every word's `armenian` field is capitalized** (e.g. `Ուշ`, not `ուշ`),
-  even where normal running Armenian text would use lowercase. Deliberate,
-  not a typo to "fix": capital letters look different enough from lowercase
-  that a learner still shaky on the alphabet gets extra reading practice on
-  them just by browsing the vocabulary list.
+  even where normal running Armenian text would use lowercase, and even
+  for function words (`Եմ`, `Այս`). Deliberate, not a typo to "fix":
+  capital letters look different enough from lowercase that a learner
+  still shaky on the alphabet gets extra reading practice on them just by
+  browsing the vocabulary list. Dialogue *tokens* are the exception — they
+  are the line's actual text and keep its real casing and punctuation.
 - **`translation` is capitalized too, in both `en` and `ru`** (e.g. `{ en:
   'Hi', ru: 'Привет' }`, not `{ en: 'hi', ru: 'привет' }`) — a word and its
-  translation should match in this respect, so a capitalized Armenian
-  headword doesn't sit next to a lowercase English/Russian one. Applies to
-  `translation` specifically, not `note` (already ordinary sentence-cased
-  prose, capitalized for its own reason).
+  translation should match in this respect. Applies to `translation`
+  specifically, not `note` (already ordinary sentence-cased prose) and not
+  a dialogue token's `gloss` (which reads as a running-text gloss, "the
+  bread").
+
+The library is one plain module, not code-split — at low hundreds of short
+entries it's a few KB gzipped, cheaper than the duplication a per-feature
+split reintroduced. If it ever grows large enough to matter, shard it behind
+`getWord()` rather than letting features grow private copies again.
 
 If you're unsure whether a verb form is formal, check it against a known-
 correct example already in the dictionaries (e.g. `Войдите`/`Создайте` in
@@ -333,21 +370,28 @@ correct example already in the dictionaries (e.g. `Войдите`/`Создай
 than guessing — the ты/вы conjugation difference is often a single
 letter/syllable and easy to get wrong by ear.
 
-## 11. Every vocabulary word ships with a pronunciation audio file
+## 11. Every library word ships with a pronunciation audio file
 
-Every `VocabularyWord` (in any file under
-[`src/lib/content/vocabulary/decks/`](../src/lib/content/vocabulary/decks/))
-must have a matching pre-generated audio clip at
-`static/audio/vocabulary/<deckId>/<wordId>.m4a` — the path
-[`wordAudioSrc()`](../src/lib/content/vocabulary/audio.ts) derives and the
-"loudspeaker" button (`SpeakerButton.svelte`) plays. There is no "missing
-audio" UI state — a word added without its clip just fails silently to play
-when tapped.
+Every `Word` in [`entries.ts`](../src/lib/content/words/entries.ts) must
+have a matching pre-generated clip at `static/audio/words/<wordId>.m4a` —
+the path [`wordAudioSrc()`](../src/lib/content/words/audio.ts) derives and
+the "loudspeaker" button (`SpeakerButton.svelte`) plays, wherever the word
+appears: a deck's word list, the flashcard trainer, a letter's example, a
+dialogue's word popover. One word, one file. There is no "missing audio" UI
+state — a word added without its clip just fails silently to play when
+tapped.
 
 See [`docs/VOCABULARY_AUDIO.md`](VOCABULARY_AUDIO.md) for the storage/
 encoding decisions and, most importantly, the exact steps to generate and
 save a new word's clip — **follow that checklist for every new word**, in
-the same change that adds the word to its deck file.
+the same change that adds it to the library.
+
+Dialogue *lines* are recorded separately (a line is a unique two-voice
+recording, not a word) at `static/audio/dialogues/<dialogueId>/<nn>.m4a` —
+see [`docs/DIALOGUES.md`](DIALOGUES.md). Until a dialogue's line clips
+exist, the player treats each missing line as a fixed-length silence so the
+listen-through flow still works end to end; that's a deliberate stopgap for
+content-in-progress, not a fallback to rely on.
 
 ## 12. English UI copy is British English
 
@@ -361,16 +405,14 @@ rather than guessing. Doesn't apply to code identifiers, file names, or
 third-party API/library terms (e.g. `color-mix()`, CSS `background-color`),
 only to user-facing English copy.
 
-## 13. Every alphabet letter and example word ships with a pronunciation audio file
+## 13. Every alphabet letter ships with a pronunciation audio file
 
 Every `AlphabetLetter` (in [`src/lib/content/alphabet.ts`](../src/lib/content/alphabet.ts))
-must have a matching clip at `static/audio/alphabet/<letterId>.m4a`, and every
-`Word` it references via `exampleWordIds` (in
-[`src/lib/content/words/entries.ts`](../src/lib/content/words/entries.ts))
-must have one at `static/audio/words/<wordId>.m4a` — the paths
-[`letterAudioSrc()`](../src/lib/content/alphabetAudio.ts) and
-[`wordAudioSrc()`](../src/lib/content/words/audio.ts) derive. Same "no missing
-audio" rule as §11: nothing falls back gracefully if a clip is absent.
+must have a matching clip at `static/audio/alphabet/<letterId>.m4a` — the
+path [`letterAudioSrc()`](../src/lib/content/alphabetAudio.ts) derives. The
+words it references via `exampleWordIds` are library words and are covered
+by §11. Same "no missing audio" rule: nothing falls back gracefully if a
+clip is absent.
 
 See [`docs/ALPHABET_AUDIO.md`](ALPHABET_AUDIO.md) for the checklist — it
 builds on `docs/VOCABULARY_AUDIO.md`'s pipeline but adds two alphabet-specific

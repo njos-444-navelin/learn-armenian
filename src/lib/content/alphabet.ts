@@ -180,7 +180,7 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		id: 'zhe',
 		uppercase: 'Ժ',
 		lowercase: 'ժ',
-		voicingLabel: { en: `"s"`, ru: '«ж»' },
+		voicingLabel: { en: `"zh"`, ru: '«ж»' },
 		voicingDetail: { en: `as in "measure"`, ru: 'как в слове «жук»' },
 		transliteration: { en: 'zh', ru: 'ж' },
 		exampleWordIds: ['zham']
@@ -219,7 +219,7 @@ export const ALPHABET: readonly AlphabetLetter[] = [
 		// sounds). Same convention the aspirated/unaspirated stop pairs
 		// already use elsewhere (see the interface's own doc comment).
 		transliteration: { en: 'kh', ru: "х'" },
-		exampleWordIds: ['xaghal']
+		exampleWordIds: ['khaghal']
 	},
 	{
 		id: 'ca',

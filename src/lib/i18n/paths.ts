@@ -22,6 +22,7 @@ const ROUTES = {
 	'/account/register': '/[lang=locale]/account/register',
 	'/learn': '/[lang=locale]/learn',
 	'/learn/alphabet': '/[lang=locale]/learn/alphabet',
+	'/learn/dialogues': '/[lang=locale]/learn/dialogues',
 	'/learn/vocabulary': '/[lang=locale]/learn/vocabulary',
 	'/learn/vocabulary/train': '/[lang=locale]/learn/vocabulary/train'
 } as const;
@@ -36,14 +37,18 @@ export function withLocale(locale: Locale, pathname: LocaleRoutePath): ResolvedP
 }
 
 /**
- * Same as `withLocale()`, for the one route resolve() needs a dynamic
- * segment for. A second exported function rather than widening
- * `withLocale()`'s type to cover it — every other route in `ROUTES` takes
- * only the `lang` param, so folding this in would weaken the type of every
- * other call site just to accommodate one.
+ * Same as `withLocale()`, for the routes resolve() needs a dynamic segment
+ * for. Separate exported functions rather than widening `withLocale()`'s
+ * type to cover them — every other route in `ROUTES` takes only the `lang`
+ * param, so folding these in would weaken the type of every other call site
+ * just to accommodate two.
  */
 export function withLocaleDeck(locale: Locale, deckId: string): ResolvedPathname {
 	return resolve('/[lang=locale]/learn/vocabulary/[deckId]', { lang: locale, deckId });
+}
+
+export function withLocaleDialogue(locale: Locale, dialogueId: string): ResolvedPathname {
+	return resolve('/[lang=locale]/learn/dialogues/[dialogueId]', { lang: locale, dialogueId });
 }
 
 /** Same as `withLocale()`, with a query string appended (e.g. `next` on the

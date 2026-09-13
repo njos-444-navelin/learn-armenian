@@ -72,7 +72,7 @@
 		color: var(--color-text-primary);
 		cursor: pointer;
 		transition: background-color var(--transition-fast);
-		z-index: 20;
+		z-index: var(--z-bubble-link);
 	}
 
 	.bubble:hover {

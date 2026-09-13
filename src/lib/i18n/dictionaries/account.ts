@@ -102,6 +102,15 @@ export function dueNowLabel(count: number): Translated {
 
 export const allCaughtUpLabel: Translated = { en: 'All caught up', ru: 'Всё повторено' };
 
+export const dialoguesCardLabel: Translated = { en: 'Dialogues', ru: 'Диалоги' };
+
+/** Dynamic — see Conventions §1. "1 of 3 completed". */
+export function dialoguesCompletedLabel(completed: number, total: number): Translated {
+	return { en: `${completed} of ${total} completed`, ru: `Пройдено ${completed} из ${total}` };
+}
+
+export const progressListAriaLabel: Translated = { en: 'Progress by lesson', ru: 'Прогресс по урокам' };
+
 export const accountSettingsHeading: Translated = { en: 'Account settings', ru: 'Настройки аккаунта' };
 
 export const authErrorGeneric: Translated = {

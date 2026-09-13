@@ -4,7 +4,10 @@
 	import { blurAfterClick } from '$lib/actions/blurAfterClick';
 	import Spinner from './Spinner.svelte';
 
-	type Variant = 'primary' | 'secondary' | 'success' | 'error';
+	/** `success-soft` is the tinted, low-emphasis sibling of `success` — for a
+	 * button that leads to a success state rather than announcing one (see
+	 * --color-success-soft in tokens.css). */
+	type Variant = 'primary' | 'secondary' | 'success' | 'success-soft' | 'error';
 	type Size = 'md' | 'sm';
 	/** Every in-app href is a resolve()-wrapped ResolvedPathname (see
 	 * Conventions #5); the one exception today is contact/+page.svelte's
@@ -24,6 +27,11 @@
 		/** Pulses a glow around the button — reserved for rare, high-stakes
 		 * confirm actions (e.g. delete account). Pair with variant="error". */
 		glow?: boolean | undefined;
+		/** Gives a non-primary button the primary's hover physicality — the
+		 * slight rise and deeper shadow (see DESIGN.md's Motion section). For
+		 * the one commit action on a screen when it isn't a primary button,
+		 * e.g. the dialogue player's "mark it done". Primary always lifts. */
+		lift?: boolean | undefined;
 		/** variant="secondary" only — swaps its deliberately transparent
 		 * background (see DESIGN.md) for an opaque one. For a secondary button
 		 * that sits over content it must fully occlude, e.g. inside a fixed
@@ -58,6 +66,7 @@
 	type Props = LinkProps | ActionProps;
 
 	let { variant = 'primary', size = 'md', children, ...rest }: Props = $props();
+	let shouldLift = $derived(variant === 'primary' || rest.lift === true);
 </script>
 
 {#if rest.href !== undefined}
@@ -67,6 +76,7 @@
 		class:sm={size === 'sm'}
 		class:glow={rest.glow}
 		class:opaque={rest.opaque}
+		class:lift={shouldLift}
 		href={rest.href}
 		aria-current={rest.ariaCurrent}
 		onclick={rest.onclick}
@@ -81,6 +91,7 @@
 		class:sm={size === 'sm'}
 		class:glow={rest.glow}
 		class:opaque={rest.opaque}
+		class:lift={shouldLift}
 		type={rest.type ?? 'button'}
 		disabled={rest.disabled || rest.loading}
 		aria-busy={rest.loading ? 'true' : undefined}
@@ -128,9 +139,19 @@
 	}
 
 	.primary {
-		position: relative;
 		background: var(--color-primary);
 		color: var(--color-on-primary);
+	}
+
+	.primary:hover:not(:disabled) {
+		background: var(--color-primary-hover);
+	}
+
+	/* The hover/press physicality — always on the primary variant, opt-in
+	   via the `lift` prop for another variant that carries the screen's one
+	   commit action. Kept as its own class so the two can't drift apart. */
+	.lift {
+		position: relative;
 		box-shadow: var(--shadow-sm);
 		transition:
 			background-color var(--transition-fast),
@@ -144,7 +165,7 @@
 	 * button rises — without this, the edge retreats out from under the
 	 * cursor and hover/lift oscillates. Moves with the button since it's a
 	 * transformed descendant, so the buffer travels with the lift. */
-	.primary::after {
+	.lift::after {
 		content: '';
 		position: absolute;
 		top: 100%;
@@ -153,24 +174,23 @@
 		height: 6px;
 	}
 
-	.primary:hover:not(:disabled) {
-		background: var(--color-primary-hover);
+	.lift:hover:not(:disabled) {
 		box-shadow: var(--shadow-md);
 		transform: translateY(-2px);
 	}
 
-	.primary:active:not(:disabled) {
+	.lift:active:not(:disabled) {
 		box-shadow: var(--shadow-sm);
 		transform: translateY(0);
 	}
 
-	.primary:disabled {
+	.lift:disabled {
 		box-shadow: none;
 		transform: none;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.primary:hover:not(:disabled) {
+		.lift:hover:not(:disabled) {
 			transform: none;
 		}
 	}
@@ -202,6 +222,15 @@
 
 	.success:hover:not(:disabled) {
 		background: var(--color-success-hover);
+	}
+
+	.success-soft {
+		background: var(--color-success-soft);
+		color: var(--color-on-success-soft);
+	}
+
+	.success-soft:hover:not(:disabled) {
+		background: var(--color-success-soft-hover);
 	}
 
 	.error {

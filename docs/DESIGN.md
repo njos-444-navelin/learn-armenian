@@ -143,6 +143,19 @@ instead. If a component needs both states (selectable *and* hoverable),
 keep them on visually distinct properties — border for selected,
 background for hover — so the two don't collide into the same signal.
 
+### Chat bubbles: the "own side" tint is the one allowed bubble-sized tint
+
+[`DialogueLineBubble.svelte`](../src/lib/components/DialogueLineBubble.svelte)
+fills Tereza's bubbles with plain `--color-surface` and Dmitrii's — the
+right-hand, "own side" of the chat — with `--color-accent-100`, the
+lightest terracotta step. That's the one place a tinted fill sits on
+something bigger than a badge, and it's deliberate: a chat needs its two
+parties told apart at a glance, a bubble is still a small element next to
+a hero circle or a full-width card, and the two fills are surface-vs-tint
+rather than two competing accents (see the next rule). The line currently
+playing gets the `--color-primary` border, the app-wide "selected" signal,
+because it *is* the selected line.
+
 ### Don't pair accent and accent-2 as competing backgrounds
 
 Terracotta and sage sitting as backgrounds *next to each other* — e.g. two
@@ -357,6 +370,18 @@ worth knowing if this icon is ever redrawn:
   ending ~y 18.2) reflects the measured version, not the eyeballed
   one.
 
+**The two dialogue characters are a matched pair of drawn faces, not
+photos and not two unrelated illustrations.**
+[`CharacterAvatar.svelte`](../src/lib/components/CharacterAvatar.svelte)
+draws both on the same 40×40 canvas with the same shoulders path, keyed
+off the character id, colouring them from the accent and neutral ramps
+only — so they sit in the palette the way the hand-drawn hub icons do.
+The design project happened to also contain the two real people's photos
+(they are the app's two voices), and a first pass used them; the mockup
+itself drew the faces, and photos read as a different, heavier kind of
+image than anything else in this system. See
+[`docs/DIALOGUES.md`](DIALOGUES.md#design-decisions).
+
 **Vocabulary deck icons follow the topic, not a matched-set rule.** Unlike
 the `/learn` hub menu above (one icon per *feature*, all drawn to look like
 a family), [`VocabularyDeckIcon.svelte`](../src/lib/components/VocabularyDeckIcon.svelte)
@@ -369,6 +394,25 @@ as everywhere else in the app; extend `VocabularyDeckIconId` in
 [`types.ts`](../src/lib/content/vocabulary/types.ts) and this component's
 own icon lookup when a new deck needs a shape that doesn't exist yet,
 rather than reusing an unrelated deck's icon just to avoid adding one.
+
+**The account dashboard's progress tiles are a horizontal, snapping row, not
+a wrapping grid.** [`account/+page.svelte`](../src/routes/[lang=locale]/account/+page.svelte)'s
+`.progress-row` scrolls sideways (`overflow-x: auto`, `scroll-snap-type: x
+mandatory`) with every tile the same fixed width, bleeding to the page's
+edges so a part-visible next tile is the cue that there's more. The
+scrollbar is hidden (Chrome's permanent one under the row read as clutter)
+and the cue is carried instead by an edge fade — a gradient from
+`--color-background` to `--color-background-clear` over the side that has
+hidden content, set by the
+[`scrollEdgeCues`](../src/lib/actions/scrollEdgeCues.ts) action from the
+live scroll position: right edge only at rest, both mid-scroll, left only
+at the end, neither if everything fits. A fade rather than a hard cut so
+the cue survives the case where the row is only a little too wide and a
+cut-off tile edge would look like the row simply ends. It was an
+`auto-fit` grid while there were two tiles; a third (Dialogues) turned that
+into an odd 2+1 wrap on a phone and three cramped columns on a laptop, and
+the set will keep growing with each lesson type. One row you scroll keeps
+every tile the same shape on every screen.
 
 **An action button overlaid on a card link is absolutely positioned, not a
 flex sibling.** [`VocabularyDeckList.svelte`](../src/lib/components/VocabularyDeckList.svelte)'s
@@ -398,6 +442,30 @@ about *navigational* primary buttons — one that submits a form or confirms
 an in-place action doesn't need a directional affordance at all, since it
 isn't taking the learner anywhere.
 
+## Layering
+
+Every `z-index` in the app comes from one scale in
+[`tokens.css`](../src/lib/styles/tokens.css), ordered by role — never a
+bare number in a component:
+
+| token | value | what sits there |
+|---|---|---|
+| `--z-floating-bar` | 10 | the fixed action bar at the bottom of a page |
+| `--z-popover` | 15 | transient UI the user just opened on top of content — the dialogue word popover |
+| `--z-bubble-link` | 20 | the corner bubble links (back, account) |
+| `--z-toast` | 50 | toasts |
+| `--z-page-top` | 100 | the skip link and the navigation progress line |
+
+Native `<dialog>` modals live in the browser's top layer and need no entry.
+The order encodes one decision worth remembering: something the user just
+opened (a popover) outranks persistent chrome (the bar), and both sit
+under notifications. The scale exists because of a real bug — the word
+popover had `z-index: 8` (chosen when it only had to clear neighbouring
+bubbles) and the floating bar `z-index: 10` (chosen to clear scrolling
+content), picked in different files at different times; any popover on the
+last lines of a dialogue was drawn under the bar. Two numbers chosen
+independently will collide eventually; a scale can't.
+
 ## Motion
 
 - **Hover/interactive-state transitions**: `--transition-fast` (150ms
@@ -416,12 +484,33 @@ isn't taking the learner anywhere.
   repeated flash. Removing the animation didn't fix the underlying browser
   quirk, but it shrank its worst-case visible symptom from a ~150ms flash
   down to at most one imperceptible frame.
+- **Every modal fades and pops, in and out.** The tint fades (170ms in /
+  130ms out, `cubicOut` both ways) while the panel additionally rises 8px
+  and scales from 0.97 — enforced inside
+  [`Modal.svelte`](../src/lib/components/Modal.svelte), so a caller can't
+  end up with an un-animated one. Two things there are deliberate and
+  easy to undo by accident: (1) they're Svelte `in:`/`out:` transitions,
+  not CSS animations, because callers mount a Modal in an `{#if}` and only
+  a transition directive keeps the outgoing node around long enough to
+  animate out (same lesson as the dialogue word popover); (2) the
+  `<dialog>` element itself is stretched over the viewport and carries the
+  backdrop tint, with `::backdrop` made transparent — a pseudo-element
+  can't be driven by those transitions, so the tint would otherwise cut
+  out while the panel was still fading. Escape is intercepted via
+  `cancel` for the same reason: a native close drops `[open]` and hides
+  the dialog before the outro can play. Reduced motion keeps the fade and
+  drops the movement.
 - **Primary button hover/press physicality**: at rest the primary button
   carries `--shadow-sm`; hovering raises it to `--shadow-md` with a
   `translateY(-2px)` lift, and pressing settles it back to `--shadow-sm`
   with no offset — a deliberate "you're about to commit to something"
-  weight that the secondary/success/error variants don't get (see
-  [`Button.svelte`](../src/lib/components/Button.svelte)). Disabled drops
+  weight that the secondary/success/error variants don't get by default
+  (see [`Button.svelte`](../src/lib/components/Button.svelte)). Another
+  variant can opt in with the `lift` prop when it *is* the screen's one
+  commit action — the dialogue player's soft-sage "mark it done" button is
+  the current example (its solid "Already done" state doesn't lift: nothing
+  left to commit); the rules live on one `.lift` class so the two can't
+  drift apart. Disabled drops
   the shadow and transform entirely, and `prefers-reduced-motion` keeps the
   shadow change but drops the transform. The lift alone caused a real bug:
   a cursor approaching the button from below could cross the original
@@ -567,6 +656,30 @@ isn't taking the learner anywhere.
   animation in CSS — otherwise a toast whose `animation: none` never fires
   `animationend` would sit on screen forever waiting for an event that's
   never coming.
+- **An expanding section animates its height natively — `interpolate-size:
+  allow-keywords` plus `transition: height`, not a measured pixel height
+  or a max-height guess.** [`DialogueRuleCard.svelte`](../src/lib/components/DialogueRuleCard.svelte)'s
+  body goes `height: 0` → `height: auto` on open, with the text fading in
+  a beat behind the growth, and `DialogueLineBubble.svelte`'s per-line
+  translation does the same. For that to work both ways the body stays in
+  the DOM and toggles a class (plus `inert`, so the collapsed text is
+  out of the tab order and the accessibility tree) rather than living in
+  an `{#if}` — an element Svelte removes can't animate closed. Browsers
+  without `interpolate-size` (Firefox and Safari, as of 2026-09) snap the
+  height and keep the fade, which is an acceptable fallback; don't add a
+  JS measurement path for them.
+- **Anything that fades in should also fade out — a conditionally
+  rendered element needs a `transition:`/`out:` directive for that, not a
+  CSS `animation`.** The dialogue word popover
+  ([`DialogueWordPopover.svelte`](../src/lib/components/DialogueWordPopover.svelte))
+  first used an entrance-only `@keyframes` and vanished instantly on
+  close, which read as a glitch next to its own entrance. It now runs one
+  short fade-and-rise as a Svelte transition, forwards on open and
+  backwards on close: an element inside an `{#if}` is removed the moment
+  its condition flips, and only a transition directive holds it in the
+  DOM long enough to animate out. (The CSS-animation preference in the
+  Toast entry above still stands for elements that self-verify their own
+  removal; this is the case where it can't apply.)
 - **New UI that appears in response to something the learner just did
   fades in — it doesn't just pop into existence.** An abrupt appearance
   reads as a flash/glitch even when it's fully intentional, and it's easy

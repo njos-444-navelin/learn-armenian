@@ -18,6 +18,8 @@ declare global {
 			alphabetMasteryPercent?: number;
 			vocabularyWordCount?: number;
 			vocabularyDueCount?: number;
+			dialoguesCompletedCount?: number;
+			dialoguesTotalCount?: number;
 		}
 		// interface PageState {}
 		// interface Platform {}

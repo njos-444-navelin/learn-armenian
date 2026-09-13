@@ -1,23 +1,28 @@
 import type { Translated } from '$lib/i18n/types';
 
 /**
- * Deliberately independent from `vocabulary/types.ts`'s `WordRegister`, not
- * imported from it — the two registries aren't unified (see the comment atop
- * `entries.ts`). Keep them identical in shape so a future merge is a rename,
- * not a redesign.
+ * A word's register — which social context it's appropriate in. Armenian,
+ * like Russian, distinguishes an informal/colloquial form from a
+ * formal/literary one for some everyday words (see `Ոնց`/`Ինչպես` and
+ * `Ապրես`/`Ապրեք` in `entries.ts`).
  */
 export type WordRegister = 'informal' | 'formal';
 
 /**
- * A cross-feature word: currently sourced by the alphabet trainer's "in a
- * word" examples, meant to also back a future Dialogues feature (tap a word
- * in a transcript, hear it) and a searchable dictionary — see `entries.ts`.
+ * One entry in the app-wide word library (`entries.ts`) — the single
+ * definition of a word that every feature shares: a vocabulary deck lists
+ * it by id, the alphabet trainer shows it as a letter's "in a word"
+ * example, a dialogue links an inflected token back to it. Its
+ * pronunciation clip lives at `wordAudioSrc(id)` (see `audio.ts`), once,
+ * however many features play it.
  */
 export interface Word {
 	id: string;
-	/** Always capitalized — same convention as `VocabularyWord.armenian` (Conventions §10). */
+	/** Always capitalized — see Conventions §10. */
 	armenian: string;
+	/** Capitalized in both languages — see Conventions §10. */
 	translation: Translated;
 	register?: WordRegister | undefined;
+	/** Extra context that doesn't fit in a one-line translation, e.g. explaining a grammatical form. */
 	note?: Translated | undefined;
 }

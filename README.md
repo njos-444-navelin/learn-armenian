@@ -103,9 +103,14 @@ src/
     i18n/                  # locale, dictionaries, and the t()/getLocale() helpers
     styles/tokens.css      # design tokens (the only place colors are defined)
     components/            # shared, reusable UI (Button, Seo, PageShell, UserMenu, ...)
-    content/vocabulary/    # vocabulary deck data (code, not DB) — see Conventions §10
-                            # audio.ts derives each word's pronunciation clip path —
-                            # see docs/VOCABULARY_AUDIO.md
+    content/words/         # the word library: every word, defined once, shared by every
+                            # feature (Conventions §10); audio.ts derives each word's
+                            # pronunciation clip path — see docs/VOCABULARY_AUDIO.md
+    content/vocabulary/    # deck catalog + per-deck word-id lists (code, not DB)
+    content/dialogues/     # dialogue catalog, the two characters, and per-dialogue
+                            # lines whose tokens link into the word library — see
+                            # docs/DIALOGUES.md
+    dialogues/             # the dialogue player's playback state machine
     srs/scheduler.ts       # pure spaced-repetition algorithm, shared client + server
     actions/               # Svelte actions (e.g. fitText — shrink text to fit one line)
     forms/                 # shared form-submission helpers (e.g. the pending-state
@@ -114,8 +119,9 @@ src/
     server/                # server-only helpers (SvelteKit enforces this boundary at
                             # build time) — auth guard, service-role admin client
 static/
-  audio/vocabulary/        # pre-generated pronunciation clips, one per word — see
-                            # docs/VOCABULARY_AUDIO.md
+  audio/words/             # pre-generated pronunciation clips, one per library word —
+                            # see docs/VOCABULARY_AUDIO.md
+  audio/dialogues/         # per-dialogue line recordings, one file per line — see docs/DIALOGUES.md
 ```
 
 ## Authentication
@@ -136,10 +142,12 @@ Signed-in learners build a personal vocabulary collection
 repetition (`/learn/vocabulary/train`) — flip a card, grade it
 Again/Hard/Good/Easy, Anki-style.
 
-- **Deck content lives in code, not the database.** Each deck is a
-  `readonly VocabularyWord[]` under
+- **Deck content lives in code, not the database.** Each deck is an
+  ordered list of word ids under
   [`src/lib/content/vocabulary/decks/`](src/lib/content/vocabulary/decks/),
-  code-split per deck (see [Conventions §10](docs/CONVENTIONS.md#10-vocabulary-decks-are-code-split-and-always-capitalized)).
+  resolved against the shared word library
+  ([`src/lib/content/words/entries.ts`](src/lib/content/words/entries.ts))
+  and lazily loaded per deck (see [Conventions §10](docs/CONVENTIONS.md#10-words-live-in-one-shared-library-decks-and-dialogues-reference-it-by-id)).
   The database only ever stores a user's *choices*: which decks they've
   added (`user_vocabulary_decks`) and their per-word spaced-repetition
   state (`user_vocabulary_progress`) — never the words/translations
@@ -166,6 +174,19 @@ Again/Hard/Good/Easy, Anki-style.
   [`docs/VOCABULARY_AUDIO.md`](docs/VOCABULARY_AUDIO.md) for the storage/
   encoding rationale and, importantly, **the checklist for voicing a newly
   added word** — there's no fallback for a missing clip.
+
+## Dialogues
+
+Short two-person conversations (`/learn/dialogues`) between the app's two
+characters, Tereza and Dmitrii — the same two people as its two ElevenLabs
+voices. A dialogue opens with one short grammar rule, then plays line by
+line: in *Listen* mode the Armenian text is blurred until revealed, in
+*Read* mode every word is tappable and opens a popover with its meaning in
+context, its base form, and the shared pronunciation clip. Finishing one
+records it in `user_dialogue_progress` and shows on the account dashboard.
+See [`docs/DIALOGUES.md`](docs/DIALOGUES.md) for the content model — every
+tapped word is an id into the same word library the vocabulary decks use,
+so nothing is defined or recorded twice — and the audio checklist.
 
 ## Database schema and Supabase management
 

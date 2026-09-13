@@ -1,7 +1,7 @@
 /**
  * Where a letter's pre-generated phoneme clip lives. Served as a plain
  * static asset (`static/audio/alphabet/`), same pipeline and encoding as
- * `vocabulary/audio.ts` — see docs/VOCABULARY_AUDIO.md.
+ * `words/audio.ts` — see docs/VOCABULARY_AUDIO.md.
  *
  * Deliberately derived from `letterId` rather than stored as a field on
  * `AlphabetLetter` — one convention-based path, same reasoning as

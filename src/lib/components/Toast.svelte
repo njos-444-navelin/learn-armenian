@@ -44,7 +44,7 @@
 			var(--space-4) + env(safe-area-inset-top) + var(--tap-target-min) + var(--space-2)
 		);
 		left: 50%;
-		z-index: 50;
+		z-index: var(--z-toast);
 		display: flex;
 		flex-direction: column;
 		align-items: center;

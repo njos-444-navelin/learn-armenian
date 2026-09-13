@@ -1,22 +1,9 @@
 import type { Translated } from '$lib/i18n/types';
 
-/**
- * A word's register — which social context it's appropriate in. Armenian,
- * like Russian, distinguishes an informal/colloquial form from a
- * formal/literary one for some everyday words (see `Ոնց`/`Ինչպես` and
- * `Ապրես`/`Ապրեք` in `decks/greetings.ts`).
- */
-export type WordRegister = 'informal' | 'formal';
-
-export interface VocabularyWord {
-	id: string;
-	/** Always capitalized — see Conventions §10. */
-	armenian: string;
-	translation: Translated;
-	register?: WordRegister | undefined;
-	/** Extra context that doesn't fit in a one-line translation, e.g. explaining a grammatical form. */
-	note?: Translated | undefined;
-}
+// A deck's words are `Word`s from the app-wide library (`words/types.ts`) —
+// there is no separate vocabulary word type. Re-exported so vocabulary code
+// can keep importing its word-related types from one place.
+export type { Word, WordRegister } from '$lib/content/words/types';
 
 /** A deck's difficulty tier — shown alongside its word count (see
  * `deckMetaLabel` in `dictionaries/vocabulary.ts`). Only one tier exists so
@@ -36,9 +23,9 @@ export interface VocabularyDeck {
 	 * deck's own page. */
 	description: Translated;
 	level: VocabularyLevel;
-	/** Must match this deck's own word count in `decks/<id>.ts` — kept as a
-	 * plain number here (not derived from the words themselves) so the
-	 * catalog stays free of word data; see Conventions §10. */
+	/** Must match the length of this deck's `WORD_IDS` in `decks/<id>.ts` —
+	 * kept as a plain number here (not derived from the list) so the catalog
+	 * stays free of word data; see Conventions §10. */
 	wordCount: number;
 	icon: VocabularyDeckIconId;
 }

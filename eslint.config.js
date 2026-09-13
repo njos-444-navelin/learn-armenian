@@ -112,9 +112,10 @@ export default tseslint.config(
 	},
 	{
 		// Conventions #10: a deck's words are only ever loaded through
-		// loadDeckWords() (import.meta.glob, one chunk per deck) — a static
-		// import of a decks/*.ts file would pull every deck's words into
-		// whatever bundle imports it, defeating the whole point.
+		// loadDeckWords(), and a dialogue's lines through loadDialogue() —
+		// the one place each id list is resolved against the word library
+		// and validated, and the lazy import that keeps per-deck/per-dialogue
+		// content out of every other page's bundle.
 		rules: {
 			'no-restricted-imports': [
 				'error',
@@ -123,7 +124,12 @@ export default tseslint.config(
 						{
 							group: ['*/content/vocabulary/decks/*', '$lib/content/vocabulary/decks/*'],
 							message:
-								'Import deck words via loadDeckWords() in $lib/content/vocabulary/loadDeck.ts instead — a direct import defeats the per-deck code-splitting (Conventions #10).'
+								'Import deck words via loadDeckWords() in $lib/content/vocabulary/loadDeck.ts instead — it resolves and validates the deck\'s word ids and keeps the deck lazily loaded (Conventions #10).'
+						},
+						{
+							group: ['*/content/dialogues/dialogues/*', '$lib/content/dialogues/dialogues/*'],
+							message:
+								'Import a dialogue via loadDialogue() in $lib/content/dialogues/loadDialogue.ts instead — it validates the dialogue against the word library and keeps its lines lazily loaded (Conventions #10).'
 						}
 					]
 				}

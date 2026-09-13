@@ -16,15 +16,16 @@ or word needs to know.
 - Letter phonemes: [`static/audio/alphabet/<letterId>.m4a`](../static/audio/alphabet/) —
   path from [`letterAudioSrc()`](../src/lib/content/alphabetAudio.ts).
 - Example words: [`static/audio/words/<wordId>.m4a`](../static/audio/words/) —
-  path from [`wordAudioSrc()`](../src/lib/content/words/audio.ts). Flat, not
-  deck-scoped, since this registry isn't organized into decks (see the
-  comment atop [`words/entries.ts`](../src/lib/content/words/entries.ts) for
-  why this is a separate registry from `vocabulary/decks/*.ts` rather than
-  reusing it).
+  path from [`wordAudioSrc()`](../src/lib/content/words/audio.ts). These are
+  ordinary entries in the app-wide word library
+  ([`words/entries.ts`](../src/lib/content/words/entries.ts)), shared with
+  the vocabulary decks and dialogues — a letter's example word is the same
+  entry, and the same clip, a deck would use (Conventions §10).
 
 Same encoding as vocabulary audio: `ffmpeg -i <input> -ac 1 -ar 24000 -c:a aac
 -b:a 32k -movflags +faststart`. Same voice (`B7DEF4tn54LpozCVN7ah`, "Tereza
-jan speaks Armenian") and model (`eleven_v3`, `generations_count: 1`) via the
+jan speaks Armenian") and model (`eleven_v3`, `generations_count: 2` — see
+the take-count note in `VOCABULARY_AUDIO.md`) via the
 ElevenLabs MCP connector's `creative_generate_speech` tool, polled via
 `creative_get_flow_run_status` until `all_completed`, downloaded from
 `media[].url`.
@@ -47,25 +48,33 @@ For the digraph `u` (ՈՒ) and the ligature `yev` (և, lowercase only — it has
 uppercase form, see the comment on its `alphabet.ts` entry), send the glyph(s)
 exactly as they appear in `alphabet.ts` — same rule, no special-casing needed.
 
-### Three letters need a schwa buffer: `peh`, `ra`, `tiwn`
+### Four letters need a schwa buffer: `peh`, `ra`, `tiwn`, `gim`
 
-`Պ` (peh), `Ռ` (ra) and `Տ` (tiwn) — three unrelated, unaspirated
+`Պ` (peh), `Ռ` (ra), `Տ` (tiwn) and `Գ` (gim) — unrelated, unaspirated
 stop/rolled-consonant letters — each consistently failed generation as a bare
 glyph, in both upper- and lowercase, with punctuation or without: ElevenLabs
 returned `"There was an unexpected error processing this generation. Please
 try again."` on every attempt (confirmed not a transient/concurrency fluke —
 still failed on a fresh, uncontended retry). The same letters generate fine
 as part of a real word (e.g. `panir`'s `Պանիր`), so the trigger is specific to
-submitting one of these three as an isolated single-character prompt, not the
+submitting one of these as an isolated single-character prompt, not the
 sound itself.
 
+`gim` joined this set on 2026-09-08: it had generated fine as a bare `Գ`
+before, but failed with the same generic error during the full regeneration
+and succeeded immediately on `Գը`. So **membership in this set is not fixed —
+a letter that generated fine once can start failing.** Treat the list as the
+letters known to need the buffer, not a closed set, and apply the fix on any
+bare-glyph failure rather than assuming something else is wrong.
+
 **Fix: append the schwa Ը** (the same vowel as the letter `uht`, "a quick,
-unstressed sound") to make the prompt `Պը`/`Ռը`/`Տը` instead of the bare
+unstressed sound") to make the prompt `Պը`/`Ռը`/`Տը`/`Գը` instead of the bare
 glyph. This is the same trick English phonics uses to make an isolated stop
 consonant sayable at all ("buh" for B, "duh" for D) — pedagogically fine, not
-a hack — and it reliably generates (confirmed on all three, first try after
-the switch). Still save as `peh.m4a`/`ra.m4a`/`tiwn.m4a` — the schwa is only
-in the TTS prompt, same "never in stored text" rule as the "Ո"→"Վ" fix below.
+a hack — and it reliably generates (confirmed on all four, first try after
+the switch). Still save as `peh.m4a`/`ra.m4a`/`tiwn.m4a`/`gim.m4a` — the
+schwa is only in the TTS prompt, same "never in stored text" rule as the
+"Ո"→"Վ" fix below.
 If a *new* letter ever hits this same generic error as a bare glyph, try this
 schwa-buffer fix before assuming something else is wrong.
 
@@ -108,13 +117,37 @@ done until someone has actually listened to it. Expect more than one round on
 letters/words that turn out tricky; that's normal, not a sign the pipeline is
 broken.
 
-## Two techniques for common quality problems, with honest effectiveness notes
+## Two techniques for common quality problems — both now superseded
 
 Beyond the schwa-buffer and "Ո"→"Վ" fixes above (which fix generation
-*failures* and *wrong phonemes*), two more techniques help with quality
-complaints on clips that generate successfully but sound off. Neither is a
-guaranteed fix — both have already had cases where a first application didn't
-fully resolve the complaint, requiring another round:
+*failures* and *wrong phonemes*), two more techniques were used for quality
+complaints on clips that generate successfully but sound off. **The word
+library work of 2026-09-10 measured both, and neither survives.** The
+history is kept below for what it documents; the current rules are in
+`VOCABULARY_AUDIO.md` and summarised here:
+
+- **The trailing Latin period is the wrong terminal.** End every Armenian
+  prompt with the Armenian full stop **`։`** (U+0589), never `.`. A Latin
+  period weakens the engine's commitment to an Armenian reading — on a
+  loanword it falls back to the source language's stress — and the
+  controlled comparison on `Նորմալ`/`Նայել`/`Անել` showed `։` alone fixing
+  wrong-syllable stress that the period left broken. Every clip in
+  `static/audio/words/` now ends its prompt in `։`. Letters generated as bare
+  glyphs have no terminal at all, which is fine; if a glyph ever needs one,
+  it is `։`.
+- **Delivery-direction tags cost roughly eight times as much and
+  over-articulate.** The bracketed text is billed as characters — a tagged
+  single word ran ≈55 credits against ≈7 plain — and the takes came back at
+  1.0–2.2 s, drawled, against 0.6–0.9 s. Do not reach for a tag for stress
+  or energy. For a loanword whose source language stresses a different
+  syllable, add the shesht `՛` on the right syllable instead
+  (`Նորմա՛լ։`); for a native word the `։` is enough.
+- **Two takes, picked by ear, beats one take steered by a tag.** Generate
+  `generations_count: 2`, audition both in the picker page described in
+  `VOCABULARY_AUDIO.md`, and re-roll at eight only for a clip that has
+  already been rejected once.
+
+What was believed before, kept as a record of the reasoning at the time:
 
 - **Delivery-direction tags** (an `eleven_v3` feature): a bracketed
   instruction prepended to the prompt, e.g. `[speaking slowly and clearly]
@@ -151,28 +184,53 @@ spending more generations on it** — same category of fix as `kov`→`mot`
 above, just triggered by "the model won't say X" instead of "X was a poor
 pedagogical choice."
 
-**Also open:** `jheh` (ջ) and the schwa-buffer takes of `xeh`/`sha` have had
-tone complaints ("too enthusiastic," "sounds disappointed") independent of
-the isolation fix that schwa-buffering already solved for them — still need
-a regeneration round.
+The per-letter tuning below was all done against the *previous* recording of
+the Tereza jan voice. On 2026-09-08 both workspace voices were re-cloned for
+higher quality (same `voice_id`s — see the re-clone note in
+[`VOCABULARY_AUDIO.md`](VOCABULARY_AUDIO.md)) and the whole catalog was
+regenerated, so **every clip in `static/audio/` is a fresh, un-listened-to
+take** and the complaints recorded here are history, not current state. Kept
+for the technique they document, not as a live to-do list:
 
-`nor` (Նոր, "new") was re-recorded on 2026-08-20 as `[speaking clearly,
-enunciating the ending] Նոր.` (direction tag plus trailing period, targeting
-the final Ր that was reading as "not") and confirmed by listen — resolved.
+- `jheh` (ջ) and `xeh`/`sha` had tone complaints ("too enthusiastic,"
+  "sounds disappointed") that outlived their schwa-buffer fix. They were
+  regenerated as bare glyphs — the schwa buffer is only *required* for the
+  letters that fail outright (below), and these three generate fine without
+  it — so if the tone complaint recurs, reach for a direction tag first,
+  not the buffer.
+- `nor` (Նոր, "new") kept `[speaking clearly, enunciating the ending] Նոր.`
+  (direction tag plus trailing period, targeting the final Ր that was
+  reading as "not"), which a listen had confirmed resolved it on
+  2026-08-20. Same for `ynker`'s pacing tag and `yot`'s calm tag.
+- `ho` (հ) took two rounds on 2026-08-20 and ended on `[speaking plainly and
+  confidently, as a statement, not a question] Հը.` — a trailing period plus
+  a tag explicitly ruling out a question, because a bare unpunctuated `Հը`
+  is also how the Armenian interjection "huh?" is written and the model kept
+  leaning into that reading. That take was never confirmed by listen, so the
+  2026-09 regeneration went back to the plain glyph `Հ`. **Takeaway if it
+  recurs:** the 2026-09-10 dialogue work measured what actually separates a
+  question from a statement in this voice, and it is **where the pitch peak
+  lands, not the terminal punctuation** — every accepted question in
+  `bread-shop` *falls* at the end, exactly like the statements. So if `Հը`
+  reads as "huh?", the lever is the terminal `։` (never a Latin period —
+  see above), and if that is not enough, a different take rather than a
+  direction tag.
 
-`ho` (հ) took two rounds the same day. First attempt,
-`[speaking energetically] Հը` (kept the existing schwa buffer, added an
-energetic direction tag for the "sounds a little odd, not energetic"
-complaint), came back sounding skeptical/doubting instead — likely because a
-bare, unpunctuated `Հը` is also how the Armenian interjection "huh?" is
-written, and the model leaned into that reading despite the tag. Second
-attempt added a trailing period and reworded the tag to explicitly rule out
-a question: `[speaking plainly and confidently, as a statement, not a
-question] Հը.`. Pending a human listen to confirm. **Takeaway for next time:**
-if a schwa-buffered letter's *un-punctuated* text happens to double as a
-real interjection/word in Armenian, try a trailing period before iterating
-further on the direction tag — punctuation may be doing more work than the
-tag for steering statement-vs-question prosody.
+## Breath trim: the alphabet is clean, and the sibilant trap does not bite it
+
+`VOCABULARY_AUDIO.md` documents the trailing-breath trim: the voice
+frequently inhales after a word, and the gap-based rule cuts it. Measured
+across all 39 letter clips on 2026-09-10, **none has a detectable trailing
+breath** and none is longer than 0.56 s. The letters were generated as bare
+glyphs and are tight; nothing needs re-trimming.
+
+The same document records that the "glued breath" spectral rule is a
+sibilant detector, not a breath detector — it fires on words ending in
+/s/, /tʃ/, /ts/ and would cut the consonant off. Run over the alphabet it
+fires on nothing, including `seh` (Ս), because the clips have no quiet
+trailing region for it to misread. **That is luck, not safety.** If a letter
+clip is ever regenerated with a tail, do not run that rule on a name ending
+in a fricative — pick a different take.
 
 ## Adding a new letter or word
 
@@ -180,8 +238,9 @@ Follow `VOCABULARY_AUDIO.md`'s "Adding audio for a new word" checklist,
 substituting the path/prompt conventions above:
 - A new `AlphabetLetter` needs a clip at `static/audio/alphabet/<id>.m4a`,
   prompt = the bare glyph (respelled "Ո"→"Վ" only if the glyph is `vo`; add a
-  schwa buffer if it fails outright as a bare glyph; add a delivery-direction
-  tag if it generates but the tone is off).
+  schwa buffer if it fails outright as a bare glyph). If the tone is off,
+  generate two takes and pick — **not** a delivery-direction tag, which is
+  superseded above.
 - A new `Word` in `words/entries.ts` needs a clip at
   `static/audio/words/<id>.m4a`, prompt = its `armenian` field verbatim
   (respelled "Ո"→"Վ" only if it starts with a bare "Ո", checked per word; add

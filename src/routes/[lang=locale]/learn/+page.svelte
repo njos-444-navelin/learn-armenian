@@ -82,7 +82,7 @@
 			</span>
 		</a>
 
-		<div class="hub-card acc soon" aria-disabled="true">
+		<a class="hub-card acc" href={withLocale(locale, '/learn/dialogues')}>
 			<span class="hub-icon">
 				<svg
 					viewBox="0 0 24 24"
@@ -105,7 +105,7 @@
 				<span class="hub-title">{t(dialoguesLabel)}</span>
 				<span class="hub-sub">{t(dialoguesHint)}</span>
 			</span>
-		</div>
+		</a>
 
 		<p class="more-note">{t(moreToComeLabel)}</p>
 	</nav>
@@ -151,15 +151,6 @@
 
 	.hub-card:hover {
 		background: var(--color-surface-hover);
-	}
-
-	.hub-card.soon {
-		cursor: not-allowed;
-		opacity: 0.6;
-	}
-
-	.hub-card.soon:hover {
-		background: var(--color-surface);
 	}
 
 	.more-note {
