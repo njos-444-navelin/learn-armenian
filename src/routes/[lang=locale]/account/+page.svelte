@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { scrollEdgeCues } from '$lib/actions/scrollEdgeCues';
 	import AuthField from '$lib/components/AuthField.svelte';
 	import AuthForm from '$lib/components/AuthForm.svelte';
 	import Button from '$lib/components/Button.svelte';
@@ -31,6 +32,9 @@
 		collectionCountLabel,
 		dueNowLabel,
 		allCaughtUpLabel,
+		dialoguesCardLabel,
+		dialoguesCompletedLabel,
+		progressListAriaLabel,
 		accountSettingsHeading,
 		changePasswordButton,
 		changeEmailButton,
@@ -51,6 +55,11 @@
 	let alphabetMasteryPercent = $derived(signedIn ? (page.data.alphabetMasteryPercent ?? 0) : 0);
 	let vocabularyWordCount = $derived(signedIn ? (page.data.vocabularyWordCount ?? 0) : 0);
 	let vocabularyDueCount = $derived(signedIn ? (page.data.vocabularyDueCount ?? 0) : 0);
+	let dialoguesCompletedCount = $derived(signedIn ? (page.data.dialoguesCompletedCount ?? 0) : 0);
+	let dialoguesTotalCount = $derived(page.data.dialoguesTotalCount ?? 0);
+	let dialoguesPercent = $derived(
+		dialoguesTotalCount === 0 ? 0 : Math.round((dialoguesCompletedCount / dialoguesTotalCount) * 100)
+	);
 	let authErrorFromLink = $derived(page.url.searchParams.get('authError') !== null);
 	/** A form's `action="?/login"` resolves relative to the current URL, and
 	 * a query-only relative reference *replaces* the whole query string
@@ -72,6 +81,7 @@
 	let magicLinkHref = $derived(withLocale(getLocale(), '/account/magic-link'));
 	let alphabetHref = $derived(withLocale(getLocale(), '/learn/alphabet'));
 	let vocabularyHref = $derived(withLocale(getLocale(), '/learn/vocabulary'));
+	let dialoguesHref = $derived(withLocale(getLocale(), '/learn/dialogues'));
 
 	let currentLocale = $derived(getLocale());
 	let otherLocale = $derived(LOCALES.find((candidate) => candidate !== currentLocale));
@@ -117,7 +127,13 @@
 
 			<div class="dash-section">
 				<h2 class="section-heading">{t(myProgressHeading)}</h2>
-				<div class="progress-grid">
+				<!-- A horizontal, snapping row rather than a wrapping grid: the
+				     lesson tiles are a set that grows with the app, and a row
+				     you scroll sideways keeps them one uniform size on every
+				     screen instead of reflowing into odd 2+1 layouts. -->
+				<div class="progress-scroller" use:scrollEdgeCues>
+					<ul class="progress-row" aria-label={t(progressListAriaLabel)}>
+					<li>
 					<a class="stat-card" href={alphabetHref}>
 						<span class="stat-icon acc">
 							<svg
@@ -145,7 +161,9 @@
 							<span class="stat-progress-fill" style:width="{alphabetMasteryPercent}%"></span>
 						</span>
 					</a>
+					</li>
 
+					<li>
 					<a class="stat-card" href={vocabularyHref}>
 						<span class="stat-icon acc2">
 							<svg
@@ -174,6 +192,38 @@
 							<span class="stat-badge caught-up">{t(allCaughtUpLabel)}</span>
 						{/if}
 					</a>
+					</li>
+
+					<li>
+					<a class="stat-card" href={dialoguesHref}>
+						<span class="stat-icon acc">
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2.75"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								aria-hidden="true"
+								width="24"
+								height="24"
+							>
+								<path
+									d="M4 16.5V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v4.5a4 4 0 0 1-4 4H9.5L5.5 20a1 1 0 0 1-1.5-.9z"
+								/>
+								<path d="M8.5 8.3h7M8.5 12.2h4" />
+							</svg>
+						</span>
+						<span class="stat-copy">
+							<span class="stat-title">{t(dialoguesCardLabel)}</span>
+							<span class="stat-sub">{t(dialoguesCompletedLabel(dialoguesCompletedCount, dialoguesTotalCount))}</span>
+						</span>
+						<span class="stat-progress-track">
+							<span class="stat-progress-fill" style:width="{dialoguesPercent}%"></span>
+						</span>
+					</a>
+					</li>
+				</ul>
 				</div>
 			</div>
 
@@ -326,14 +376,77 @@
 		color: var(--color-text-secondary);
 	}
 
-	.progress-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+	/* Bleeds to the page's own edges (undoing the dashboard's inline
+	   padding) so a part-visible next tile at the edge is the cue that the
+	   row scrolls, then pads the same amount back inside so the first and
+	   last tiles still line up with the headings above. Snap points land
+	   each tile flush with that inner edge.
+
+	   No scrollbar: Chrome draws a permanent one under the row, which read
+	   as clutter. In its place the wrapper fades the edge that has hidden
+	   content behind it (scrollEdgeCues sets data-cue-start/-end) — a cue
+	   that also works when the row is only slightly too wide, where a
+	   bare cut-off tile edge would look like the row simply ends there. */
+	.progress-scroller {
+		position: relative;
+		margin: 0 calc(var(--space-4) * -1);
+	}
+
+	.progress-scroller::before,
+	.progress-scroller::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		bottom: var(--space-2);
+		width: 3rem;
+		pointer-events: none;
+		opacity: 0;
+		transition: opacity var(--transition-fast);
+	}
+
+	.progress-scroller::before {
+		left: 0;
+		background: linear-gradient(to right, var(--color-background), var(--color-background-clear));
+	}
+
+	.progress-scroller::after {
+		right: 0;
+		background: linear-gradient(to left, var(--color-background), var(--color-background-clear));
+	}
+
+	/* The attributes are set at runtime by the action, so Svelte can't see
+	   them in the markup — :global() keeps it from pruning the selectors. */
+	.progress-scroller:global([data-cue-start])::before,
+	.progress-scroller:global([data-cue-end])::after {
+		opacity: 1;
+	}
+
+	.progress-row {
+		display: flex;
 		gap: var(--space-3);
+		margin: 0;
+		padding: 0 var(--space-4) var(--space-2);
+		list-style: none;
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		scroll-padding-inline: var(--space-4);
+		scrollbar-width: none;
+		overscroll-behavior-x: contain;
+	}
+
+	.progress-row::-webkit-scrollbar {
+		display: none;
+	}
+
+	.progress-row li {
+		flex: 0 0 min(11.5rem, 80%);
+		display: flex;
+		scroll-snap-align: start;
 	}
 
 	.stat-card {
 		display: flex;
+		width: 100%;
 		flex-direction: column;
 		gap: var(--space-3);
 		padding: var(--space-5);

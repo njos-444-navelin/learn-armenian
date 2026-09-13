@@ -132,7 +132,7 @@
 		{/if}
 	</div>
 
-	<VocabularyWordList deckId={data.deck.id} words={data.words} />
+	<VocabularyWordList words={data.words} />
 
 	{#if added}
 		<VocabularyTrainCta />

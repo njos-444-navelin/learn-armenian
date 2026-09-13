@@ -14,6 +14,11 @@
 	   surface rather than competing with the button(s) sitting on top of
 	   it. */
 	--color-background-translucent-soft: color-mix(in srgb, var(--color-background) 86%, transparent);
+	/* The fully transparent end of a fade *into* the background — the same
+	   hue at 0% alpha, so a gradient from --color-background to it doesn't
+	   dip through grey the way a gradient to plain `transparent` (which is
+	   transparent black) does in sRGB. */
+	--color-background-clear: color-mix(in srgb, var(--color-background) 0%, transparent);
 	--color-surface: #ebddc5;
 	--color-surface-hover: color-mix(in srgb, var(--color-surface) 92%, var(--color-neutral-900) 8%);
 	--color-text-primary: #201e1d;
@@ -109,6 +114,15 @@
 	--color-success-hover: var(--color-accent-2-800);
 	--color-on-success: var(--color-accent-2-100);
 	--color-success-surface: var(--color-accent-2-100);
+	/* A quieter, tinted take on the success fill for a button that *leads
+	   to* the success state rather than announcing it — the dialogue
+	   player's "mark it done" before the dialogue is done, which then flips
+	   to the full --color-success once it is. Same shades as the trainer's
+	   "good" grade, kept as their own tokens for the same reason the grade
+	   tokens are (see below). */
+	--color-success-soft: var(--color-accent-2-200);
+	--color-success-soft-hover: var(--color-accent-2-300);
+	--color-on-success-soft: var(--color-accent-2-800);
 	--color-focus-ring: var(--color-primary);
 
 	/* Color — "has pending vocabulary reviews" notification dot. Terracotta
@@ -134,6 +148,30 @@
 	--color-grade-easy: var(--color-accent-2-400);
 	--color-grade-easy-hover: var(--color-accent-2-500);
 	--color-on-grade-easy: var(--color-accent-2-900);
+
+	/* Color — a tappable word in a dialogue bubble, hovered / with its
+	   popover open. Translucent ink washes rather than tints: the word sits
+	   on either bubble fill (--color-surface or --color-accent-100) and
+	   these darken whichever it's on by the same step — the "darken the
+	   element's own color" hover rule from DESIGN.md, done as an overlay
+	   because the word itself is transparent. An accent-200 fill here read
+	   as a harsh reddish flash against the bubble. */
+	--color-word-hover: color-mix(in srgb, var(--color-neutral-900) 7%, transparent);
+	--color-word-open: color-mix(in srgb, var(--color-neutral-900) 11%, transparent);
+
+	/* Layering — every z-index in the app comes from this scale, ordered by
+	   role, so two components never pick numbers independently and collide
+	   (which is how the word popover, at 8, ended up under the floating
+	   action bar, at 10). Bottom to top: persistent chrome inside the page
+	   (the floating bar), then transient UI the user just opened and expects
+	   on top of it (the word popover), then the corner bubble links, then
+	   toasts, then the skip link and the top progress line. Native <dialog>
+	   modals sit in the browser's top layer and need no entry. */
+	--z-floating-bar: 10;
+	--z-popover: 15;
+	--z-bubble-link: 20;
+	--z-toast: 50;
+	--z-page-top: 100;
 
 	/* Color — modal backdrop overlay */
 	--color-backdrop: color-mix(in srgb, var(--color-neutral-900) 55%, transparent);

@@ -1,16 +1,15 @@
 <script lang="ts">
 	import SpeakerButton from './SpeakerButton.svelte';
-	import { wordAudioSrc } from '$lib/content/vocabulary/audio';
-	import type { VocabularyWord } from '$lib/content/vocabulary/types';
+	import { wordAudioSrc } from '$lib/content/words/audio';
+	import type { Word } from '$lib/content/words/types';
 	import { registerLabels } from '$lib/i18n/dictionaries/vocabulary';
 	import { t } from '$lib/i18n/current';
 
 	interface Props {
-		deckId: string;
-		words: readonly VocabularyWord[];
+		words: readonly Word[];
 	}
 
-	let { deckId, words }: Props = $props();
+	let { words }: Props = $props();
 </script>
 
 <ul class="words">
@@ -28,7 +27,7 @@
 					<p class="note">{t(word.note)}</p>
 				{/if}
 			</div>
-			<SpeakerButton src={wordAudioSrc(deckId, word.id)} />
+			<SpeakerButton src={wordAudioSrc(word.id)} />
 		</li>
 	{/each}
 </ul>

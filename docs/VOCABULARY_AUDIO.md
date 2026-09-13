@@ -398,6 +398,17 @@ cents. **Take volume is the cheap lever; the human's listening time is the
 expensive one.** Design the review page around their attention, not around
 saving generations.
 
+## A one-letter word: prompt the bare letter, no full stop
+
+`Է` (the third-person "is") with the usual `Է։` prompt came out as a long,
+aimless "eeeh" in all three v3 takes — with nothing to say, the model
+stretched the vowel into a filler. Two takes of the bare letter `Է`, no
+punctuation, on the same model gave a short, plain "eh"; the reviewer picked
+one of those. Two `Է։` takes on `eleven_multilingual_v2` were also
+generated as a control and not picked. So for a single-letter word, drop the
+`։` — the "add the Armenian full stop" rule above exists to fix stress, and
+a one-vowel word has no stress to fix.
+
 ## Adding audio for a new word
 
 Do this every time a word is added to

@@ -8,7 +8,7 @@
 	import Button from './Button.svelte';
 	import SpeakerButton from './SpeakerButton.svelte';
 	import { fitText } from '$lib/actions/fitText';
-	import { wordAudioSrc } from '$lib/content/vocabulary/audio';
+	import { wordAudioSrc } from '$lib/content/words/audio';
 	import type { TrainingCard } from '$lib/content/vocabulary/training';
 	import { getLocale, t } from '$lib/i18n/current';
 	import { withLocale } from '$lib/i18n/paths';
@@ -209,7 +209,7 @@
 							<div class="face front">
 								<span class="word-row">
 									<span class="word" lang="hy" use:fitText>{current.word.armenian}</span>
-									<SpeakerButton src={wordAudioSrc(current.deckId, current.word.id)} />
+									<SpeakerButton src={wordAudioSrc(current.word.id)} />
 								</span>
 							</div>
 							<div class="face back">

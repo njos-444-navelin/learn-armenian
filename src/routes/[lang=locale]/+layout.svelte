@@ -29,7 +29,7 @@
 		position: absolute;
 		left: -9999px;
 		top: 0;
-		z-index: 100;
+		z-index: var(--z-page-top);
 		padding: var(--space-2) var(--space-4);
 		background: var(--color-primary);
 		color: var(--color-on-primary);

@@ -1,7 +1,8 @@
 import { brandName } from './common';
 import { ruWordForm } from '../ruPlural';
 import type { Translated } from '../types';
-import type { VocabularyDeck, VocabularyLevel, WordRegister } from '$lib/content/vocabulary/types';
+import type { VocabularyDeck, VocabularyLevel } from '$lib/content/vocabulary/types';
+import type { WordRegister } from '$lib/content/words/types';
 
 // --- Deck list page (/learn/vocabulary) ---
 

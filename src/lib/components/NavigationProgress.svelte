@@ -55,7 +55,7 @@
 		transition:
 			width 4s cubic-bezier(0.1, 0.6, 0.4, 1),
 			opacity 0.2s ease;
-		z-index: 100;
+		z-index: var(--z-page-top);
 		pointer-events: none;
 	}
 
