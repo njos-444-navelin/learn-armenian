@@ -93,13 +93,13 @@
 	});
 
 	let lineCount = $derived(dialogue.lines.length);
-	/** Until the learner has opened a word, a line above the transcript
-	 * says the words are tappable — nothing else on the page does, since
-	 * tappable words carry no resting mark (see DialogueLineBubble). Which
-	 * version depends on whether anything is readable yet. */
-	let wordHint = $derived(
-		tapped.length > 0 ? null : mode === 'read' || revealed.size > 0 ? tapWordHint : revealThenTapHint
-	);
+	/** A line above the transcript says the words are tappable — nothing
+	 * else on the page does, since tappable words carry no resting mark
+	 * (see DialogueLineBubble). Which version depends on whether anything
+	 * is readable yet; it never empties — clearing it on the first tap
+	 * shifted the whole transcript right as the learner was reading a
+	 * popover. */
+	let wordHint = $derived(mode === 'read' || revealed.size > 0 ? tapWordHint : revealThenTapHint);
 	let inProgress = $derived(playback.started);
 	let progressPercent = $derived(inProgress ? ((playback.cursor + 1) / lineCount) * 100 : 0);
 
@@ -191,7 +191,7 @@
 
 	<DialogueRuleCard rule={dialogue.rule} />
 
-	<p class="hint" aria-hidden={wordHint === null}>{wordHint === null ? '' : t(wordHint)}</p>
+	<p class="hint">{t(wordHint)}</p>
 
 	<div class="lines">
 		{#each dialogue.lines as line, lineIndex (lineIndex)}
@@ -352,10 +352,8 @@
 		margin-top: var(--space-2);
 	}
 
-	/* Same quiet line as the trainer's "tap to reveal" hint; keeps its
-	   height when it empties so the lines below don't jump. */
+	/* Same quiet line as the trainer's "tap to reveal" hint. */
 	.hint {
-		min-height: 1.5em;
 		margin: 0;
 		font-size: var(--font-size-sm);
 		color: var(--color-text-secondary);

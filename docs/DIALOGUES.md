@@ -179,8 +179,9 @@ on top:
   Tappable words carry no resting mark, so a one-line hint above the
   transcript says they're tappable — "reveal a line, then tap any word" in
   Listen mode with nothing shown, "tap any word" once something is
-  readable — and empties (keeping its height) after the learner's first
-  word, per visit; same treatment as the trainer's "tap to reveal" hint.
+  readable. It stays: an earlier version emptied it on the first tap, and
+  that shifted the transcript under the learner's finger while they were
+  reading a popover.
   Tapping Listen re-blurs every line, the eye-revealed ones included —
   it's "hide the text again", not merely a mode switch, which is why the
   Listen radio listens for `click` rather than `change` (a radio that's
