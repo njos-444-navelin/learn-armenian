@@ -4,6 +4,7 @@
 	import { SvelteSet } from 'svelte/reactivity';
 	import { blurAfterClick } from '$lib/actions/blurAfterClick';
 	import { lineAudioSrc } from '$lib/content/dialogues/audio';
+	import { wordAudioSrc } from '$lib/content/words/audio';
 	import type { Dialogue } from '$lib/content/dialogues/types';
 	import { getWord } from '$lib/content/words/entries';
 	import { DialoguePlayback } from '$lib/dialogues/playback.svelte';
@@ -79,7 +80,17 @@
 	const playback = untrack(
 		() => new DialoguePlayback(dialogue.lines.length, (index) => lineAudioSrc(dialogue.id, index))
 	);
-	$effect(() => () => playback.destroy());
+	// On the client, fetch every line's clip right away, and warm the clips
+	// of the words a learner can tap — the line clips are what a tap has to
+	// start instantly (see DialoguePlayback); the word clips just need to be
+	// in the HTTP cache for SpeakerButton, so a low-priority fetch is enough.
+	$effect(() => {
+		playback.preload();
+		const wordIds = new Set<string>();
+		for (const line of dialogue.lines) for (const token of line.tokens) if (token.wordId !== undefined) wordIds.add(token.wordId);
+		for (const wordId of wordIds) void fetch(wordAudioSrc(wordId), { priority: 'low' }).catch(() => undefined);
+		return () => playback.destroy();
+	});
 
 	let lineCount = $derived(dialogue.lines.length);
 	/** Until the learner has opened a word, a line above the transcript
@@ -242,7 +253,7 @@
 						<path d="M4 15a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2z" />
 						<path d="M20 15a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2z" />
 					</svg>
-					{t(listenModeLabel)}
+					<span class="seg-text">{t(listenModeLabel)}</span>
 				</label>
 				<label class="seg-opt" class:checked={mode === 'read'}>
 					<input type="radio" name="dialogue-mode" value="read" checked={mode === 'read'} onchange={() => setMode('read')} />
@@ -250,7 +261,7 @@
 						<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
 						<circle cx="12" cy="12" r="2.8" />
 					</svg>
-					{t(readModeLabel)}
+					<span class="seg-text">{t(readModeLabel)}</span>
 				</label>
 			</div>
 			{#if inProgress}
@@ -440,6 +451,32 @@
 	.seg-opt:has(input:focus-visible) {
 		outline: 3px solid var(--color-focus-ring);
 		outline-offset: -3px;
+	}
+
+	/* On a narrow phone (360 CSS px is common — a Fairphone 6, most
+	   Android mid-rangers) the bar can't fit two labelled mode options, a
+	   stop button and the play-all counter: the Russian labels alone need
+	   ~200px and "Читать" was clipped mid-word. Below 420px the mode
+	   options are icons only, a little larger, with the labels kept for
+	   assistive tech (the same sr-only pattern as app.css). */
+	@media (max-width: 420px) {
+		.seg-opt {
+			padding: 0 var(--space-3);
+		}
+
+		.seg-opt svg {
+			width: 18px;
+			height: 18px;
+		}
+
+		.seg-text {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
+		}
 	}
 
 	.stop,
