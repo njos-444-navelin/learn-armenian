@@ -46,29 +46,38 @@
 <!-- The bar is an ornament, not a line: a band of 4px "pixels" in the
      flag's colours, drawn once as an SVG pattern and revealed as the bar
      widens (the pattern is anchored at the left edge, so it never
-     scrolls or shifts under the growing tip). Three rows:
+     scrolls or shifts under the growing tip).
 
-       row 1  ██████████  solid --color-primary — the app's theme colour,
-                          so on an Android PWA it continues the status
-                          bar straight down into the page instead of
-                          drawing a second, clashing line under it
-       row 2   ▓▓▓  ░░░   stepped pendants, flag red and flag blue in
-       row 3    ▓    ░    turn, hanging from the band like a carpet fringe
+     The ground is --color-primary, the app's theme colour, so on an
+     Android PWA the band reads as the status bar's colour continuing
+     down into the page, with the motif set *in* that field — not as a
+     second line drawn under it. On the ground, in flag red (R) and flag
+     blue (B), meshed teeth: stepped pendants (3 cells over 1) hanging
+     from the top in red, and the same shape rising from the bottom in
+     blue, interleaved so each tip sits between the other row's teeth.
+     One tile is 4 cells (16px); four tiles shown:
 
-     One pendant per 20px (a 3-wide step over a 1-wide tip, a cell of
-     air either side), so a 40px repeat holds one red and one blue. The
-     stepped, chunky-pixel construction is a nod to the Artsakh flag's
-     stair pattern; the motif itself is kept to two steps so it still
-     reads at 4px cells on a phone. See DESIGN.md's Motion section. -->
+       RRR·RRR·RRR·RRR·
+       ·R·B·R·B·R·B·R·B
+       B·BBB·BBB·BBB·BB
+
+     The stepped tooth is the smallest form of the stair pattern on the
+     Artsakh flag and in Armenian carpet borders; meshing two rows of
+     them is what makes the band read as woven rather than as things
+     hanging off a string (an earlier version with one row of pendants
+     and air between them looked like a garland). The rects below are
+     generated from this grid — edit the grid in this comment first,
+     then the rects to match. See DESIGN.md's Motion section. -->
 <div class="bar" class:fast style="width: {width}%; opacity: {opacity}" aria-hidden="true">
 	<svg class="ornament" height="12" preserveAspectRatio="none">
 		<defs>
-			<pattern id="nav-ornament" width="40" height="12" patternUnits="userSpaceOnUse">
-				<rect class="band" x="0" y="0" width="40" height="4" />
-				<rect class="red" x="4" y="4" width="12" height="4" />
-				<rect class="red" x="8" y="8" width="4" height="4" />
-				<rect class="blue" x="24" y="4" width="12" height="4" />
-				<rect class="blue" x="28" y="8" width="4" height="4" />
+			<pattern id="nav-ornament" width="16" height="12" patternUnits="userSpaceOnUse">
+				<rect class="ground" x="0" y="0" width="16" height="12" />
+				<rect class="red" x="0" y="0" width="12" height="4" />
+				<rect class="red" x="4" y="4" width="4" height="4" />
+				<rect class="blue" x="12" y="4" width="4" height="4" />
+				<rect class="blue" x="0" y="8" width="4" height="4" />
+				<rect class="blue" x="8" y="8" width="8" height="4" />
 			</pattern>
 		</defs>
 		<rect width="100%" height="12" fill="url(#nav-ornament)" />
@@ -100,7 +109,7 @@
 		width: 100%;
 	}
 
-	.band {
+	.ground {
 		fill: var(--color-primary);
 	}
 
