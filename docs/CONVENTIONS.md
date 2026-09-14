@@ -321,7 +321,7 @@ Rules that follow from that:
   or dialogue needs a word the library doesn't have, add it to `entries.ts`
   (with its clip, §11) and reference the id. If a word already exists under
   a slightly different translation than the new context wants, that's a
-  token `gloss` (dialogues) or a `note`, not a second entry — see how
+  token `gloss` (dialogues) or a `note`/`usage`, not a second entry — see how
   `uzel` serves both the verbs deck ("To want") and the dialogue's
   `ուզում եմ` ("want").
 - **Word ids are one flat namespace.** `entries.ts` throws at module load

@@ -105,6 +105,10 @@
 		{#if word.note !== undefined}
 			<span class="entry-note">{t(word.note)}</span>
 		{/if}
+		<!-- No `word.usage` here, on purpose: the tapped line *is* the usage,
+		     and a usage note about some other phrase the word lives in (Լույս
+		     → Բարի լույս) is noise on a line about light. If this line is
+		     that phrase, the token's `here` says so. -->
 		{#if token.here !== undefined}
 			<!-- After the general note, as the exception to it for this line.
 			     Same grey as the note — the italic label is the only marker,

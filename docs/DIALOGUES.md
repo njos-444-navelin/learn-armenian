@@ -82,6 +82,21 @@ Every tapped word can carry two notes, and they are different things:
 | **Shows** | On every occurrence, in every dialogue and in the trainer | On this token only, always under an italic *Here:* label |
 | **Where** | Under the rule, with the dictionary entry (base form · translation · ▶), in the entry's grey | Last, after the library note, same grey — the label is the marker |
 
+There is a third field, and the popover never shows it: **`Word.usage`** —
+how the word is used, typically the phrase it's mostly met in, or which of
+two greetings it makes (Լույս: "in Բարի լույս it stands for morning — the
+everyday good morning; the formal one uses Առավոտ"). It shows on the
+word's *card* only — the deck's word list and the trainer — where the
+learner meets the word with no sentence around it and the phrase is the
+whole reason the word is in the deck. In a dialogue the tapped line *is*
+the usage: someone tapping Լույս in a line about light doesn't need to
+hear about Բարի լույս, and when a line *is* Բարի լույս, that's a `here`
+on the token ("here: good morning"). Unlike a `note`, a `usage` may quote
+a phrase — explaining the phrase is its job — but rule 5 below (no
+situational wording) applies to it too, and `entries.ts` checks it. It
+came from exactly this case: the greetings explanation was first written
+as a `note`, which would have followed Լույս into every dialogue.
+
 The popover reads top to bottom: the gloss (what the tapped form means in
 this line) → the dictionary entry with its general note → *Here:*. The
 play button sits on the entry row, next to the base form, because the clip
@@ -91,7 +106,8 @@ the "from" label is dropped, and the library translation is dropped when it
 only repeats the gloss.
 
 There is no per-token override of the library note. If a general note
-would mislead in some line, the general note is wrong — fix it.
+would mislead in some line, the general note is wrong — fix it (or, if
+what misleads is a phrase the note quotes, it was a `usage` all along).
 
 **Rules for a library note** — every one of these was learned by getting
 it wrong in review, several more than once:
@@ -105,7 +121,14 @@ it wrong in review, several more than once:
    phrase either coincides with a line — then a general note reads as a
    remark about that line, which is exactly what "ուզում եմ" did on «Ես
    ուզում եմ հաց» — or brings in words the learner hasn't met. Forms of
-   the word itself (Այո՛, ի՞նչ, սրանք) are fine.
+   the word itself (Այո՛, ի՞նչ, սրանք) are fine. (That note's second
+   life is instructive too: rewritten into general wording — "the
+   participle ուզում plus an auxiliary" — it was true, but true of *every*
+   verb, so on Ուզել's card in a deck of twenty verbs it was noise. It's
+   now the `here` on line 1's ուզում, where the learner meets the pattern,
+   and the later ուզում remarks follow on from it. A note that describes
+   the grammar of the language rather than this word is a `here` on the
+   first token that shows it, or a rule card — not a library note.)
 4. **Only words the learner has.** No example vocabulary beyond the
    dialogues so far, and plain English/Russian for the explanation.
 5. **No situational wording.** `entries.ts` throws at load on "here",

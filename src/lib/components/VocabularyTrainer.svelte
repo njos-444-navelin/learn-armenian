@@ -233,6 +233,9 @@
 									{#if current.word.note !== undefined}
 										<p class="note">{t(current.word.note)}</p>
 									{/if}
+									{#if current.word.usage !== undefined}
+										<p class="note">{t(current.word.usage)}</p>
+									{/if}
 								{/if}
 							</div>
 						</div>
@@ -447,11 +450,16 @@
 		font-style: italic;
 	}
 
+	/* Same demotion as the deck list's note: a gap from the translation, a
+	   step smaller, the same secondary ink (it can't go paler — see
+	   --font-size-xs in tokens.css). On the card's back the translation is
+	   the answer; this is the footnote. */
 	.note {
 		max-width: 100%;
-		margin: 0;
+		margin: var(--space-2) 0 0;
 		color: var(--color-text-secondary);
-		font-size: var(--font-size-sm);
+		font-size: var(--font-size-xs);
+		line-height: 1.4;
 		text-align: center;
 	}
 

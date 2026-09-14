@@ -53,7 +53,15 @@ export const WORDS: readonly Word[] = [
 			ru: 'Просто բարև — для друзей. Незнакомому, старшему или тому, кто Вас обслуживает, говорят Բարև ձեզ — одно բարև может прозвучать грубо.'
 		}
 	},
-	{ id: 'bari', armenian: 'Բարի', translation: { en: 'Kind', ru: 'Добрый' } },
+	{
+		id: 'bari',
+		armenian: 'Բարի',
+		translation: { en: 'Kind', ru: 'Добрый' },
+		usage: {
+			en: 'Often paired with a time of day to make a greeting: Բարի լույս, Բարի օր, Բարի իրիկուն, Բարի գիշեր.',
+			ru: 'Часто образует приветствие вместе со временем суток: Բարի լույս, Բարի օր, Բարի իրիկուն, Բարի գիշեր.'
+		}
+	},
 	// Ե is mid-word "eh" here — see `yech`'s exampleWordIds ordering in alphabet.ts.
 	{
 		id: 'dzez',
@@ -64,19 +72,72 @@ export const WORDS: readonly Word[] = [
 			ru: 'Дательный падеж от Դուք — «вы», вежливое или множественное.'
 		}
 	},
-	{ id: 'luys', armenian: 'Լույս', translation: { en: 'Light', ru: 'Свет' } },
-	{ id: 'aravot', armenian: 'Առավոտ', translation: { en: 'Morning', ru: 'Утро' } },
-	{ id: 'or', armenian: 'Օր', translation: { en: 'Day', ru: 'День' } },
+	// Neither word carries a `register`: the informal/formal split below is a
+	// property of the two *greetings*, not of the words — Առավոտ by itself is
+	// the neutral time-of-day word, and Լույս by itself just means light. And
+	// it's `usage`, not `note`: it explains the greetings, which is what the
+	// Greetings deck's cards need and exactly what a dialogue popover doesn't
+	// — someone tapping Լույս in a line about light shouldn't be told about
+	// Բարի լույս. A dialogue that says Բարի լույս adds a `here` on the token.
+	{
+		id: 'luys',
+		armenian: 'Լույս',
+		translation: { en: 'Light', ru: 'Свет' },
+		usage: {
+			en: 'Literally “light”, but in the greeting Բարի լույս it stands for “morning” — this is the everyday “good morning”. The more formal greeting uses Առավոտ.',
+			ru: 'Буквально «свет», но в приветствии Բարի լույս означает «утро» — это обычное «доброе утро». Более формальное приветствие — с Առավոտ.'
+		}
+	},
+	{
+		id: 'aravot',
+		armenian: 'Առավոտ',
+		translation: { en: 'Morning', ru: 'Утро' },
+		usage: {
+			en: 'The time of day. In the greeting Բարի առավոտ it makes the more formal “good morning”; the everyday one is Բարի լույս.',
+			ru: 'Время суток. В приветствии Բարի առավոտ — более формальное «доброе утро»; обычное — Բարի լույս.'
+		}
+	},
+	{
+		id: 'or',
+		armenian: 'Օր',
+		translation: { en: 'Day', ru: 'День' },
+		usage: {
+			en: 'The time of day; it also makes the greeting Բարի օր — “good day”.',
+			ru: 'Время суток; в приветствии — Բարի օր, «добрый день».'
+		}
+	},
 	{
 		id: 'irikun',
 		armenian: 'Իրիկուն',
 		translation: { en: 'Evening', ru: 'Вечер' },
-		register: 'informal'
+		register: 'informal',
+		usage: {
+			en: 'The time of day; it also makes the greeting Բարի իրիկուն — “good evening”.',
+			ru: 'Время суток; в приветствии — Բարի իրիկուն, «добрый вечер».'
+		}
 	},
-	{ id: 'gisher', armenian: 'Գիշեր', translation: { en: 'Night', ru: 'Ночь' } },
+	// The two night phrases sit together here, since the contrast between
+	// them is the point; Ուշ just points back at this entry.
+	{
+		id: 'gisher',
+		armenian: 'Գիշեր',
+		translation: { en: 'Night', ru: 'Ночь' },
+		usage: {
+			en: 'The time of day. Բարի գիշեր — “good night” — is a goodbye, not a greeting. To greet someone late at night: Բարի ուշ գիշեր.',
+			ru: 'Время суток. Բարի գիշեր — «спокойной ночи» — это прощание, а не приветствие. Поприветствовать кого-то поздно ночью: Բարի ուշ գիշեր.'
+		}
+	},
 	// Ու as a digraph is already correct as literally spelled — no ElevenLabs
 	// respelling needed (see docs/VOCABULARY_AUDIO.md's own worked example).
-	{ id: 'ush', armenian: 'Ուշ', translation: { en: 'Late', ru: 'Поздно' } },
+	{
+		id: 'ush',
+		armenian: 'Ուշ',
+		translation: { en: 'Late', ru: 'Поздно' },
+		usage: {
+			en: 'E.g. Բարի ուշ գիշեր — the late-night greeting (see Գիշեր).',
+			ru: 'Например, Բարի ուշ գիշեր — приветствие поздней ночью (см. Գիշեր).'
+		}
+	},
 	{
 		id: 'hajogh',
 		armenian: 'Հաջող',
@@ -84,7 +145,7 @@ export const WORDS: readonly Word[] = [
 		register: 'informal',
 		note: {
 			en: 'The casual goodbye — Հաջողություն clipped to its first half. The formal one is Ցտեսություն.',
-			ru: 'Разговорное «пока» — усечённое Հաջողություն. Формальное прощание — Ցտեսություն.'
+			ru: 'Разговорное «пока» — сокращённое Հաջողություն. Формальное прощание — Ցտեսություն.'
 		}
 	},
 	{
@@ -93,8 +154,8 @@ export const WORDS: readonly Word[] = [
 		translation: { en: 'Good luck', ru: 'Удачи' },
 		register: 'informal',
 		note: {
-			en: 'Literally “success”, and the everyday way to say goodbye — often shortened to Հաջող. The formal goodbye is Ցտեսություն.',
-			ru: 'Буквально «успех», и обычный способ попрощаться — часто сокращается до Հաջող. Формальное прощание — Ցտեսություն.'
+			en: 'Literally “success”, and the casual way to say goodbye — often shortened to the even more informal Հաջող. The formal goodbye is Ցտեսություն.',
+			ru: 'Буквально «успех», и разговорный способ попрощаться — часто сокращается до совсем неформального Հաջող. Формальное прощание — Ցտեսություն.'
 		}
 	},
 	{
@@ -123,8 +184,8 @@ export const WORDS: readonly Word[] = [
 		translation: { en: 'Live', ru: 'Живи' },
 		register: 'informal',
 		note: {
-			en: 'Imperative mood — literally "Do live!"',
-			ru: 'Повелительное наклонение — буквально «живи!»'
+			en: 'Imperative mood — literally “Do live!” — but used as praise: “well done!”, “good job!”, to one person you’re on informal terms with. The formal or plural one is Ապրեք.',
+			ru: 'Повелительное наклонение — буквально «живи!», — но употребляется как похвала: «молодец!» тому, с кем на «ты». Для «Вы» — Ապրեք.'
 		}
 	},
 	{
@@ -133,8 +194,8 @@ export const WORDS: readonly Word[] = [
 		translation: { en: 'Live', ru: 'Живите' },
 		register: 'formal',
 		note: {
-			en: 'Imperative mood, formal/plural — literally "Do live!"',
-			ru: 'Повелительное наклонение, форма «Вы» — буквально «живите!»'
+			en: 'Imperative mood, formal or plural — literally “Do live!” — but used as praise: “well done!”, to someone you address formally, or to several people. The informal one is Ապրես.',
+			ru: 'Повелительное наклонение, форма «Вы» — буквально «живите!», — но употребляется как похвала: «молодец!» тому, с кем на «Вы», или «молодцы!» нескольким. Неформальная форма — Ապրես.'
 		}
 	},
 	// Ո is word-initial "vo" here, the second half of the vo/Ո pair in
@@ -162,25 +223,37 @@ export const WORDS: readonly Word[] = [
 	{
 		id: 'gnal',
 		armenian: 'Գնալ',
-		translation: { en: 'To walk', ru: 'Идти' },
+		translation: { en: 'To go', ru: 'Идти' },
 		note: {
-			en: 'Not to be confused with Գնել ("to buy") — differs by one letter.',
-			ru: 'Не путать с Գնել («покупать») — отличается на одну букву.'
+			en: 'Any kind of going — on foot or by car, bus or train, it’s the same verb. Not to be confused with Գնել (“to buy”) — differs by one letter.',
+			ru: 'Любое перемещение — пешком или на транспорте: в отличие от русских «идти»/«ехать», глагол один. Не путать с Գնել («покупать») — отличается на одну букву.'
 		}
 	},
-	{ id: 'sovorel', armenian: 'Սովորել', translation: { en: 'To study', ru: 'Учиться' } },
-	{ id: 'ashkhatel', armenian: 'Աշխատել', translation: { en: 'To work', ru: 'Работать' } },
+	{
+		id: 'sovorel',
+		armenian: 'Սովորել',
+		translation: { en: 'To study', ru: 'Учиться' },
+		note: {
+			en: 'Also “to learn” (words, a language) and “to get used to” — one verb for all three.',
+			ru: 'Также «учить» (слова, язык) и «привыкнуть» — один глагол на все три.'
+		}
+	},
+	{
+		id: 'ashkhatel',
+		armenian: 'Աշխատել',
+		translation: { en: 'To work', ru: 'Работать' },
+		note: {
+			en: 'Also “to earn” (փող աշխատել — to earn money) and, colloquially, “to try” (աշխատիր — try to).',
+			ru: 'Также «зарабатывать» (փող աշխատել — зарабатывать деньги) и, в разговорной речи, «постараться» (աշխատիր — постарайся).'
+		}
+	},
 	{ id: 'sirel', armenian: 'Սիրել', translation: { en: 'To love', ru: 'Любить' } },
 	// The bread-shop dialogue's "ուզում եմ" ("I want") is this verb's present
 	// participle — the dialogue token links back here.
 	{
 		id: 'uzel',
 		armenian: 'Ուզել',
-		translation: { en: 'To want', ru: 'Хотеть' },
-		note: {
-			en: 'In speech it appears as the participle ուզում (“wanting”) plus an auxiliary — եմ, եք, … — that says who wants.',
-			ru: 'В речи выступает как причастие ուզում («хотящий») плюс вспомогательный глагол — եմ, եք, … — который показывает, кто именно хочет.'
-		}
+		translation: { en: 'To want', ru: 'Хотеть' }
 	},
 	{ id: 'utel', armenian: 'Ուտել', translation: { en: 'To eat', ru: 'Кушать' } },
 	{ id: 'kardal', armenian: 'Կարդալ', translation: { en: 'To read', ru: 'Читать' } },
@@ -190,7 +263,7 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Գնել',
 		translation: { en: 'To buy', ru: 'Покупать' },
 		note: {
-			en: 'Not to be confused with Գնալ ("to walk") — differs by one letter.',
+			en: 'Not to be confused with Գնալ (“to go”) — differs by one letter.',
 			ru: 'Не путать с Գնալ («идти») — отличается на одну букву.'
 		}
 	},
@@ -461,16 +534,23 @@ const wordById: ReadonlyMap<string, Word> = new Map(WORDS.map((word) => [word.id
 // in one dialogue's situation belongs on that token's `here` instead
 // (docs/DIALOGUES.md, "Word notes"). This catches the
 // phrasings that slipped through in review — twice — before the rule was
-// written down; it is a tripwire, not a definition of "general".
+// written down; it is a tripwire, not a definition of "general". A
+// `usage` never reaches a dialogue at all, but it's held to the same
+// wording — it's about the word in general too, just a different side
+// of it — so the same tripwire runs over it.
 const SITUATIONAL = [
 	/\b(here|this time|this line|again|as before|the shopkeeper|the customer|the counter)\b/i,
 	/(здесь|на этот раз|в этой реплике|снова|как раньше|продав|покупател|прилав)/i
 ];
 for (const word of WORDS) {
-	if (word.note === undefined) continue;
-	for (const text of [word.note.en, word.note.ru]) {
-		if (SITUATIONAL.some((pattern) => pattern.test(text))) {
-			throw new Error(`word "${word.id}": library note reads as dialogue-specific — move it to the token's \`here\`: ${text}`);
+	for (const [field, text] of [
+		['note', word.note?.en],
+		['note', word.note?.ru],
+		['usage', word.usage?.en],
+		['usage', word.usage?.ru]
+	] as const) {
+		if (text !== undefined && SITUATIONAL.some((pattern) => pattern.test(text))) {
+			throw new Error(`word "${word.id}": library ${field} reads as dialogue-specific — move it to the token's \`here\`: ${text}`);
 		}
 	}
 }

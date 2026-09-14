@@ -227,6 +227,23 @@ to fake a bolder heading weight. Noto Serif goes to a true 900 (Black), so
 that hack is gone — don't reintroduce it if the type system changes again;
 check the real weight range first.
 
+### A word card's note is set apart and a step smaller, never paler
+
+On a vocabulary word card (the deck list in
+[`VocabularyWordList.svelte`](../src/lib/components/VocabularyWordList.svelte)
+and the flashcard's back in
+[`VocabularyTrainer.svelte`](../src/lib/components/VocabularyTrainer.svelte))
+the word and its translation are the pair that has to pop — both in
+`--color-text-primary` — and the note/usage under them is for the curious:
+separated by `--space-2`, set in `--font-size-xs` (13px, the only role that
+size exists for), with tighter leading. Once the greetings deck's cards
+gained a usage line each, the same-size, same-ink note directly under the
+word row made the whole list read as a wall of grey prose with the words
+lost in it. The demotion comes from size and spacing only: the ink stays
+`--color-text-secondary`, because the next lighter neutral step
+(`--color-neutral-600`) reaches only ~3.4:1 on `--color-surface`, under
+the 4.5:1 text needs — see the contrast note under Semantic tokens.
+
 ### Form controls don't inherit type by default — that's a global reset, not a per-button fix
 
 `button`/`input`/`select`/`textarea` don't inherit `font-family` (or
