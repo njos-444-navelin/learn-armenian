@@ -137,25 +137,26 @@
 	{#if added}
 		<VocabularyTrainCta />
 	{:else}
+		<!-- The plus goes in as Button's `icon` so the spinner replaces it
+		     while the add posts, rather than sitting next to it (Conventions
+		     #15). No width/height: the button's icon slot sizes it. -->
+		{#snippet addIcon()}
+			<svg
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2.75"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				aria-hidden="true"
+			>
+				<path d="M5 12h14" />
+				<path d="M12 5v14" />
+			</svg>
+		{/snippet}
 		<FloatingActionBar>
 			<form method="POST" action="?/addToCollection" use:enhance={submitAdd()} bind:this={addForm}>
-				<Button type="submit" variant="primary" loading={pending} disabled={pending}>
-					<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="19" height="19">
-						<path
-							d="M5 12h14"
-							stroke="currentColor"
-							stroke-width="2.75"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						/>
-						<path
-							d="M12 5v14"
-							stroke="currentColor"
-							stroke-width="2.75"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						/>
-					</svg>
+				<Button type="submit" variant="primary" icon={addIcon} loading={pending} disabled={pending}>
 					{t(addToCollectionLabel)}
 				</Button>
 			</form>
