@@ -551,8 +551,9 @@ independently will collide eventually; a scale can't.
   reduced-motion rule.
 - **Navigation loading bar**
   ([`NavigationProgress.svelte`](../src/lib/components/NavigationProgress.svelte)):
-  a thin terracotta bar at the top of the page, driven by SvelteKit's
-  `navigating` state from `$app/state`. It does **not** appear the instant
+  a 12px band across the top of the page, driven by SvelteKit's
+  `navigating` state from `$app/state`. It's an ornament rather than a
+  line — see the next bullet. It does **not** appear the instant
   a navigation starts — it waits 150ms first, and only then fills toward
   ~82% over a slow 4s ease-out (a "trickle," since there's no real progress
   percentage to report). This delay matters: most navigations in this app
@@ -563,6 +564,41 @@ independently will collide eventually; a scale can't.
   the delay was added. On completion the bar snaps to 100% quickly, holds
   briefly, then fades out and resets. If the delay is ever removed "to make
   it feel more responsive," that regression will come back.
+- **The loading bar is a pixel ornament in the flag's colours, not a
+  plain line.** It was a 3px `--color-primary` rule; it's now a band of
+  chunky 4px "pixels" in three rows, drawn as a repeating SVG `<pattern>`
+  and revealed as the bar widens (the pattern is anchored at the left
+  edge, so the tip advances over a fixed design rather than the design
+  sliding). Top row: solid `--color-primary`. Below it, stepped pendants —
+  a 3-cell step over a 1-cell tip — in `--color-flag-red` and
+  `--color-flag-blue` alternately, one every 20px, hanging from the band
+  like a carpet fringe; the chunky stair construction nods to the
+  Artsakh flag's stepped pattern, kept to two steps so it still reads at
+  4px cells on a phone. Two things about it are load-bearing:
+  - **The top row is the theme colour on purpose.** The PWA's
+    `theme_color` (in [`vite.config.ts`](../vite.config.ts) and
+    `app.html`'s `<meta name="theme-color">`) is `--color-primary`, so on
+    an Android home-screen install the status bar is that orange and this
+    row continues it straight down into the page. A bar in any other
+    colour, or the tricolour with red on top, would draw a second,
+    clashing line right under the status bar. If the theme colour ever
+    changes, the band's fill changes with it (it's the same token); if
+    the band's colour is ever changed independently, that seam comes
+    back.
+  - **The flag's red and blue are tokens** (`--color-flag-red`,
+    `--color-flag-blue` in `tokens.css`), shared with
+    [`Flagmark.svelte`](../src/lib/components/Flagmark.svelte). They're
+    fixed by the flag, muted to sit in the warm palette, and deliberately
+    not ramp steps — no hover or tint variants exist or should. The flag's
+    orange is `--color-primary` itself, which is what makes both the mark
+    and the ornament read as "the flag, in this app's palette" rather than
+    as a literal flag pasted on.
+
+  The thickness is what makes the ornament legible: 3px can't hold a
+  pattern. 12px still clears the top bubble links, which start
+  `--space-4` (17.6px) down, and the bar only ever shows for a navigation
+  slow enough to pass the 150ms delay above, so it's a rare flourish, not
+  a permanent header.
 - **A two-way crossfade inside a vertically-centered flex column shifts the
   page.** [`AlphabetTrainer.svelte`](../src/lib/components/AlphabetTrainer.svelte)
   fades between its four screens (`home`/`learn`/`drill`/`summary`) as they
