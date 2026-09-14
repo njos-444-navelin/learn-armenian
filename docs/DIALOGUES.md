@@ -88,8 +88,11 @@ two greetings it makes (Լույս: "in Բարի լույս it stands for mornin
 everyday good morning; the formal one uses Առավոտ"). It shows on the
 word's *card* only — the deck's word list and the trainer — where the
 learner meets the word with no sentence around it and the phrase is the
-whole reason the word is in the deck. In a dialogue the tapped line *is*
-the usage: someone tapping Լույս in a line about light doesn't need to
+whole reason the word is in the deck — and the same goes for a look-alike
+warning ("not to be confused with Գնել, one letter apart"), which earns
+its glance on a card list where both words sit a few rows apart and is
+noise on a line where only one of them appears. In a dialogue the tapped
+line *is* the usage: someone tapping Լույս in a line about light doesn't need to
 hear about Բարի լույս, and when a line *is* Բարի լույս, that's a `here`
 on the token ("here: good morning"). Unlike a `note`, a `usage` may quote
 a phrase — explaining the phrase is its job — but rule 5 below (no
