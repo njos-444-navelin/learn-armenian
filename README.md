@@ -38,6 +38,26 @@ npm run dev -- --open
 PWA features (manifest link, service worker) only activate in the production
 build/preview — `vite dev` intentionally skips them so HMR isn't disrupted.
 
+### Git workflow
+
+One branch per piece of work, named for that work (`loading-bar-ornament`,
+`word-notes-tidy`), one pull request per branch, merged into `main` and
+then deleted. GitHub deletes the branch on origin itself when the PR is
+merged (the repo's "automatically delete head branches" setting is on);
+locally, `git fetch --prune` drops the stale tracking ref and `git branch
+-d <branch>` the branch. Two rules that follow, both learned the hard way
+in one afternoon:
+
+- **A merged branch is finished.** Never commit or push to it again, even
+  if it's still checked out; PRs get merged mid-session, and the working
+  tree gives no sign. Before committing, check `gh pr list --head
+  <branch> --state all` — if it says `MERGED`, start a new branch off
+  `origin/main` and carry the uncommitted change over.
+- **A branch's name is a promise about its contents.** Work that doesn't
+  match the name goes on a new branch, not on whatever happens to be
+  checked out. Renaming an unpushed branch is fine; pushing unrelated
+  work onto a pushed one isn't.
+
 ### Environment variables
 
 Copy [`.env.example`](.env.example) to `.env` and fill in your Supabase project's

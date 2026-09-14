@@ -225,8 +225,14 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Գնալ',
 		translation: { en: 'To go', ru: 'Идти' },
 		note: {
-			en: 'Any kind of going — on foot or by car, bus or train, it’s the same verb. Not to be confused with Գնել (“to buy”) — differs by one letter.',
-			ru: 'Любое перемещение — пешком или на транспорте: в отличие от русских «идти»/«ехать», глагол один. Не путать с Գնել («покупать») — отличается на одну букву.'
+			en: 'Any kind of going — on foot or by car, bus or train, it’s the same verb.',
+			ru: 'Любое перемещение — пешком или на транспорте: в отличие от русских «идти»/«ехать», глагол один.'
+		},
+		// The look-alike warning is `usage`, not `note`: worth a glance on the
+		// card, where Գնել sits a few rows down, but noise in a dialogue line.
+		usage: {
+			en: 'Not to be confused with Գնել (“to buy”) — differs by one letter.',
+			ru: 'Не путать с Գնել («покупать») — отличается на одну букву.'
 		}
 	},
 	{
@@ -243,8 +249,8 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Աշխատել',
 		translation: { en: 'To work', ru: 'Работать' },
 		note: {
-			en: 'Also “to earn” (փող աշխատել — to earn money) and, colloquially, “to try” (աշխատիր — try to).',
-			ru: 'Также «зарабатывать» (փող աշխատել — зарабатывать деньги) и, в разговорной речи, «постараться» (աշխատիր — постарайся).'
+			en: 'Also “to earn” and, colloquially, “to try”.',
+			ru: 'Также «зарабатывать» и, в разговорной речи, «постараться».'
 		}
 	},
 	{ id: 'sirel', armenian: 'Սիրել', translation: { en: 'To love', ru: 'Любить' } },
@@ -262,7 +268,7 @@ export const WORDS: readonly Word[] = [
 		id: 'gnel',
 		armenian: 'Գնել',
 		translation: { en: 'To buy', ru: 'Покупать' },
-		note: {
+		usage: {
 			en: 'Not to be confused with Գնալ (“to go”) — differs by one letter.',
 			ru: 'Не путать с Գնալ («идти») — отличается на одну букву.'
 		}

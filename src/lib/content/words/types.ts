@@ -28,7 +28,8 @@ export interface Word {
 	 * of the word in any sentence and must not quote a phrase (docs/DIALOGUES.md, "Word notes"). */
 	note?: Translated | undefined;
 	/** How the word is used — the phrase it's mostly met in, which of two greetings it makes, and
-	 * the like. Shown on the word's card only (the deck list and the trainer), where the learner
+	 * the like — or a look-alike to keep it apart from (Գնալ / Գնել, one letter apart). Shown on
+	 * the word's card only (the deck list and the trainer), where the learner
 	 * meets the word without a sentence around it. Never in a dialogue popover: there the line
 	 * itself is the usage, and anything a specific line needs is the token's `here` remark — a
 	 * learner tapping Լույս in "there's a lot of light in here" doesn't need to hear about
