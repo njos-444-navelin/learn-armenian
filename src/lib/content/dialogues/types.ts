@@ -36,7 +36,10 @@ export interface DialogueToken {
 	 * ՞ sits). Shown with the gloss, under a "Here:" label; the library
 	 * word's own note is shown separately, with the dictionary entry, so
 	 * the two never read as one text. Anything true of the word in any
-	 * sentence belongs on the library entry, not here. */
+	 * sentence belongs on the library entry, not here. The library's
+	 * `usage` (the phrase a word is mostly met in) is never shown in a
+	 * dialogue — so when a line *is* that phrase (Բարի լույս), this is
+	 * where the learner is told so. */
 	here?: Translated | undefined;
 }
 

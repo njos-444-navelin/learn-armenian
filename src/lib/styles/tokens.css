@@ -215,6 +215,14 @@
 	--font-heading: 'Noto Serif', 'Noto Serif Armenian', system-ui, serif;
 	--font-heading-weight: 700;
 	--font-family-body: 'Noto Serif', 'Noto Serif Armenian', system-ui, serif;
+	/* xs is for the one role that must sit *below* supporting text — a
+	   word card's note/usage, which is there for the curious and must not
+	   compete with the word and its translation. 13px is the floor: it's
+	   still body copy, so it keeps --color-text-secondary (the next lighter
+	   neutral step fails 4.5:1 on --color-surface) and gets its demotion
+	   from size and spacing, not from a paler ink. Don't use it for
+	   anything a learner has to read to proceed. */
+	--font-size-xs: 0.8125rem;
 	--font-size-sm: 0.875rem;
 	--font-size-md: 1rem;
 	--font-size-lg: 1.25rem;

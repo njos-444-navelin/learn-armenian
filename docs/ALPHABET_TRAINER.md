@@ -551,6 +551,13 @@ right next to ones that did:
   Same reasoning as `.skip`: no size variant on `Button`, not worth adding
   for one consumer.
 
+(The home screen's pulsing Practice button was a fourth bespoke one at the
+time — its two-line label and pulse had no home in `Button` — and it
+later found one: once the vocabulary deck page needed a third copy of
+that exact pill, it became
+[`PulseCta.svelte`](../src/lib/components/PulseCta.svelte), see
+`DESIGN.md`'s Motion section. Same rule, later tipping point.)
+
 All three read, in hindsight, as instances of the same rule: extract when
 the duplication is real and the abstraction has nowhere to absorb a
 genuine per-consumer difference cheaply; don't force a consumer with a

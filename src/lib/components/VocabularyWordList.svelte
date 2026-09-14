@@ -26,6 +26,11 @@
 				{#if word.note !== undefined}
 					<p class="note">{t(word.note)}</p>
 				{/if}
+				<!-- `usage` is card-only — the dialogue popover deliberately
+				     doesn't show it (see Word.usage in words/types.ts). -->
+				{#if word.usage !== undefined}
+					<p class="note">{t(word.usage)}</p>
+				{/if}
 			</div>
 			<SpeakerButton src={wordAudioSrc(word.id)} />
 		</li>
@@ -37,7 +42,7 @@
 		display: flex;
 		width: 100%;
 		flex-direction: column;
-		gap: var(--space-2);
+		gap: var(--space-3);
 		margin: 0;
 		padding: 0;
 		list-style: none;
@@ -62,7 +67,6 @@
 		min-width: 0;
 		flex: 1;
 		flex-direction: column;
-		gap: 0.1rem;
 	}
 
 	.row {
@@ -72,13 +76,19 @@
 		gap: var(--space-2);
 	}
 
+	/* A step past --font-size-lg (22px vs 20px), and the translation a hair
+	   past --font-size-md (17px vs 16px): once the note under them was
+	   demoted, the pair still read a touch small for the card's own size. */
 	.armenian {
-		font-size: var(--font-size-lg);
+		font-size: 1.375rem;
 		font-weight: 700;
 	}
 
+	/* Primary ink, same as the Armenian: the word and its translation are
+	   the pair that has to pop; everything under them is supporting. */
 	.translation {
-		color: var(--color-text-secondary);
+		color: var(--color-text-primary);
+		font-size: 1.0625rem;
 	}
 
 	.register {
@@ -87,9 +97,14 @@
 		font-style: italic;
 	}
 
+	/* For the curious, not for the glance: set apart from the word row by
+	   a gap, a step smaller than supporting text, tighter leading. The ink
+	   stays --color-text-secondary — see --font-size-xs in tokens.css for
+	   why it can't go paler. */
 	.note {
-		margin: 0;
+		margin: var(--space-2) 0 0;
 		color: var(--color-text-secondary);
-		font-size: var(--font-size-sm);
+		font-size: var(--font-size-xs);
+		line-height: 1.4;
 	}
 </style>

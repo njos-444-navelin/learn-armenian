@@ -6,6 +6,7 @@
 	import FloatingActionBar from '$lib/components/FloatingActionBar.svelte';
 	import Modal from '$lib/components/Modal.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
+	import PulseCta from '$lib/components/PulseCta.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import VocabularyDeckIcon from '$lib/components/VocabularyDeckIcon.svelte';
 	import VocabularyTrainCta from '$lib/components/VocabularyTrainCta.svelte';
@@ -137,9 +138,11 @@
 	{#if added}
 		<VocabularyTrainCta />
 	{:else}
-		<!-- The plus goes in as Button's `icon` so the spinner replaces it
-		     while the add posts, rather than sitting next to it (Conventions
-		     #15). No width/height: the button's icon slot sizes it. -->
+		<!-- The screen's one call to action, so the same pulsing pill as the
+		     alphabet trainer's Practice and the Train vocabulary link, in a
+		     bare bar. The plus goes in as the trailing icon so the spinner
+		     replaces it while the add posts (Conventions #15); no
+		     width/height — the slot sizes it. -->
 		{#snippet addIcon()}
 			<svg
 				viewBox="0 0 24 24"
@@ -154,11 +157,9 @@
 				<path d="M12 5v14" />
 			</svg>
 		{/snippet}
-		<FloatingActionBar>
+		<FloatingActionBar bare>
 			<form method="POST" action="?/addToCollection" use:enhance={submitAdd()} bind:this={addForm}>
-				<Button type="submit" variant="primary" icon={addIcon} loading={pending} disabled={pending}>
-					{t(addToCollectionLabel)}
-				</Button>
+				<PulseCta type="submit" label={t(addToCollectionLabel)} icon={addIcon} loading={pending} />
 			</form>
 		</FloatingActionBar>
 	{/if}

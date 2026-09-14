@@ -74,7 +74,15 @@ export const LINES: readonly DialogueLine[] = [
 				ru: 'Բարև ձեզ — буквально «привет вам»; именно это ձեզ делает приветствие вежливым.'
 			}),
 			tok('Ես', 'yes'),
-			tok('ուզում', 'uzel', { en: 'want', ru: 'хочу' }),
+			// The participle + auxiliary explanation lives on this first
+			// ուզում, not on the library entry: it's how *every* verb works,
+			// so it isn't about Ուզել, and the later remarks on ուզում (line
+			// 14's "the auxiliary moved ahead", line 25's "negation lands on
+			// the auxiliary") are follow-ons to this one.
+			tok('ուզում', 'uzel', { en: 'want', ru: 'хочу' }, {
+				en: 'A verb in speech: the participle ուզում (“wanting”) plus an auxiliary — here եմ — that says who wants. Every verb works this way.',
+				ru: 'Глагол в речи: причастие ուզում («хотящий») плюс вспомогательный глагол — здесь եմ, — который показывает, кто именно хочет. Так устроен любой глагол.'
+			}),
 			tok('եմ', 'em', { en: 'am', ru: '(я)' }),
 			tok('հաց։', 'hats', { en: 'bread', ru: 'хлеб' }, {
 				en: 'No article, so an unspecified amount: “some bread”.',

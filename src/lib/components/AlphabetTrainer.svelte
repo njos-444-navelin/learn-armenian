@@ -21,6 +21,7 @@
 	import AlphabetLetterSheet from './AlphabetLetterSheet.svelte';
 	import AlphabetSessionSummary from './AlphabetSessionSummary.svelte';
 	import FloatingActionBar from './FloatingActionBar.svelte';
+	import PulseCta from './PulseCta.svelte';
 	import PageShell from './PageShell.svelte';
 
 	interface Props {
@@ -91,6 +92,13 @@
 	// letters — harmless, since this is only ever read for its *counts*
 	// (learnLetters.length, drillLetters.length), never specific letters.
 	let sessionPreview = $derived(buildSession(letters, levels));
+	let practiceSubtitle = $derived(
+		!signedIn
+			? t(practiceSignInHint)
+			: sessionPreview.learnLetters.length > 0
+				? t(practiceSubtitleNew(sessionPreview.learnLetters.length))
+				: t(practiceSubtitleWeakest(sessionPreview.drillLetters.length))
+	);
 
 	let openLetter = $derived(sheetLetterId === null ? undefined : letters.find((letter) => letter.id === sheetLetterId));
 	function wordsFor(letter: AlphabetLetter | undefined): Word[] {
@@ -244,26 +252,7 @@
 			<h1>{t(heading)}</h1>
 			<AlphabetLetterGrid {letters} {levels} {caseDisplay} onToggleCase={toggleCase} onOpenLetter={openLetterSheet} />
 			<FloatingActionBar bare>
-				<button type="button" class="practice-button" onclick={clickPractice}>
-					<span class="practice-text">
-						<span class="practice-label">{t(practiceLabel)}</span>
-						<span class="practice-subtitle">
-							{#if !signedIn}
-								{t(practiceSignInHint)}
-							{:else if sessionPreview.learnLetters.length > 0}
-								{t(practiceSubtitleNew(sessionPreview.learnLetters.length))}
-							{:else}
-								{t(practiceSubtitleWeakest(sessionPreview.drillLetters.length))}
-							{/if}
-						</span>
-					</span>
-					<span class="practice-icon" aria-hidden="true">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
-							<path d="M5 12h14" />
-							<path d="m12 5 7 7-7 7" />
-						</svg>
-					</span>
-				</button>
+				<PulseCta label={t(practiceLabel)} subtitle={practiceSubtitle} onclick={clickPractice} />
 			</FloatingActionBar>
 		</div>
 	{:else if screen === 'learn' && currentLearnLetter !== undefined}
@@ -321,68 +310,4 @@
 		gap: inherit;
 	}
 
-	.practice-button {
-		display: flex;
-		flex: 1;
-		align-items: center;
-		gap: var(--space-3);
-		min-height: var(--tap-target-min);
-		padding: var(--space-3) var(--space-6);
-		border: none;
-		border-radius: var(--radius-pill);
-		background: var(--color-primary);
-		color: var(--color-on-primary);
-		cursor: pointer;
-		box-shadow: var(--shadow-md), 0 0 0 0 color-mix(in srgb, var(--color-primary) 35%, transparent);
-		transition: background-color var(--transition-fast);
-		animation: practice-pulse 2.6s ease-out infinite;
-	}
-
-	.practice-button:hover {
-		background: var(--color-primary-hover);
-	}
-
-	/* Pings outward once, then holds still for the rest of the cycle rather
-	   than breathing in and out continuously — a single attention pulse that
-	   repeats every couple of seconds, not a constant throb. */
-	@keyframes practice-pulse {
-		0% {
-			box-shadow: var(--shadow-md), 0 0 0 0 color-mix(in srgb, var(--color-primary) 35%, transparent);
-		}
-		40%,
-		100% {
-			box-shadow: var(--shadow-md), 0 0 0 14px color-mix(in srgb, var(--color-primary) 0%, transparent);
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.practice-button {
-			animation: none;
-		}
-	}
-
-	.practice-text {
-		display: flex;
-		flex: 1;
-		flex-direction: column;
-		gap: 2px;
-		text-align: left;
-	}
-
-	.practice-label {
-		font-family: var(--font-heading);
-		font-weight: var(--font-heading-weight);
-		font-size: var(--font-size-lg);
-	}
-
-	.practice-subtitle {
-		font-size: var(--font-size-sm);
-		opacity: 0.8;
-	}
-
-	.practice-icon {
-		display: flex;
-		flex: none;
-		align-items: center;
-	}
 </style>
