@@ -124,7 +124,12 @@ it wrong in review, several more than once:
    phrase either coincides with a line — then a general note reads as a
    remark about that line, which is exactly what "ուզում եմ" did on «Ես
    ուզում եմ հաց» — or brings in words the learner hasn't met. Forms of
-   the word itself (Այո՛, ի՞նչ, սրանք) are fine. (That note's second
+   the word itself are fine *when they're the form the learner meets* —
+   the tapped token (Այո՛, ի՞նչ, սրանք) — but a note doesn't introduce a
+   new inflection as an example: Աշխատել's "to try" sense was first
+   written with «աշխատիր — try to», and an imperative the learner has
+   never seen is a second lesson smuggled into a footnote. Name the
+   sense; let the line, or a later dialogue, show the form. (That note's second
    life is instructive too: rewritten into general wording — "the
    participle ուզում plus an auxiliary" — it was true, but true of *every*
    verb, so on Ուզել's card in a deck of twenty verbs it was noise. It's
@@ -147,7 +152,20 @@ it wrong in review, several more than once:
    and a note that names the counterpart in plain words. When both words
    are in the library, each entry's note points at the other (Ոնց /
    Ինչպես, Ապրես / Ապրեք). Where it's a matter of degree rather than a
-   clear pair, the note alone carries it ("slightly more formal").
+   clear pair, the note alone carries it ("slightly more formal"). And
+   `register` is for the *word*: when the formal/informal split belongs
+   to a phrase the word appears in, not to the word — Բարի լույս is the
+   everyday "good morning" and Բարի առավոտ the formal one, but Առավոտ by
+   itself is the neutral time-of-day word and Լույս just means light —
+   neither entry gets a `register`; the card's `usage` explains the
+   greetings instead.
+
+8. **As short as it can be.** A note is read on a card between the word
+   and the next word, or in a popover over a line; one sentence is the
+   target, two is the ceiling. Սովորել's three senses fit in one line
+   ("Also “to learn” (words, a language) and “to get used to” — one verb
+   for all three"); Աշխատել's extra senses are seven words. If a note
+   wants a paragraph, it's either two notes, a `here`, or a rule card.
 
 7. **Write the English and the Russian separately, each for its own
    reader — never translate one into the other.** The two languages don't
@@ -159,6 +177,13 @@ it wrong in review, several more than once:
    a word of framing that "is" doesn't. For every note, ask what *this*
    reader already knows and what they'd find odd, and write from there.
    This applies to `here` remarks and translations too.
+
+**Rules for a `usage`** are the note rules above minus #3 — quoting the
+phrase is its job — plus one of its own: lead with what the word plainly
+is, then the phrase. "The time of day; it also makes the greeting Բարի օր
+— “good day”", not "E.g. Բարի օր — good day", which read as if the word
+lived only in that greeting. The time-of-day set (Առավոտ, Օր, Իրիկուն,
+Գիշեր) all open the same way on purpose, so they read as a set.
 
 **Rules for a `here` remark:**
 

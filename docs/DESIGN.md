@@ -234,7 +234,10 @@ On a vocabulary word card (the deck list in
 and the flashcard's back in
 [`VocabularyTrainer.svelte`](../src/lib/components/VocabularyTrainer.svelte))
 the word and its translation are the pair that has to pop — both in
-`--color-text-primary` — and the note/usage under them is for the curious:
+`--color-text-primary`, the word a step past `--font-size-lg` (22px) and
+the translation a hair past `--font-size-md` (17px), with the cards one
+spacing step further apart (`--space-3`) than they were — and the
+note/usage under them is for the curious:
 separated by `--space-2`, set in `--font-size-xs` (13px, the only role that
 size exists for), with tighter leading. Once the greetings deck's cards
 gained a usage line each, the same-size, same-ink note directly under the
