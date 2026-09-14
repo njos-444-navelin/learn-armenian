@@ -471,8 +471,9 @@ arrow (shaft + head — Lucide's `arrow-right`: `M5 12h14` plus
 (`m9 18 6-6-6-6`, a `›` shape with no shaft), and the circular tinted
 backing a chevron often sits in doesn't add anything once the arrow
 itself already carries the meaning — drop it, let the arrow sit directly
-on the button's own fill. See the alphabet trainer's `Practice` button
-(`AlphabetTrainer.svelte`) for the current example. This is specifically
+on the button's own fill. See [`PulseCta.svelte`](../src/lib/components/PulseCta.svelte)'s default
+icon (the alphabet trainer's `Practice`, the vocabulary `Train` link) for
+the current example. This is specifically
 about *navigational* primary buttons — one that submits a form or confirms
 an in-place action doesn't need a directional affordance at all, since it
 isn't taking the learner anywhere.
@@ -555,6 +556,27 @@ independently will collide eventually; a scale can't.
   just below the button, so the hoverable area still covers wherever the
   cursor landed even after the button moves. Any future hover-triggered
   `transform` needs the same buffer, not just a smaller transform distance.
+- **The one call to action on a screen pulses, and there is one component
+  for it.** [`PulseCta.svelte`](../src/lib/components/PulseCta.svelte): a
+  full-width primary pill, heading-weight label with an optional one-line
+  subtitle on the left, an icon in a fixed slot on the right, sitting in a
+  `<FloatingActionBar bare>` (its own pill and shadow are the container —
+  a second visible box around it read as a button in a tray). Every 2.6s
+  a 14px ring of the primary colour pings outward once and fades — a
+  single attention pulse, not a continuous throb — and it stops under
+  `prefers-reduced-motion` and while the button is busy (the spinner is
+  the signal then, and a pulse on a control that can't take a tap is a
+  lie). The three users are the alphabet trainer's Practice (a button
+  that builds a session first), the vocabulary Train link, and a deck's
+  Add to my collection (a form submit: the spinner takes the plus's slot,
+  Conventions #15). The first two were byte-for-byte copies of each
+  other's markup and CSS, kept separate because one was an `<a>` and one
+  a `<button>`; the third copy — which had shipped as a plain `Button` in
+  a bordered bar, with its icon on the left, and no pulse, and stood out
+  for all three reasons — is what made the shared component worth its
+  href/onclick/submit surface. The trailing icon defaults to the "go"
+  arrow (the Icons rule for navigational primaries); an in-place action
+  passes its own.
 - **Page-to-page transitions**: a native browser View Transition
   (`document.startViewTransition`, wired up in the root
   [`+layout.svelte`](../src/routes/+layout.svelte) via SvelteKit's
@@ -785,6 +807,7 @@ independently will collide eventually; a scale can't.
 | Every design token | [`src/lib/styles/tokens.css`](../src/lib/styles/tokens.css) |
 | Global element defaults (`body`, headings, links, view-transition timing, reduced-motion) | [`src/app.css`](../src/app.css) |
 | Buttons | [`src/lib/components/Button.svelte`](../src/lib/components/Button.svelte) |
+| The pulsing call-to-action pill | [`src/lib/components/PulseCta.svelte`](../src/lib/components/PulseCta.svelte) |
 | Top-of-screen icon buttons (back, account) | [`src/lib/components/TopBubbleLink.svelte`](../src/lib/components/TopBubbleLink.svelte) |
 | Brand mark (the 3-stripe flag glyph) | [`src/lib/components/Flagmark.svelte`](../src/lib/components/Flagmark.svelte) |
 | Page-to-page transition wiring | [`src/routes/+layout.svelte`](../src/routes/+layout.svelte) |
