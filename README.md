@@ -42,8 +42,11 @@ build/preview — `vite dev` intentionally skips them so HMR isn't disrupted.
 
 One branch per piece of work, named for that work (`loading-bar-ornament`,
 `word-notes-tidy`), one pull request per branch, merged into `main` and
-then deleted — locally and on origin. Two rules that follow, both learned
-the hard way in one afternoon:
+then deleted. GitHub deletes the branch on origin itself when the PR is
+merged (the repo's "automatically delete head branches" setting is on);
+locally, `git fetch --prune` drops the stale tracking ref and `git branch
+-d <branch>` the branch. Two rules that follow, both learned the hard way
+in one afternoon:
 
 - **A merged branch is finished.** Never commit or push to it again, even
   if it's still checked out; PRs get merged mid-session, and the working
