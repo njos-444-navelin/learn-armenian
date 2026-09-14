@@ -565,26 +565,41 @@ independently will collide eventually; a scale can't.
   briefly, then fades out and resets. If the delay is ever removed "to make
   it feel more responsive," that regression will come back.
 - **The loading bar is a pixel ornament in the flag's colours, not a
-  plain line.** It was a 3px `--color-primary` rule; it's now a band of
-  chunky 4px "pixels" in three rows, drawn as a repeating SVG `<pattern>`
-  and revealed as the bar widens (the pattern is anchored at the left
-  edge, so the tip advances over a fixed design rather than the design
-  sliding). Top row: solid `--color-primary`. Below it, stepped pendants —
-  a 3-cell step over a 1-cell tip — in `--color-flag-red` and
-  `--color-flag-blue` alternately, one every 20px, hanging from the band
-  like a carpet fringe; the chunky stair construction nods to the
-  Artsakh flag's stepped pattern, kept to two steps so it still reads at
-  4px cells on a phone. Two things about it are load-bearing:
-  - **The top row is the theme colour on purpose.** The PWA's
+  plain line.** It was a 3px `--color-primary` rule; it's now a 12px band
+  of chunky 4px "pixels" in three rows, drawn as a repeating SVG
+  `<pattern>` and revealed as the bar widens (the pattern is anchored at
+  the left edge, so the tip advances over a fixed design rather than the
+  design sliding). The whole band is a `--color-primary` field, and on it,
+  in `--color-flag-red` and `--color-flag-blue`, meshed teeth: stepped
+  pendants (three cells over one — the smallest form of the stair pattern
+  on the Artsakh flag and in Armenian carpet borders) hanging from the top
+  in red and rising from the bottom in blue, interleaved on a 16px tile so
+  each tip sits between the other row's teeth. The pixel grid is drawn in
+  a comment at the top of
+  [`NavigationProgress.svelte`](../src/lib/components/NavigationProgress.svelte)
+  and the rects are generated from it — edit the grid first. It was
+  picked from a sheet of six drawn variants (a plain garland, top/bottom
+  alternation with colour tied to side or alternating independently,
+  full-height interlocking stairs, and pendants with a contrasting bead),
+  and three earlier builds are worth knowing about since each looked
+  reasonable in isolation: (1) one row of pendants hanging from a solid
+  top stripe with air between them read as a garland strung across the
+  top; (2) a solid top stripe in the theme colour with a red/blue zigzag
+  under it made the stripe vanish into the PWA status bar and the zigzag
+  read as a busy second line beneath it — so the theme colour is the
+  *field* the motif sits in, not a stripe above it; (3) diamonds and stars
+  alternating in pairs put two same-coloured motifs side by side, which
+  bothered the eye more than the motifs pleased it. Two
+  things about it are load-bearing:
+  - **The field is the theme colour on purpose.** The PWA's
     `theme_color` (in [`vite.config.ts`](../vite.config.ts) and
     `app.html`'s `<meta name="theme-color">`) is `--color-primary`, so on
-    an Android home-screen install the status bar is that orange and this
-    row continues it straight down into the page. A bar in any other
-    colour, or the tricolour with red on top, would draw a second,
-    clashing line right under the status bar. If the theme colour ever
-    changes, the band's fill changes with it (it's the same token); if
-    the band's colour is ever changed independently, that seam comes
-    back.
+    an Android home-screen install the status bar is that orange and the
+    band reads as that colour continuing down into the page with the
+    motifs set into it. A field in any other colour would draw a clashing
+    line right under the status bar. If the theme colour ever changes, the
+    field changes with it (it's the same token); if the field's colour is
+    ever changed independently, that seam comes back.
   - **The flag's red and blue are tokens** (`--color-flag-red`,
     `--color-flag-blue` in `tokens.css`), shared with
     [`Flagmark.svelte`](../src/lib/components/Flagmark.svelte). They're
