@@ -210,8 +210,12 @@
 		{/each}
 	</div>
 
+	<!-- Passed as Button's `icon`, not inline in its label, so the spinner
+	     stands in for the checkmark while `complete` posts instead of
+	     queueing up beside it (Conventions #15). No width/height: the
+	     button's icon slot sizes it. -->
 	{#snippet doneIcon()}
-		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="17" height="17">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 			<circle cx="12" cy="12" r="9.5" />
 			<path d="m8 12.3 2.8 2.7L16.5 9" />
 		</svg>
@@ -224,14 +228,12 @@
 	     left to commit. -->
 	<div class="complete">
 		{#if completed}
-			<Button type="button" variant="success" onclick={() => (showRemoveModal = true)}>
-				{@render doneIcon()}
+			<Button type="button" variant="success" icon={doneIcon} onclick={() => (showRemoveModal = true)}>
 				{t(alreadyDoneLabel)}
 			</Button>
 		{:else}
 			<form method="POST" action="?/complete" use:enhance={submitComplete} bind:this={completeForm}>
-				<Button type="submit" variant="success-soft" lift loading={completing} disabled={completing}>
-					{@render doneIcon()}
+				<Button type="submit" variant="success-soft" lift icon={doneIcon} loading={completing} disabled={completing}>
 					{t(markDoneLabel)}
 				</Button>
 			</form>

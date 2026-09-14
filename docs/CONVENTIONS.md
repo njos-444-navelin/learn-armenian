@@ -182,7 +182,10 @@ request (a form submission, a fetch-backed action) must, for the duration of
 that request:
 
 - Show a spinner — use [`Spinner.svelte`](../src/lib/components/Spinner.svelte)
-  via `Button`'s `loading` prop, not a one-off loading indicator.
+  via `Button`'s `loading` prop, not a one-off loading indicator. The
+  spinner never moves the label: with a leading icon it *replaces* the
+  icon in place, without one it floats beside the text — see
+  [§15](#15-a-buttons-spinner-never-moves-its-label).
 - Be disabled — `Button`'s `loading` prop forces this automatically (and sets
   `aria-busy`), but pass `disabled` on other buttons on the page too while
   one action is pending, so the user can't fire a second overlapping request.
@@ -443,3 +446,73 @@ glitch (if it still happens at all) is at most a single imperceptible frame.
 See [`blurAfterClick`](../src/lib/actions/blurAfterClick.ts) for a related,
 narrower mitigation (blurring an element right after a non-keyboard click) —
 kept alongside this rule, not a replacement for it.
+
+## 15. A button's spinner never moves its label
+
+When a `Button` goes into its `loading` state (Conventions #8), the label
+stays exactly where it was — not a pixel of horizontal or vertical shift,
+whether the button has a leading icon or not, and however long the label
+is. A pending state should read as *the same button, now busy*: the user's
+eye stays where it was, on the thing they just pressed. A label that jumps
+sideways when the spinner arrives and jumps back when it leaves pulls the
+eye to the movement instead. It's small, and it's twice per click on every
+async button in the app, which is what makes it worth ruling out inside
+[`Button.svelte`](../src/lib/components/Button.svelte) rather than trusting
+each call site to get it right. Two mechanisms, one per case:
+
+**With a leading icon: the spinner replaces the icon, in the icon's box.**
+A button that carries an icon (the door-and-arrow on "Sign out", the
+checkmark on "That's a wrap — mark it done", the plus on "Add to my
+collection") shows exactly one glyph at a time — the icon at rest, the
+spinner while busy — never both. Two rules make that hold:
+
+- **Pass the icon through `Button`'s `icon` snippet prop, not inline in its
+  label.** `loading` then swaps the slot's contents between the icon and
+  the spinner. An icon dropped into the button's children instead sits
+  *after* the spinner, so the user sees spinner + icon + label — a visibly
+  busier button than the one they just clicked, which is exactly the
+  "That's a wrap" button's bug this rule came from.
+- **The icon must not carry its own `width`/`height`.** The slot is a
+  fixed `1.125em` × `1.125em` box (`flex-shrink: 0`) and stretches whatever
+  is inside it to fill; the spinner fills the same box the same way. The
+  box never changes size, so the swap can't reflow the label. An icon with
+  its own dimensions would still render at the slot's size (the slot's
+  CSS wins), so it isn't a bug so much as a lie — drop the attributes so
+  the markup says what happens.
+
+**Without an icon: the label reserves the spinner's room on both sides,
+and the spinner floats into it.** An iconless button that *can* load — one
+that's given the `loading` prop at all, even as `false`; `undefined` means
+"never loads" and skips this, so don't pass the prop on a button that has
+no async action — pads its label by the spinner's size plus a gap on
+*both* sides, permanently. The spinner is then absolutely positioned at
+the label box's left edge, inside that reserved room, taking no layout
+space of its own. Symmetric so the text stays centred; permanent so the
+spinner's arrival changes nothing about the layout. That covers every
+label length without a special case:
+
+- A short label on a wide button ("Sign in" at full width): the spinner
+  sits right beside the text, the text doesn't move.
+- A label that fills the whole line, or wraps to two: the label box is
+  the whole content box, so the spinner sits at the content box's left
+  edge — the button's full horizontal padding clear of the border,
+  vertically centred between the lines. It never lands *in* the padding
+  or up against the pill's cap curve.
+
+The cost is roughly a spinner-and-gap's width more on each side of such a
+button at rest (~25px a side at the standard size). The full-width form
+buttons (sign in, register, the account settings) don't show it, and a
+modal's confirm button is `flex: 1` beside its Cancel, so the pair shares
+the width evenly regardless. An earlier version floated the spinner
+*outside* the label with no reservation, relying on the button's padding
+to hold it when the label was long — that put the spinner a couple of
+pixels from the border on a two-line label, visibly jammed into the cap
+curve, which is what this replaced. Reserving on the left only was ruled
+out because it would centre the text off-axis at rest.
+
+**If a spinner ever looks like it's touching or crossing the button's left
+edge,** something has removed the label's reservation (a `:global` rule
+overriding `.label`'s padding, or a button rendered without its `loading`
+prop and then made to load) — fix that, don't nudge the spinner. Its
+position is derived from the label's, and moving it breaks the "beside the
+text" case to patch the "fills the line" case.

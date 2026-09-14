@@ -429,6 +429,24 @@ height, and the button floats centered on top of it via `top: 50%` +
 `transform: translateY(-50%)`, clipped from underlapping text by the
 card's own right padding (`calc(var(--tap-target-min) + var(--space-4))`).
 
+**A leading icon in a `Button` goes through its `icon` prop, sized by the
+button, and the spinner replaces it in place.** The button owns a fixed
+`1.125em` slot ahead of the label; the icon fills it at rest and the
+spinner fills it while `loading`, so the pending state never shows both
+glyphs and never moves the label. (An iconless button that can load reserves the
+spinner's room on both sides of its label instead, and the spinner floats
+into it, for the same no-shift guarantee.) The full
+rule (and why it's a rule, not a nicety) is
+[`CONVENTIONS.md`](CONVENTIONS.md#15-a-buttons-spinner-never-moves-its-label)
+§15. The icons themselves follow the site-wide rule above — 24×24 viewBox,
+`stroke-width="2.75"`, round caps/joins — minus any `width`/`height`,
+which the slot supplies. The account page's "Sign out" is the current
+example of an icon added *for findability*: it's the one action in the
+settings list that ends the session, and a door-with-arrow-leaving glyph
+(`UserMenu.svelte`'s signed-out door, with the arrow starting inside the
+frame and leaving it; same hand-drawn Lucide-inspired style) marks it out from the two plain navigation buttons
+above it without anyone having to read three labels.
+
 **A primary (`--color-primary`-filled) button that navigates to a new
 screen or flow gets a trailing arrow, not a chevron-in-a-circle.** A full
 arrow (shaft + head — Lucide's `arrow-right`: `M5 12h14` plus

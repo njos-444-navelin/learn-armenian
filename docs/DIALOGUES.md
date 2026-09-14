@@ -264,7 +264,11 @@ mockup, recorded so they don't get re-litigated:
   lift — there's nothing left to commit — and tapping it opens a confirm
   to take the dialogue back off the done list (see Progress) instead of
   marking it done a second time, which is what the button used to do and
-  read as a stale instruction on a finished dialogue.
+  read as a stale instruction on a finished dialogue. Both states share
+  one checkmark, passed as `Button`'s `icon` — so while `complete` posts,
+  the spinner takes the checkmark's place rather than lining up beside it,
+  and the label stays put (Conventions §15). It used to render inline in
+  the label, which put spinner *and* checkmark on the busy button.
 - **Under 420px the mode toggle is icons only.** A 360px-wide phone (a
   Fairphone 6; most Android mid-rangers) can't fit «Слушать», «Читать», the
   stop button and the play-all counter in one pill — «Читать» was clipped

@@ -232,10 +232,35 @@
 				<div class="settings-list">
 					<Button href={changePasswordHref} variant="secondary">{t(changePasswordButton)}</Button>
 					<Button href={changeEmailHref} variant="secondary">{t(changeEmailButton)}</Button>
+					<!-- The one action in this list that ends the session, so it
+					     gets an icon the others don't: a door with an arrow
+					     leaving it, findable at a glance without reading the
+					     three labels. UserMenu's signed-out door, with the arrow
+					     now starting inside the frame and leaving it, drawn in
+					     the same hand (Lucide-inspired, not Lucide). Passed as
+					     Button's `icon` so the spinner
+					     replaces it while the sign-out posts (Conventions #15);
+					     no width/height, the button's icon slot sizes it. -->
+					{#snippet signOutIcon()}
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.75"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<path d="M11 3H5a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h6" />
+							<path d="M8.5 12H21" />
+							<path d="m17 8 4 4-4 4" />
+						</svg>
+					{/snippet}
 					<AuthForm action="?/logout" submit={submitAction('logout')}>
 						<Button
 							type="submit"
 							variant="secondary"
+							icon={signOutIcon}
 							loading={pending === 'logout'}
 							disabled={pending !== null}
 						>
