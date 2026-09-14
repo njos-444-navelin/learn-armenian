@@ -25,14 +25,14 @@
 		flex: 1;
 	}
 
+	/* The flag's red and blue are shared with the loading ornament
+	   (NavigationProgress.svelte) via tokens.css, so the two can't drift. */
 	.r {
-		/* stylelint-disable-next-line scale-unlimited/declaration-strict-value -- the Armenian flag's own fixed red, not a theme decision (see the component's top comment); intentionally not a token. */
-		background: #b5504a;
+		background: var(--color-flag-red);
 	}
 
 	.b {
-		/* stylelint-disable-next-line scale-unlimited/declaration-strict-value -- the Armenian flag's own fixed blue, same reasoning as .r above. */
-		background: #5b6f96;
+		background: var(--color-flag-blue);
 	}
 
 	.o {

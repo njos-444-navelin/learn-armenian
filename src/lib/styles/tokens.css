@@ -125,6 +125,15 @@
 	--color-on-success-soft: var(--color-accent-2-800);
 	--color-focus-ring: var(--color-primary);
 
+	/* Color — the Armenian flag's own red and blue, muted to sit inside the
+	   warm palette. Fixed by the flag, not retuned with the theme — these
+	   are not ramp steps and have no hover/tint siblings. The flag's orange
+	   is --color-primary itself, which is why the brand mark and the
+	   loading ornament both read as "the flag, in this app's palette".
+	   Used by Flagmark.svelte and NavigationProgress.svelte only. */
+	--color-flag-red: #b5504a;
+	--color-flag-blue: #5b6f96;
+
 	/* Color — "has pending vocabulary reviews" notification dot. Terracotta
 	   (the active/primary accent) reads as "something to do"; sage is
 	   reserved for calm/success states, so the dot deliberately isn't sage. */
