@@ -6,6 +6,7 @@
 	import { page } from '$app/state';
 	import Button from './Button.svelte';
 	import Modal from './Modal.svelte';
+	import Spinner from './Spinner.svelte';
 	import VocabularyDeckIcon from './VocabularyDeckIcon.svelte';
 	import VocabularyTrainCta from './VocabularyTrainCta.svelte';
 	import type { VocabularyDeck } from '$lib/content/vocabulary/types';
@@ -180,23 +181,31 @@
 							class="action add"
 							aria-label={t(addDeckAriaLabel(deck.title))}
 							disabled={addingId === deck.id}
+							aria-busy={addingId === deck.id ? 'true' : undefined}
 						>
-							<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="19" height="19">
-								<path
-									d="M5 12h14"
-									stroke="currentColor"
-									stroke-width="2.75"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								/>
-								<path
-									d="M12 5v14"
-									stroke="currentColor"
-									stroke-width="2.75"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								/>
-							</svg>
+							<!-- The spinner takes the plus's place while the add is in
+							     flight (Conventions §8): same box, same size, so the
+							     row doesn't shift. -->
+							{#if addingId === deck.id}
+								<span class="icon-slot"><Spinner /></span>
+							{:else}
+								<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="19" height="19">
+									<path
+										d="M5 12h14"
+										stroke="currentColor"
+										stroke-width="2.75"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									/>
+									<path
+										d="M12 5v14"
+										stroke="currentColor"
+										stroke-width="2.75"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									/>
+								</svg>
+							{/if}
 						</button>
 					</form>
 				</li>
@@ -352,6 +361,12 @@
 	.action:disabled {
 		cursor: not-allowed;
 		opacity: 0.6;
+	}
+
+	/* The spinner is 1em; match the 19px plus icon it stands in for. */
+	.icon-slot {
+		display: flex;
+		font-size: 1.1875rem;
 	}
 
 	.action.remove {
