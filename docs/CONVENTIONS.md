@@ -312,7 +312,7 @@ plays a word points at that entry by id rather than carrying its own copy:
 - A **dialogue** (`src/lib/content/dialogues/dialogues/<id>.ts`) links each
   spoken token — an inflected form like `հա՞ցը` — to the library word it's
   a form of (`wordId: 'hats'`), so the tap-to-look-up popover shows the base
-  form and plays the shared clip. A token only carries its own `gloss`/`note`
+  form and plays the shared clip. A token only carries its own `gloss`/`here`
   where the in-context meaning differs from the library entry's.
 
 Rules that follow from that:
@@ -321,7 +321,8 @@ Rules that follow from that:
   or dialogue needs a word the library doesn't have, add it to `entries.ts`
   (with its clip, §11) and reference the id. If a word already exists under
   a slightly different translation than the new context wants, that's a
-  token `gloss` (dialogues) or a `note`/`usage`, not a second entry — see how
+  token `gloss` (dialogues) or a `global`/`cardOnly` comment, not a second
+  entry — see how
   `uzel` serves both the verbs deck ("To want") and the dialogue's
   `ուզում եմ` ("want").
 - **Word ids are one flat namespace.** `entries.ts` throws at module load
@@ -358,9 +359,16 @@ Rules that follow from that:
 - **`translation` is capitalized too, in both `en` and `ru`** (e.g. `{ en:
   'Hi', ru: 'Привет' }`, not `{ en: 'hi', ru: 'привет' }`) — a word and its
   translation should match in this respect. Applies to `translation`
-  specifically, not `note` (already ordinary sentence-cased prose) and not
-  a dialogue token's `gloss` (which reads as a running-text gloss, "the
-  bread").
+  specifically, not a `global`/`cardOnly` comment (ordinary sentence-cased
+  prose) and not a dialogue token's `gloss` (which reads as a running-text
+  gloss, "the bread").
+- **Inside a comment, examples are lowercase — the Armenian and its
+  translation alike:** `e.g. բարի լույս — “good morning”`, `գնել (“to
+  buy”)`, `դուք — «вы»`. Capitals are for a word standing on its own (the
+  two fields above) and for whatever opens the comment (`Բարի գիշեր —
+  “good night” — is a goodbye`). Applies to `global`, `cardOnly` and a
+  dialogue `here` remark alike — docs/DIALOGUES.md, "Word comments",
+  rule 6.
 
 The library is one plain module, not code-split — at low hundreds of short
 entries it's a few KB gzipped, cheaper than the duplication a per-feature

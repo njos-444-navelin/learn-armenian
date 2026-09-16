@@ -60,7 +60,8 @@ export default tseslint.config(
 					allowDefaultProject: [
 						'eslint.config.js',
 						'stylelint.config.js',
-						'tooling/stylelint-rules/*.js'
+						'tooling/stylelint-rules/*.js',
+						'scripts/words/*.js'
 					]
 				},
 				tsconfigRootDir: import.meta.dirname

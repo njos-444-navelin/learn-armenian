@@ -26,17 +26,20 @@ import type { Word } from './types';
  * split it into lazily-loaded shards keyed by id here — behind `getWord()` —
  * rather than letting features grow private copies again.
  *
- * A `note` here is the word's general explanation and shows on every
- * occurrence, in every dialogue. The rules for writing one — true anywhere,
- * describes the word rather than one use of it, never quotes a phrase,
- * only words the learner has — are in docs/DIALOGUES.md, "Word notes";
- * anything about one line goes on that token's `here` instead. The check
- * at the bottom of this file catches the most common slip. A word with a
- * formal/informal counterpart always says so: `register` for the tag, the
- * note to name the counterpart (see Շնորհակալություն / մերսի). And the
- * `en` and `ru` texts are written separately, each for its own reader —
- * never one translated from the other (see Եք: English has to explain the
- * polite plural "you"; Russian just says "like вы").
+ * A word can carry two comments, named for where they show. `global`
+ * shows on every occurrence — the card, the trainer and every dialogue
+ * popover — so it says what the word *is* (its case, its mood, an extra
+ * sense, a look-alike to keep apart) and never quotes a phrase. `cardOnly`
+ * shows on the card and in the trainer only: when and to whom the word is
+ * said, the greeting it makes, where its mark sits. The rules for writing
+ * either — one short sentence, lowercase examples, no restating the
+ * translation, no naming a formal/informal counterpart (`register` is the
+ * tag for that) — are in docs/DIALOGUES.md, "Word comments"; anything
+ * about one line goes on that token's `here` instead. The check at the
+ * bottom of this file catches the most common slip. And the `en` and `ru`
+ * texts are written separately, each for its own reader — never one
+ * translated from the other (see Եք: English has to explain the polite
+ * plural "you"; Russian just says "like вы").
  *
  * Sections below are only for reading convenience; ids are a single flat
  * namespace and must be unique across the whole file (checked at module
@@ -48,18 +51,18 @@ export const WORDS: readonly Word[] = [
 		id: 'barev',
 		armenian: 'Բարև',
 		translation: { en: 'Hi', ru: 'Привет' },
-		note: {
-			en: 'On its own it’s for friends. To a stranger, an elder or anyone serving you, say Բարև ձեզ — bare բարև can come across as rude.',
-			ru: 'Просто բարև — для друзей. Незнакомому, старшему или тому, кто Вас обслуживает, говорят Բարև ձեզ — одно բարև может прозвучать грубо.'
+		cardOnly: {
+			en: 'Informal greeting. To a stranger, an elder or anyone serving you, it’s better to say բարև ձեզ.',
+			ru: 'Неформальное приветствие. Незнакомому, старшему или тому, кто Вас обслуживает, лучше говорить բարև ձեզ.'
 		}
 	},
 	{
 		id: 'bari',
 		armenian: 'Բարի',
 		translation: { en: 'Kind', ru: 'Добрый' },
-		usage: {
-			en: 'Often paired with a time of day to make a greeting: Բարի լույս, Բարի օր, Բարի իրիկուն, Բարի գիշեր.',
-			ru: 'Часто образует приветствие вместе со временем суток: Բարի լույս, Բարի օր, Բարի իրիկուն, Բարի գիշեր.'
+		cardOnly: {
+			en: 'Often paired with a time of day to make a greeting, e.g. բարի լույս — “good morning”.',
+			ru: 'Помимо прочего, используется в приветствиях вместе со временем суток, например, բարի լույս — «доброе утро».'
 		}
 	},
 	// Ե is mid-word "eh" here — see `yech`'s exampleWordIds ordering in alphabet.ts.
@@ -67,43 +70,43 @@ export const WORDS: readonly Word[] = [
 		id: 'dzez',
 		armenian: 'Ձեզ',
 		translation: { en: 'To you', ru: 'Вам' },
-		note: {
-			en: 'The dative case of Դուք — “you”, polite or plural.',
-			ru: 'Дательный падеж от Դուք — «вы», вежливое или множественное.'
+		global: {
+			en: 'The dative case of դուք — “you”, polite or plural.',
+			ru: 'Дательный падеж от դուք — «вы», вежливое или множественное.'
 		}
 	},
 	// Neither word carries a `register`: the informal/formal split below is a
 	// property of the two *greetings*, not of the words — Առավոտ by itself is
 	// the neutral time-of-day word, and Լույս by itself just means light. And
-	// it's `usage`, not `note`: it explains the greetings, which is what the
-	// Greetings deck's cards need and exactly what a dialogue popover doesn't
+	// it's `cardOnly`, not `global`: it explains the greetings, which is what
+	// the Greetings deck's cards need and exactly what a dialogue popover doesn't
 	// — someone tapping Լույս in a line about light shouldn't be told about
 	// Բարի լույս. A dialogue that says Բարի լույս adds a `here` on the token.
 	{
 		id: 'luys',
 		armenian: 'Լույս',
 		translation: { en: 'Light', ru: 'Свет' },
-		usage: {
-			en: 'Literally “light”, but in the greeting Բարի լույս it stands for “morning” — this is the everyday “good morning”. The more formal greeting uses Առավոտ.',
-			ru: 'Буквально «свет», но в приветствии Բարի լույս означает «утро» — это обычное «доброе утро». Более формальное приветствие — с Առավոտ.'
+		cardOnly: {
+			en: 'In the informal greeting բարի լույս it stands for “morning”.',
+			ru: 'В неформальном приветствии բարի լույս означает «утро».'
 		}
 	},
 	{
 		id: 'aravot',
 		armenian: 'Առավոտ',
 		translation: { en: 'Morning', ru: 'Утро' },
-		usage: {
-			en: 'The time of day. In the greeting Բարի առավոտ it makes the more formal “good morning”; the everyday one is Բարի լույս.',
-			ru: 'Время суток. В приветствии Բարի առավոտ — более формальное «доброе утро»; обычное — Բարի լույս.'
+		cardOnly: {
+			en: 'E.g. բարի առավոտ — a formal “good morning”.',
+			ru: 'Например, բարի առավոտ — формальное «доброе утро».'
 		}
 	},
 	{
 		id: 'or',
 		armenian: 'Օր',
 		translation: { en: 'Day', ru: 'День' },
-		usage: {
-			en: 'The time of day; it also makes the greeting Բարի օր — “good day”.',
-			ru: 'Время суток; в приветствии — Բարի օր, «добрый день».'
+		cardOnly: {
+			en: 'E.g. բարի օր — a formal “good day”.',
+			ru: 'Например, բարի օր — формальное «добрый день».'
 		}
 	},
 	{
@@ -111,20 +114,20 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Իրիկուն',
 		translation: { en: 'Evening', ru: 'Вечер' },
 		register: 'informal',
-		usage: {
-			en: 'The time of day; it also makes the greeting Բարի իրիկուն — “good evening”.',
-			ru: 'Время суток; в приветствии — Բարի իրիկուն, «добрый вечер».'
+		cardOnly: {
+			en: 'E.g. բարի իրիկուն — an informal “good evening”.',
+			ru: 'Например, բարի իրիկուն — неформальное «добрый вечер».'
 		}
 	},
 	// The two night phrases sit together here, since the contrast between
-	// them is the point; Ուշ just points back at this entry.
+	// them is the point.
 	{
 		id: 'gisher',
 		armenian: 'Գիշեր',
 		translation: { en: 'Night', ru: 'Ночь' },
-		usage: {
-			en: 'The time of day. Բարի գիշեր — “good night” — is a goodbye, not a greeting. To greet someone late at night: Բարի ուշ գիշեր.',
-			ru: 'Время суток. Բարի գիշեր — «спокойной ночи» — это прощание, а не приветствие. Поприветствовать кого-то поздно ночью: Բարի ուշ գիշեր.'
+		cardOnly: {
+			en: 'Բարի գիշեր — “good night” — is a goodbye, not a greeting.',
+			ru: 'Բարի գիշեր — «спокойной ночи» — это прощание, а не приветствие.'
 		}
 	},
 	// Ու as a digraph is already correct as literally spelled — no ElevenLabs
@@ -133,9 +136,9 @@ export const WORDS: readonly Word[] = [
 		id: 'ush',
 		armenian: 'Ուշ',
 		translation: { en: 'Late', ru: 'Поздно' },
-		usage: {
-			en: 'E.g. Բարի ուշ գիշեր — the late-night greeting (see Գիշեր).',
-			ru: 'Например, Բարի ուշ գիշեր — приветствие поздней ночью (см. Գիշեր).'
+		cardOnly: {
+			en: 'E.g. բարի ուշ գիշեր — literally “good late night” — the late-night greeting.',
+			ru: 'Например, բարի ուշ գիշեր — буквально «доброй поздней ночи» — ночное приветствие.'
 		}
 	},
 	{
@@ -143,9 +146,9 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Հաջող',
 		translation: { en: 'Bye!', ru: 'Пока!' },
 		register: 'informal',
-		note: {
-			en: 'The casual goodbye — Հաջողություն clipped to its first half. The formal one is Ցտեսություն.',
-			ru: 'Разговорное «пока» — сокращённое Հաջողություն. Формальное прощание — Ցտեսություն.'
+		global: {
+			en: 'The casual goodbye — հաջողություն clipped to its first half.',
+			ru: 'Разговорное «пока» — сокращённое հաջողություն.'
 		}
 	},
 	{
@@ -153,9 +156,9 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Հաջողություն',
 		translation: { en: 'Good luck', ru: 'Удачи' },
 		register: 'informal',
-		note: {
-			en: 'Literally “success”, and the casual way to say goodbye — often shortened to the even more informal Հաջող. The formal goodbye is Ցտեսություն.',
-			ru: 'Буквально «успех», и разговорный способ попрощаться — часто сокращается до совсем неформального Հաջող. Формальное прощание — Ցտեսություն.'
+		global: {
+			en: 'Literally “success”, and the casual way to say goodbye.',
+			ru: 'Буквально «успех» — и неформальный способ попрощаться.'
 		}
 	},
 	{
@@ -163,29 +166,25 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Ցտեսություն',
 		translation: { en: 'Goodbye', ru: 'До свидания' },
 		register: 'formal',
-		note: {
-			en: 'The formal goodbye — literally “until seeing”. Among friends people say Հաջողություն or just Հաջող.',
-			ru: 'Формальное прощание — по смыслу ровно «до свидания». Между своими говорят Հաջողություն или просто Հաջող.'
+		global: {
+			en: 'The formal goodbye — literally “until seeing”.',
+			ru: 'Формальное прощание — буквально «до свидания».'
 		}
 	},
 	{
 		id: 'shnorhakalutyun',
 		armenian: 'Շնորհակալություն',
 		translation: { en: 'Thanks', ru: 'Спасибо' },
-		register: 'formal',
-		note: {
-			en: 'The formal “thank you”. In everyday speech people just as often say մերսի, from the French merci.',
-			ru: 'Формальное «спасибо». В разговорной речи не реже говорят մերսի — от французского merci.'
-		}
+		register: 'formal'
 	},
 	{
 		id: 'apres',
 		armenian: 'Ապրես',
 		translation: { en: 'Live', ru: 'Живи' },
 		register: 'informal',
-		note: {
-			en: 'Imperative mood — literally “Do live!” — but used as praise: “well done!”, “good job!”, to one person you’re on informal terms with. The formal or plural one is Ապրեք.',
-			ru: 'Повелительное наклонение — буквально «живи!», — но употребляется как похвала: «молодец!» тому, с кем на «ты». Для «Вы» — Ապրեք.'
+		global: {
+			en: 'Imperative mood — literally “do live!” — but used as praise: “well done!”, “good job!”, to one person you’re on informal terms with.',
+			ru: 'Повелительное наклонение — буквально «живи!», — но употребляется как похвала: «молодец!» тому, с кем на «ты».'
 		}
 	},
 	{
@@ -193,9 +192,9 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Ապրեք',
 		translation: { en: 'Live', ru: 'Живите' },
 		register: 'formal',
-		note: {
-			en: 'Imperative mood, formal or plural — literally “Do live!” — but used as praise: “well done!”, to someone you address formally, or to several people. The informal one is Ապրես.',
-			ru: 'Повелительное наклонение, форма «Вы» — буквально «живите!», — но употребляется как похвала: «молодец!» тому, с кем на «Вы», или «молодцы!» нескольким. Неформальная форма — Ապրես.'
+		global: {
+			en: 'Imperative mood, formal or plural — literally “do live!” — but used as praise: “well done!”, to someone you address formally, or to several people.',
+			ru: 'Повелительное наклонение, форма «вы» — буквально «живите!», — но употребляется как похвала: «молодец!» тому, с кем на «вы», или «молодцы!» нескольким.'
 		}
 	},
 	// Ո is word-initial "vo" here, the second half of the vo/Ո pair in
@@ -224,33 +223,27 @@ export const WORDS: readonly Word[] = [
 		id: 'gnal',
 		armenian: 'Գնալ',
 		translation: { en: 'To go', ru: 'Идти' },
-		note: {
-			en: 'Any kind of going — on foot or by car, bus or train, it’s the same verb.',
-			ru: 'Любое перемещение — пешком или на транспорте: в отличие от русских «идти»/«ехать», глагол один.'
-		},
-		// The look-alike warning is `usage`, not `note`: worth a glance on the
-		// card, where Գնել sits a few rows down, but noise in a dialogue line.
-		usage: {
-			en: 'Not to be confused with Գնել (“to buy”) — differs by one letter.',
-			ru: 'Не путать с Գնել («покупать») — отличается на одну букву.'
+		global: {
+			en: 'Any kind of going — on foot or by car, bus or train, etc. Not to be confused with գնել (“to buy”) — differs by one letter.',
+			ru: 'Любой способ передвижения — пешком или на транспорте. Не путать с գնել («покупать») — отличается на одну букву.'
 		}
 	},
 	{
 		id: 'sovorel',
 		armenian: 'Սովորել',
 		translation: { en: 'To study', ru: 'Учиться' },
-		note: {
-			en: 'Also “to learn” (words, a language) and “to get used to” — one verb for all three.',
-			ru: 'Также «учить» (слова, язык) и «привыкнуть» — один глагол на все три.'
+		global: {
+			en: 'Also means “to learn” (words, a language) and “to get used to”.',
+			ru: 'Также означает «учить» (слова, язык) и «привыкнуть».'
 		}
 	},
 	{
 		id: 'ashkhatel',
 		armenian: 'Աշխատել',
 		translation: { en: 'To work', ru: 'Работать' },
-		note: {
-			en: 'Also “to earn” and, colloquially, “to try”.',
-			ru: 'Также «зарабатывать» и, в разговорной речи, «постараться».'
+		global: {
+			en: 'Also means “to earn” and, colloquially, “to try”.',
+			ru: 'Также означает «зарабатывать» и, в разговорной речи, «постараться».'
 		}
 	},
 	{ id: 'sirel', armenian: 'Սիրել', translation: { en: 'To love', ru: 'Любить' } },
@@ -268,9 +261,9 @@ export const WORDS: readonly Word[] = [
 		id: 'gnel',
 		armenian: 'Գնել',
 		translation: { en: 'To buy', ru: 'Покупать' },
-		usage: {
-			en: 'Not to be confused with Գնալ (“to go”) — differs by one letter.',
-			ru: 'Не путать с Գնալ («идти») — отличается на одну букву.'
+		global: {
+			en: 'Not to be confused with գնալ (“to go”) — differs by one letter.',
+			ru: 'Не путать с գնալ («идти») — отличается на одну букву.'
 		}
 	},
 	{ id: 'haskanal', armenian: 'Հասկանալ', translation: { en: 'To understand', ru: 'Понимать' } },
@@ -289,14 +282,19 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Այո',
 		translation: { en: 'Yes', ru: 'Да' },
 		register: 'formal',
-		note: {
-			en: 'The polite “yes” — to a stranger, an official, or in writing. Among friends it’s հա.',
-			ru: 'Вежливое «да» — незнакомому, официальному лицу, на письме. Между своими — հա.'
+		cardOnly: {
+			en: 'Usually said to a stranger or an official, or used in writing.',
+			ru: 'Обычно говорится незнакомому или официальному лицу, а также используется на письме.'
 		}
 	},
 	{ id: 'dur', armenian: 'Դուռ', translation: { en: 'Door', ru: 'Дверь' } },
 	// Ե is word-initial "yeh" here, the second half of the yech/Ե pair.
-	{ id: 'yereko', armenian: 'Երեկո', translation: { en: 'Evening', ru: 'Вечер' } },
+	{
+		id: 'yereko',
+		armenian: 'Երեկո',
+		translation: { en: 'Evening', ru: 'Вечер' },
+		register: 'formal'
+	},
 	{ id: 'zang', armenian: 'Զանգ', translation: { en: 'Call', ru: 'Звонок' } },
 	{ id: 'ej', armenian: 'Էջ', translation: { en: 'Page', ru: 'Страница' } },
 	{ id: 'ynker', armenian: 'Ընկեր', translation: { en: 'Friend', ru: 'Друг' } },
@@ -346,7 +344,7 @@ export const WORDS: readonly Word[] = [
 		id: 'yes',
 		armenian: 'Ես',
 		translation: { en: 'I', ru: 'Я' },
-		note: {
+		global: {
 			en: 'First-person pronoun, nominative. Often dropped — the auxiliary (եմ) already says who.',
 			ru: 'Местоимение первого лица в именительном падеже. Часто опускается — вспомогательный глагол (եմ) и так показывает, о ком речь.'
 		}
@@ -355,7 +353,7 @@ export const WORDS: readonly Word[] = [
 		id: 'em',
 		armenian: 'Եմ',
 		translation: { en: 'Am', ru: 'Есть (я)' },
-		note: {
+		global: {
 			en: 'The first-person auxiliary — it sits next to a participle and says who does it.',
 			ru: 'Вспомогательный глагол первого лица — используется после причастия и показывает, кто совершает действие.'
 		}
@@ -364,8 +362,8 @@ export const WORDS: readonly Word[] = [
 		id: 'yek',
 		armenian: 'Եք',
 		translation: { en: 'Are (you)', ru: 'Есть (Вы)' },
-		note: {
-			en: 'The plural "you" auxiliary — also the polite singular, for anyone you address formally.',
+		global: {
+			en: 'The plural “you” auxiliary — also the polite singular, for anyone you address formally.',
 			ru: 'Вспомогательный глагол для «вы» — и множественного, и вежливого, как в русском.'
 		}
 	},
@@ -373,7 +371,7 @@ export const WORDS: readonly Word[] = [
 		id: 'en',
 		armenian: 'Են',
 		translation: { en: 'Are (they)', ru: 'Есть (они)' },
-		note: {
+		global: {
 			en: 'The third-person plural auxiliary.',
 			ru: 'Вспомогательный глагол третьего лица множественного числа.'
 		}
@@ -382,16 +380,16 @@ export const WORDS: readonly Word[] = [
 		id: 'chem',
 		armenian: 'Չեմ',
 		translation: { en: 'Am not', ru: 'Не есть (я)' },
-		note: {
+		global: {
 			en: 'չ- + եմ. In a negative sentence the negation lands on the auxiliary, not the participle.',
-			ru: 'չ- + եմ: отрицательная частица приклеивается к вспомогательному глаголу, а не к причастию.'
+			ru: 'չ- + եմ: отрицательная частица добавляется к вспомогательному глаголу, а не к причастию.'
 		}
 	},
 	{
 		id: 'ays',
 		armenian: 'Այս',
 		translation: { en: 'This', ru: 'Этот' },
-		note: {
+		global: {
 			en: 'Near the speaker. Sits before the noun and never changes shape.',
 			ru: 'Рядом с говорящим. Стоит перед существительным и не меняет форму.'
 		}
@@ -400,7 +398,7 @@ export const WORDS: readonly Word[] = [
 		id: 'ayd',
 		armenian: 'Այդ',
 		translation: { en: 'That', ru: 'Тот' },
-		note: {
+		global: {
 			en: 'Near the person being spoken to — the second of Armenian’s three distances.',
 			ru: 'Рядом с собеседником — вторая из трёх «дистанций» в армянском.'
 		}
@@ -409,34 +407,34 @@ export const WORDS: readonly Word[] = [
 		id: 'sa',
 		armenian: 'Սա',
 		translation: { en: 'This one', ru: 'Это' },
-		note: {
-			en: 'այս used on its own, without a noun. Plural: սրանք, "these".',
-			ru: 'այս без существительного. Множественное число: սրանք — «эти».'
+		global: {
+			en: 'այս used on its own, without a noun.',
+			ru: 'այս без существительного.'
 		}
 	},
 	{
 		id: 'da',
 		armenian: 'Դա',
 		translation: { en: 'That one', ru: 'То' },
-		note: {
-			en: 'այդ used on its own, without a noun. Plural: դրանք, "those".',
-			ru: 'այդ без существительного. Множественное число: դրանք — «те».'
+		global: {
+			en: 'այդ used on its own, without a noun.',
+			ru: 'այդ без существительного.'
 		}
 	},
 	{
 		id: 'ayn',
 		armenian: 'Այն',
 		translation: { en: 'That (over there)', ru: 'Тот (вон там)' },
-		note: {
-			en: 'Away from both speakers — the third of Armenian’s three distances. On its own: նա, "that one".',
-			ru: 'Далеко от обоих собеседников — третья из трёх «дистанций». Без существительного: նա — «то».'
+		global: {
+			en: 'Away from both speakers — the third of Armenian’s three distances.',
+			ru: 'Далеко от обоих собеседников — третья из трёх «дистанций».'
 		}
 	},
 	{
 		id: 'e',
 		armenian: 'Է',
 		translation: { en: 'Is', ru: 'Есть (он, она, оно)' },
-		note: {
+		global: {
 			en: 'The third-person singular auxiliary — “is”.',
 			ru: 'Глагол-связка «есть» для он/она/оно — в армянском, в отличие от русского, она не опускается.'
 		}
@@ -445,25 +443,25 @@ export const WORDS: readonly Word[] = [
 		id: 'inch',
 		armenian: 'Ինչ',
 		translation: { en: 'What', ru: 'Что' },
-		note: {
-			en: 'The question word. In a question the ՞ rides inside it: ի՞նչ.',
-			ru: 'Вопросительное слово. В вопросе знак ՞ стоит прямо внутри него: ի՞նչ.'
+		cardOnly: {
+			en: 'In a question the ՞ rides inside it: ի՞նչ.',
+			ru: 'В вопросе знак ՞ стоит прямо внутри него: ի՞նչ.'
 		}
 	},
 	{
 		id: 'urish',
 		armenian: 'Ուրիշ',
 		translation: { en: 'Other', ru: 'Другой' },
-		note: {
-			en: 'Other, another.',
-			ru: 'Другой, ещё один.'
+		global: {
+			en: 'Indicates something not among what’s been offered, or simply not the same. Also carries the sense of “someone else’s”.',
+			ru: 'Указывает на что-то, чего нет среди предложенных вариантов, или просто на что-то совершенно другое. Также имеет значение «чужой», «принадлежащий другому».'
 		}
 	},
 	{
 		id: 'ban',
 		armenian: 'Բան',
 		translation: { en: 'Thing', ru: 'Вещь' },
-		note: {
+		global: {
 			en: 'A “thing” in the vaguest sense — an object, a matter, a something. Armenians reach for it constantly, so you will meet it in many places and many meanings; think of it as a placeholder for whatever is being talked about.',
 			ru: '«Вещь» в самом широком смысле — предмет, дело, нечто. Армяне говорят его постоянно, в самых разных значениях; это плейсхолдер для того, о чём идёт речь.'
 		}
@@ -472,7 +470,7 @@ export const WORDS: readonly Word[] = [
 		id: 'el',
 		armenian: 'Էլ',
 		translation: { en: 'Else, more', ru: 'Ещё' },
-		note: {
+		global: {
 			en: 'Means “else” in a question and “too” after a noun.',
 			ru: 'Означает «ещё» в вопросах и «тоже» после существительных.'
 		}
@@ -481,18 +479,18 @@ export const WORDS: readonly Word[] = [
 		id: 'isk',
 		armenian: 'Իսկ',
 		translation: { en: 'And, as for', ru: 'А' },
-		note: {
+		global: {
 			en: 'Turns the conversation to something new — “and what about…”.',
-			ru: 'Переводит разговор на другое — «а…?», «а как насчёт…?».'
+			ru: 'Переводит разговор на что-то ещё — «а…?», «а как насчёт…?».'
 		}
 	},
 	{
 		id: 'te',
 		armenian: 'Թե',
 		translation: { en: 'Or', ru: 'Или' },
-		note: {
-			en: 'The “or” of a choice between two options.',
-			ru: '«Или» при выборе из двух вариантов.'
+		global: {
+			en: 'The “or” of a choice between different options.',
+			ru: '«Или» при выборе из разных вариантов.'
 		}
 	},
 	// և has no uppercase glyph of its own — capitalized as Ե+Վ, per the
@@ -501,18 +499,18 @@ export const WORDS: readonly Word[] = [
 		id: 'u',
 		armenian: 'Ու',
 		translation: { en: 'And', ru: 'И' },
-		note: {
-			en: 'The spoken “and”, especially between two things that go together. Its more careful, written counterpart is և.',
-			ru: 'Обычное «и» в устной речи, особенно между двумя существительными. В письменной и более аккуратной речи — և.'
+		global: {
+			en: 'The spoken “and”, especially between two things that go together.',
+			ru: 'Обычное «и» в устной речи, особенно между двумя существительными.'
 		}
 	},
 	{
 		id: 'yev',
 		armenian: 'Եվ',
 		translation: { en: 'And', ru: 'И' },
-		note: {
-			en: 'Written as the single ligature letter և in running text. The written and slightly more careful “and”; in speech you will hear ու just as often, especially between two things that go together.',
-			ru: 'В тексте пишется одной буквой-лигатурой և. Письменное и чуть более аккуратное «и»; в устной речи не реже услышите ու, особенно между двумя существительными.'
+		global: {
+			en: 'Written as the single ligature letter և in running text. The written and slightly more careful “and”.',
+			ru: 'В тексте пишется одной буквой-лигатурой և. Письменное и чуть более аккуратное «и».'
 		}
 	},
 	// Word-initial Ո: pronounced "voch" — needs the "Ո"->"Վ" prompt respelling
@@ -522,9 +520,9 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Ոչ',
 		translation: { en: 'No', ru: 'Нет' },
 		register: 'formal',
-		note: {
-			en: 'The polite “no” — to a stranger, an official, or in writing. Among friends it’s չէ. Pronounced “voch” — word-initial Ո reads as “vo”.',
-			ru: 'Вежливое «нет» — незнакомому, официальному лицу, на письме. Между своими — չէ. Произносится «воч» — Ո в начале слова читается как «во».'
+		global: {
+			en: 'The polite “no” — to a stranger, an official, or in writing.',
+			ru: 'Вежливое «нет» — незнакомому, официальному лицу, на письме.'
 		}
 	},
 	{ id: 'kat', armenian: 'Կաթ', translation: { en: 'Milk', ru: 'Молоко' } },
@@ -535,25 +533,25 @@ export const WORDS: readonly Word[] = [
 
 const wordById: ReadonlyMap<string, Word> = new Map(WORDS.map((word) => [word.id, word]));
 
-// A library note shows on every occurrence of the word, in every dialogue,
-// so it must be true of the word anywhere. Wording that only makes sense
-// in one dialogue's situation belongs on that token's `here` instead
-// (docs/DIALOGUES.md, "Word notes"). This catches the
+// A global comment shows on every occurrence of the word, in every
+// dialogue, so it must be true of the word anywhere. Wording that only
+// makes sense in one dialogue's situation belongs on that token's `here`
+// instead (docs/DIALOGUES.md, "Word comments"). This catches the
 // phrasings that slipped through in review — twice — before the rule was
 // written down; it is a tripwire, not a definition of "general". A
-// `usage` never reaches a dialogue at all, but it's held to the same
-// wording — it's about the word in general too, just a different side
-// of it — so the same tripwire runs over it.
+// card-only comment never reaches a dialogue at all, but it's held to the
+// same wording — it's about the word in general too, just a different
+// side of it — so the same tripwire runs over it.
 const SITUATIONAL = [
 	/\b(here|this time|this line|again|as before|the shopkeeper|the customer|the counter)\b/i,
 	/(здесь|на этот раз|в этой реплике|снова|как раньше|продав|покупател|прилав)/i
 ];
 for (const word of WORDS) {
 	for (const [field, text] of [
-		['note', word.note?.en],
-		['note', word.note?.ru],
-		['usage', word.usage?.en],
-		['usage', word.usage?.ru]
+		['global', word.global?.en],
+		['global', word.global?.ru],
+		['cardOnly', word.cardOnly?.en],
+		['cardOnly', word.cardOnly?.ru]
 	] as const) {
 		if (text !== undefined && SITUATIONAL.some((pattern) => pattern.test(text))) {
 			throw new Error(`word "${word.id}": library ${field} reads as dialogue-specific — move it to the token's \`here\`: ${text}`);

@@ -18,7 +18,7 @@ export interface Character {
  * One tappable word of a dialogue line, as it's actually spoken — an
  * inflected form (հա՞ցը) with its punctuation, linked back to the library
  * word it's a form of (`hats`), so the popover can show the base form,
- * play the shared clip, and reuse the library's translation and note.
+ * play the shared clip, and reuse the library's translation and global comment.
  */
 export interface DialogueToken {
 	/** The surface form exactly as it appears in the line, punctuation included. */
@@ -34,11 +34,11 @@ export interface DialogueToken {
 	gloss?: Translated | undefined;
 	/** A remark about this occurrence specifically (why the -ը, where the
 	 * ՞ sits). Shown with the gloss, under a "Here:" label; the library
-	 * word's own note is shown separately, with the dictionary entry, so
-	 * the two never read as one text. Anything true of the word in any
-	 * sentence belongs on the library entry, not here. The library's
-	 * `usage` (the phrase a word is mostly met in) is never shown in a
-	 * dialogue — so when a line *is* that phrase (Բարի լույս), this is
+	 * word's own global comment is shown separately, with the dictionary
+	 * entry, so the two never read as one text. Anything true of the word
+	 * in any sentence belongs on the library entry, not here. The library's
+	 * `cardOnly` comment (the phrase a word is mostly met in) is never shown
+	 * in a dialogue — so when a line *is* that phrase (բարի լույս), this is
 	 * where the learner is told so. */
 	here?: Translated | undefined;
 }
