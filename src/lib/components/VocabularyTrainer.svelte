@@ -230,11 +230,11 @@
 									{#if current.word.register !== undefined}
 										<em class="register">{t(registerLabels[current.word.register])}</em>
 									{/if}
-									{#if current.word.note !== undefined}
-										<p class="note">{t(current.word.note)}</p>
+									{#if current.word.global !== undefined}
+										<p class="note">{t(current.word.global)}</p>
 									{/if}
-									{#if current.word.usage !== undefined}
-										<p class="note">{t(current.word.usage)}</p>
+									{#if current.word.cardOnly !== undefined}
+										<p class="note">{t(current.word.cardOnly)}</p>
 									{/if}
 								{/if}
 							</div>

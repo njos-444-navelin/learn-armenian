@@ -23,13 +23,13 @@
 						<em class="register">{t(registerLabels[word.register])}</em>
 					{/if}
 				</div>
-				{#if word.note !== undefined}
-					<p class="note">{t(word.note)}</p>
+				{#if word.global !== undefined}
+					<p class="note">{t(word.global)}</p>
 				{/if}
-				<!-- `usage` is card-only — the dialogue popover deliberately
-				     doesn't show it (see Word.usage in words/types.ts). -->
-				{#if word.usage !== undefined}
-					<p class="note">{t(word.usage)}</p>
+				<!-- `cardOnly` is exactly that — the dialogue popover deliberately
+				     doesn't show it (see Word.cardOnly in words/types.ts). -->
+				{#if word.cardOnly !== undefined}
+					<p class="note">{t(word.cardOnly)}</p>
 				{/if}
 			</div>
 			<SpeakerButton src={wordAudioSrc(word.id)} />

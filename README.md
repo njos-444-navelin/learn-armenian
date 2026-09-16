@@ -142,6 +142,10 @@ static/
   audio/words/             # pre-generated pronunciation clips, one per library word —
                             # see docs/VOCABULARY_AUDIO.md
   audio/dialogues/         # per-dialogue line recordings, one file per line — see docs/DIALOGUES.md
+scripts/                   # local tooling, never shipped
+  audio/                   # splitting, pitch-checking and auditioning generated clips —
+                            # see docs/DIALOGUES.md, "Tooling"
+  words/notes.js           # the word-comments review page — see "Reviewing the word comments"
 ```
 
 ## Authentication
@@ -207,6 +211,51 @@ records it in `user_dialogue_progress` and shows on the account dashboard.
 See [`docs/DIALOGUES.md`](docs/DIALOGUES.md) for the content model — every
 tapped word is an id into the same word library the vocabulary decks use,
 so nothing is defined or recorded twice — and the audio checklist.
+
+## Reviewing the word comments
+
+Every library word can carry two short comments, each in English and
+Russian, named for where they show: `global` (what the word *is* — shown
+on its card and in every dialogue popover, so it must be true anywhere
+and never quotes a phrase) and `cardOnly` (when it's used, the greeting
+it makes — shown on the card and in the trainer only). Their rules are in
+[`docs/DIALOGUES.md`, "Word comments"](docs/DIALOGUES.md#word-comments-global-card-only-and-the-here-remark).
+Inside [`entries.ts`](src/lib/content/words/entries.ts) each sits in its
+own entry, which makes them hard to read as a set — so there's a local
+page that shows them all at once and edits them in place:
+
+```sh
+node scripts/words/notes.js
+# then open http://localhost:4747   (PORT=… to change it)
+```
+
+- **What it shows:** every word, grouped by the file's section comments,
+  with its Armenian, the *fml.*/*inf.* register tag, and six editable
+  fields: the translation, the global comment and the card-only comment,
+  each in English and Russian. A filter box searches Armenian,
+  translations, ids and the comments; "Only words with a comment" (on by
+  default) hides the bare alphabet examples until you want to add
+  something to one. Dialogue *Here:* remarks aren't on the page — they
+  belong to a line and are reviewed with the dialogue.
+- **Saving writes straight into `entries.ts`.** A changed card gets a
+  *Save* button; *Save all* at the bottom of the page, or
+  <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>S</kbd>, saves every changed card.
+  Only that entry's `translation`, `global` and `cardOnly` are rewritten —
+  comments, ordering and the other entries are untouched. A comment
+  emptied in both languages is removed; one filled in on a word that had
+  none is inserted (a one-line entry is expanded to the multi-line form
+  first). Filling in only one language, or emptying a translation, is
+  refused.
+- **Every save runs the file's own checks.** After writing, `entries.ts`
+  is re-imported, so its load-time tripwire for dialogue-specific wording
+  ("here", "this time", "the shopkeeper"…) and the duplicate-id check
+  run on the result. If they throw, the write is rolled back and the
+  message shows on the card instead of landing in the file.
+- **It's a plain Node script, not part of the app.** It lives under
+  [`scripts/words/`](scripts/words/), binds to localhost only, and reads
+  the library the same way the app does — by importing the module — so
+  what it shows is exactly what the app shows. Nothing of it ships.
+  Review the resulting diff and commit it like any other content change.
 
 ## Database schema and Supabase management
 

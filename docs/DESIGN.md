@@ -237,10 +237,10 @@ the word and its translation are the pair that has to pop — both in
 `--color-text-primary`, the word a step past `--font-size-lg` (22px) and
 the translation a hair past `--font-size-md` (17px), with the cards one
 spacing step further apart (`--space-3`) than they were — and the
-note/usage under them is for the curious:
+global/card-only comments under them are for the curious:
 separated by `--space-2`, set in `--font-size-xs` (13px, the only role that
 size exists for), with tighter leading. Once the greetings deck's cards
-gained a usage line each, the same-size, same-ink note directly under the
+gained a card-only line each, the same-size, same-ink text directly under the
 word row made the whole list read as a wall of grey prose with the words
 lost in it. The demotion comes from size and spacing only: the ink stays
 `--color-text-secondary`, because the next lighter neutral step

@@ -101,7 +101,7 @@ export const tapWordHint: Translated = {
 
 export const wordBaseFormLabel: Translated = { en: 'from', ru: 'от' };
 
-/** Labels a token's own remark under the library word's general note. */
+/** Labels a token's own remark under the library word's global comment. */
 export const wordHereLabel: Translated = { en: 'Here:', ru: 'Здесь:' };
 
 export const playAllLabel: Translated = {

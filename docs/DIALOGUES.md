@@ -72,135 +72,161 @@ tok('հա՞ցը։', 'hats', { en: 'the bread', ru: 'хлеб (этот)' }, {
   "want" vs "To want"). It falls back to the library `translation`.
 - Notes are a two-layer system with its own rules — see the next section.
 
-### Word notes: the library note and the "Here:" remark
+### Word comments: global, card-only, and the "Here:" remark
 
-Every tapped word can carry two notes, and they are different things:
+A word can carry three kinds of comment, named for where they show:
 
-| | `Word.note` (library, `words/entries.ts`) | `DialogueToken.here` (the token, in the dialogue file) |
-|---|---|---|
-| **What it is** | The word itself: part of speech, case, what its forms are, how it behaves | This occurrence: why the -ը, where the ՞ sits, an idiom this line builds |
-| **Shows** | On every occurrence, in every dialogue and in the trainer | On this token only, always under an italic *Here:* label |
-| **Where** | Under the rule, with the dictionary entry (base form · translation · ▶), in the entry's grey | Last, after the library note, same grey — the label is the marker |
+| | `Word.global` (library, `words/entries.ts`) | `Word.cardOnly` (library) | `DialogueToken.here` (the token, in the dialogue file) |
+|---|---|---|---|
+| **What it is** | What the word *is*: its case, its mood, an extra sense, a look-alike to keep it apart from | When and to whom it's said, the greeting it makes, where its mark sits | This occurrence: why the -ը, where the ՞ sits, an idiom this line builds |
+| **Shows** | Everywhere: the card, the trainer, every dialogue popover | The card and the trainer only — never a dialogue | On this token only, always under an italic *Here:* label |
+| **Where** | Under the translation on a card; in the popover, with the dictionary entry (base form · translation · ▶), in the entry's grey | Under the global comment on the card | Last, after the global comment, same grey — the label is the marker |
 
-There is a third field, and the popover never shows it: **`Word.usage`** —
-how the word is used, typically the phrase it's mostly met in, or which of
-two greetings it makes (Լույս: "in Բարի լույս it stands for morning — the
-everyday good morning; the formal one uses Առավոտ"). It shows on the
-word's *card* only — the deck's word list and the trainer — where the
-learner meets the word with no sentence around it and the phrase is the
-whole reason the word is in the deck — and the same goes for a look-alike
-warning ("not to be confused with Գնել, one letter apart"), which earns
-its glance on a card list where both words sit a few rows apart and is
-noise on a line where only one of them appears. In a dialogue the tapped
-line *is* the usage: someone tapping Լույս in a line about light doesn't need to
-hear about Բարի լույս, and when a line *is* Բարի լույս, that's a `here`
-on the token ("here: good morning"). Unlike a `note`, a `usage` may quote
-a phrase — explaining the phrase is its job — but rule 5 below (no
-situational wording) applies to it too, and `entries.ts` checks it. It
-came from exactly this case: the greetings explanation was first written
-as a `note`, which would have followed Լույս into every dialogue.
+The card-only comment exists because the card is where the learner meets
+the word with no sentence around it, and a phrase is often the whole
+reason the word is in the deck (Լույս is in the greetings deck for բարի
+լույս). In a dialogue the tapped line *is* the usage: someone tapping Լույս
+in a line about light doesn't need to hear about բարի լույս, and when a
+line *is* բարի լույս, that's a `here` on the token ("here: good morning").
+It came from exactly this case: the greetings explanation was first
+written as a global comment, which would have followed Լույս into every
+dialogue.
 
 The popover reads top to bottom: the gloss (what the tapped form means in
-this line) → the dictionary entry with its general note → *Here:*. The
+this line) → the dictionary entry with its global comment → *Here:*. The
 play button sits on the entry row, next to the base form, because the clip
 says the base form (`Ուզել`, not `ուզում`); the inflected form is heard
 from the line's own play button. When the tapped form *is* the base form
 the "from" label is dropped, and the library translation is dropped when it
 only repeats the gloss.
 
-There is no per-token override of the library note. If a general note
-would mislead in some line, the general note is wrong — fix it (or, if
-what misleads is a phrase the note quotes, it was a `usage` all along).
+There is no per-token override of the global comment. If it would mislead
+in some line, it is wrong — fix it (or, if what misleads is a phrase it
+quotes, it was card-only all along).
 
-**Rules for a library note** — every one of these was learned by getting
-it wrong in review, several more than once:
+**Global or card-only?** Global says what the word *is* and holds in any
+sentence: a case, a mood, an auxiliary, an extra sense, a look-alike
+(Գնալ / Գնել differ by one letter wherever they appear, so that warning is
+global). Card-only says when it's used: Բարև's "to a stranger, say բարև
+ձեզ", Այո's "to a stranger, an official, or in writing", the greeting a
+time-of-day word makes, where the ՞ sits in ի՞նչ. The test is the dialogue
+popover: would this sentence help someone who has just tapped the word in
+a line? Grammar does; advice on when to say it, and phrases it isn't in
+right now, don't.
 
-1. **True of the word in any sentence a learner could meet it in.** If it
-   is only true here, it is a `here`.
-2. **Describes the word, not one use of it.** Say what the word *is* — "the
-   dative case of Դուք", not "what makes Բարև ձեզ polite". Name the
-   grammar (case, mood, auxiliary) rather than talking around it.
-3. **Never quotes a phrase.** The tapped line *is* the example. A quoted
-   phrase either coincides with a line — then a general note reads as a
-   remark about that line, which is exactly what "ուզում եմ" did on «Ես
-   ուզում եմ հաց» — or brings in words the learner hasn't met. Forms of
-   the word itself are fine *when they're the form the learner meets* —
-   the tapped token (Այո՛, ի՞նչ, սրանք) — but a note doesn't introduce a
-   new inflection as an example: Աշխատել's "to try" sense was first
-   written with «աշխատիր — try to», and an imperative the learner has
-   never seen is a second lesson smuggled into a footnote. Name the
-   sense; let the line, or a later dialogue, show the form. (That note's second
-   life is instructive too: rewritten into general wording — "the
-   participle ուզում plus an auxiliary" — it was true, but true of *every*
-   verb, so on Ուզել's card in a deck of twenty verbs it was noise. It's
-   now the `here` on line 1's ուզում, where the learner meets the pattern,
-   and the later ուզում remarks follow on from it. A note that describes
-   the grammar of the language rather than this word is a `here` on the
-   first token that shows it, or a rule card — not a library note.)
-4. **Only words the learner has.** No example vocabulary beyond the
-   dialogues so far, and plain English/Russian for the explanation.
-5. **No situational wording.** `entries.ts` throws at load on "here",
-   "this time", "the shopkeeper" and the like — a tripwire for the exact
-   phrasings that slipped through, not a definition of "general".
-6. **Formal or informal, always say which.** Armenian has a formal and a
-   colloquial word for a lot of everyday things — Շնորհակալություն / մերսի,
-   Այո / հա, Ոչ / չէ, and pairs like սիրուն / գեղեցիկ ("beautiful") where
-   one is a good deal more formal than the other. A learner who doesn't
-   know which they're holding will use the wrong one, so a word with a
-   counterpart gets both: `register` on the entry (shown as the italic
-   *fml.* / *inf.* marker in the word list and in the popover's entry row)
-   and a note that names the counterpart in plain words. When both words
-   are in the library, each entry's note points at the other (Ոնց /
-   Ինչպես, Ապրես / Ապրեք). Where it's a matter of degree rather than a
-   clear pair, the note alone carries it ("slightly more formal"). And
-   `register` is for the *word*: when the formal/informal split belongs
-   to a phrase the word appears in, not to the word — Բարի լույս is the
-   everyday "good morning" and Բարի առավոտ the formal one, but Առավոտ by
-   itself is the neutral time-of-day word and Լույս just means light —
-   neither entry gets a `register`; the card's `usage` explains the
-   greetings instead.
+**Rules for both library comments** — every one of these was learned by
+getting it wrong in review, several more than once. The 2026-09-16 pass
+over the whole library, which cut most comments to a sentence, set the
+shape the first eight describe:
 
-8. **As short as it can be.** A note is read on a card between the word
-   and the next word, or in a popover over a line; one sentence is the
-   target, two is the ceiling. Սովորել's three senses fit in one line
-   ("Also “to learn” (words, a language) and “to get used to” — one verb
-   for all three"); Աշխատել's extra senses are seven words. If a note
-   wants a paragraph, it's either two notes, a `here`, or a rule card.
+1. **One sentence; two is the ceiling.** It's read on a card between the
+   word and the next word, or in a popover over a line. Սովորել's extra
+   senses fit in one line ("Also means “to learn” (words, a language) and
+   “to get used to”"); Աշխատել's in seven words. If a comment wants a
+   paragraph, it's two comments, a `here`, or a rule card.
+2. **Don't restate the translation.** The card already says "Evening";
+   the comment starts with what the translation doesn't say. A card-only
+   comment about a phrase opens straight on it: "E.g. բարի օր — a formal
+   “good day”", not "The time of day; it also makes the greeting…". The
+   time-of-day set (Առավոտ, Օր, Իրիկուն) all open with "E.g." on
+   purpose, so they read as a set.
+3. **Name the grammar, don't talk around it.** "The dative case of դուք",
+   "imperative mood", "the first-person auxiliary" — not "what makes բարև
+   ձեզ polite".
+4. **Extra senses read "Also means …".** "Also means “to earn” and,
+   colloquially, “to try”." — the senses in quotes, nothing about how
+   many there are or that it's "one verb for all three".
+5. **A formal/informal counterpart is never named in the text.** The
+   `register` tag — the italic *fml.* / *inf.* marker on the card and in
+   the popover's entry row — is the whole signal: Այո is tagged formal and
+   its comment says when it's used, not that հա exists; Երեկո is tagged
+   formal and has no comment at all. "The formal one is Ցտեսություն",
+   "among friends it's հա", "its written counterpart is և" doubled every
+   such pair's comments and were all cut in one pass. The register of a
+   *phrase* is stated inline instead, with the article — "an informal
+   “good evening”", "a formal “good morning”" — and the word itself
+   carries no `register` when the split belongs to the greeting rather
+   than the word (Առավոտ is the neutral time-of-day word; Լույս just means
+   light). A word that is a clipped form of another may still name it
+   (Հաջող: "հաջողություն clipped to its first half") — that is what the
+   word *is*, not a counterpart.
+6. **Examples are lowercase.** An Armenian word or phrase quoted inside a
+   comment is written in lowercase, and so is its translation: "e.g. բարի
+   լույս — “good morning”", "not to be confused with գնել (“to buy”)",
+   "the dative case of դուք — “you”". Capitals are for a word standing on
+   its own — the `armenian` and `translation` fields on a card
+   (Conventions §10) — and for whatever opens the comment ("Բարի գիշեր —
+   “good night” — is a goodbye, not a greeting"). Russian keeps its own
+   orthography for the polite address to the reader («кто Вас
+   обслуживает»), which is not an example.
+7. **No pronunciation.** How Ո reads at the start of a word is the
+   alphabet trainer's lesson, not Ոչ's comment.
+8. **No extra forms.** A comment doesn't introduce an inflection the
+   learner hasn't met — no plural for Սա, no "on its own: նա" for Այն, no
+   «աշխատիր — try to» for Աշխատել's "to try" sense: an imperative the
+   learner has never seen is a second lesson smuggled into a footnote.
+   Name the sense; let a line, or a later dialogue, show the form. (Forms
+   of the word itself are fine when they're the form the learner meets —
+   the tapped token: Այո՛, ի՞նչ.)
+9. **True of the word in any sentence a learner could meet it in.** If it
+   is only true here, it is a `here`. `entries.ts` throws at load on
+   "here", "this time", "the shopkeeper" and the like — a tripwire for the
+   exact phrasings that slipped through, not a definition of "general". A
+   card-only comment never reaches a dialogue, but it's held to the same
+   wording, and the same tripwire runs over it.
+10. **A global comment never quotes a phrase.** The tapped line *is* the
+    example. A quoted phrase either coincides with a line — then a global
+    comment reads as a remark about that line, which is exactly what
+    "ուզում եմ" did on «Ես ուզում եմ հաց» — or brings in words the learner
+    hasn't met. A card-only comment may quote the phrase; that's its job.
+    (Rewritten into general wording — "the participle ուզում plus an
+    auxiliary" — that comment was true, but true of *every* verb, so on
+    Ուզել's card in a deck of twenty verbs it was noise. It's now the
+    `here` on line 1's ուզում, where the learner meets the pattern, and
+    the later ուզում remarks follow on from it. A comment that describes
+    the grammar of the language rather than this word is a `here` on the
+    first token that shows it, or a rule card.)
+11. **Only words the learner has.** No example vocabulary beyond the
+    dialogues so far, and plain English/Russian for the explanation.
+12. **Write the English and the Russian separately, each for its own
+    reader — never translate one into the other.** The two languages don't
+    share what needs explaining. English has no polite plural "you", so
+    Եք's English comment has to spell it out; a Russian reader has вы/Вы
+    and only needs "как в русском" — the translated sentence ("вежливая
+    форма для любого, к кому обращаются на Вы") reads as nonsense to them.
+    The same goes the other way: Russian drops the copula, so «է — есть»
+    needs a word of framing that "is" doesn't. For every comment, ask what
+    *this* reader already knows and what they'd find odd, and write from
+    there. This applies to `here` remarks and translations too.
 
-7. **Write the English and the Russian separately, each for its own
-   reader — never translate one into the other.** The two languages don't
-   share what needs explaining. English has no polite plural "you", so
-   Եք's English note has to spell it out; a Russian reader has вы/Вы and
-   only needs "как в русском" — the translated sentence ("вежливая форма
-   для любого, к кому обращаются на Вы") reads as nonsense to them. The
-   same goes the other way: Russian drops the copula, so «է — есть» needs
-   a word of framing that "is" doesn't. For every note, ask what *this*
-   reader already knows and what they'd find odd, and write from there.
-   This applies to `here` remarks and translations too.
-
-**Rules for a `usage`** are the note rules above minus #3 — quoting the
-phrase is its job — plus one of its own: lead with what the word plainly
-is, then the phrase. "The time of day; it also makes the greeting Բարի օր
-— “good day”", not "E.g. Բարի օր — good day", which read as if the word
-lived only in that greeting. The time-of-day set (Առավոտ, Օր, Իրիկուն,
-Գիշեր) all open the same way on purpose, so they read as a set.
+To read every comment in one place — the way they can't be read in
+`entries.ts`, where each sits inside its own entry — run `node
+scripts/words/notes.js` and open http://localhost:4747. It lists the
+library grouped by the file's sections, with the translation and both
+comments as editable fields, and saves an edit straight back into the
+entry (removing a comment emptied in both languages, adding one to a word
+that had none). Each save re-imports the file, so the tripwire above runs
+on it and a rejected wording comes back as an error on the card instead
+of landing in the file. Dialogue `here` remarks aren't on the page:
+they're about a line, and are reviewed with the dialogue.
 
 **Rules for a `here` remark:**
 
 1. It is about *this* occurrence, and it would be wrong or odd on another.
 2. It is the place for phrases and idioms: «խնդրում եմ, literally "I
    ask"», «ուրիշ բան — the shopkeeper's "anything else?"». Any Armenian
-   phrase a note quotes gets its translation in brackets right there —
+   phrase a remark quotes gets its translation in brackets right there —
    the reader may be on their first dialogue and can't translate it
-   themselves (line 14's «Էլ ի՞նչ եք ուզում ("what else do you want?")»).
-3. It doesn't restate the library note; it adds the exception, the
+   themselves (line 14's «էլ ի՞նչ եք ուզում ("what else do you want?")»).
+   Lowercase, both halves, as every quoted example (rule 6 above).
+3. It doesn't restate the global comment; it adds the exception, the
    specific, the reason for the form in this line.
 
-**Before adding a dialogue**, go through every token with a note and ask,
-in this order: *Is this true of the word everywhere?* — then it's a
-library note, once, on the entry. *Does it quote a phrase or use words the
-learner lacks?* — then it's a `here`, or it goes. *Does the library note
-now read as a remark about this line?* — then rewrite the library note.
+**Before adding a dialogue**, go through every token with a remark and
+ask, in this order: *Is this true of the word everywhere?* — then it's a
+global comment, once, on the entry. *Does it quote a phrase or use words
+the learner lacks?* — then it's a `here`, or it goes. *Does the global
+comment now read as a remark about this line?* — then rewrite it.
 
 `loadDialogue()` throws on a `wordId` the library doesn't have and on a
 `lineCount` that doesn't match the file, so a content typo fails on the

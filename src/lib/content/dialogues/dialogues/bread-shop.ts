@@ -10,12 +10,12 @@ import type { DialogueLine, DialogueRule, DialogueToken } from '../types';
  * (the verbs deck's "to want"), `հա՞ցը` to `hats` (the alphabet's example
  * for Հ) — so its popover plays the one clip that word already has. Tokens
  * only carry a `gloss`/`here` where the in-context meaning differs from the
- * library entry's; otherwise the library's own translation and note show.
+ * library entry's; otherwise the library's own translation and global comment show.
  */
 
 /** Shorthand for the many tokens that are just a form of a library word.
  * The fourth argument is the occurrence's own remark (`here`), shown under
- * the library word's general note — a general point belongs on the entry
+ * the library word's global comment — a general point belongs on the entry
  * in words/entries.ts, not repeated per line. */
 function tok(
 	text: string,
@@ -283,8 +283,8 @@ export const LINES: readonly DialogueLine[] = [
 		translation: { en: 'What else?', ru: 'Что ещё?' },
 		tokens: [
 			tok('Էլ', 'el', { en: 'else', ru: 'ещё' }, {
-				en: 'The clipped form of Էլ ի՞նչ եք ուզում (“what else do you want?”) — what you actually hear at a counter.',
-				ru: 'Сокращённое Էլ ի՞նչ եք ուզում («что ещё вы хотите?») — так обычно и говорят у прилавка.'
+				en: 'The clipped form of էլ ի՞նչ եք ուզում (“what else do you want?”) — what you actually hear at a counter.',
+				ru: 'Сокращённое էլ ի՞նչ եք ուզում («что ещё вы хотите?») — так обычно и говорят у прилавка.'
 			}),
 			tok('ի՞նչ։', 'inch', { en: 'what', ru: 'что' })
 		]

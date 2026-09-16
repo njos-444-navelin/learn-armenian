@@ -82,7 +82,7 @@
 	<!-- The gloss is what the tapped form means in this line. Under the
 	     rule: the dictionary entry — base form, library translation, the
 	     one clip (which says the base form, so the button lives here and
-	     not next to "ուզում"), the library's general note in the entry's
+	     not next to "ուզում"), the library's global comment in the entry's
 	     grey — and then, last, the token's own "Here:" remark in the
 	     primary colour: the general rule first, the exception for this
 	     line after it. -->
@@ -102,16 +102,16 @@
 			{/if}
 			<SpeakerButton src={wordAudioSrc(word.id)} />
 		</span>
-		{#if word.note !== undefined}
-			<span class="entry-note">{t(word.note)}</span>
+		{#if word.global !== undefined}
+			<span class="entry-note">{t(word.global)}</span>
 		{/if}
-		<!-- No `word.usage` here, on purpose: the tapped line *is* the usage,
-		     and a usage note about some other phrase the word lives in (Լույս
-		     → Բարի լույս) is noise on a line about light. If this line is
-		     that phrase, the token's `here` says so. -->
+		<!-- No `word.cardOnly` here, on purpose: the tapped line *is* the
+		     usage, and a card-only comment about some other phrase the word
+		     lives in (Լույս → բարի լույս) is noise on a line about light. If
+		     this line is that phrase, the token's `here` says so. -->
 		{#if token.here !== undefined}
-			<!-- After the general note, as the exception to it for this line.
-			     Same grey as the note — the italic label is the only marker,
+			<!-- After the global comment, as the exception to it for this line.
+			     Same grey as that comment — the italic label is the only marker,
 			     which is enough; darker text read as undue emphasis. -->
 			<span class="here"><em class="here-label">{t(wordHereLabel)}</em> {t(token.here)}</span>
 		{/if}

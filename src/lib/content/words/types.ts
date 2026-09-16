@@ -23,16 +23,16 @@ export interface Word {
 	/** Capitalized in both languages — see Conventions §10. */
 	translation: Translated;
 	register?: WordRegister | undefined;
-	/** Extra context that doesn't fit in a one-line translation, e.g. explaining a grammatical form.
-	 * Shown everywhere the word appears — its card and every dialogue popover — so it must be true
-	 * of the word in any sentence and must not quote a phrase (docs/DIALOGUES.md, "Word notes"). */
-	note?: Translated | undefined;
-	/** How the word is used — the phrase it's mostly met in, which of two greetings it makes, and
-	 * the like — or a look-alike to keep it apart from (Գնալ / Գնել, one letter apart). Shown on
-	 * the word's card only (the deck list and the trainer), where the learner
-	 * meets the word without a sentence around it. Never in a dialogue popover: there the line
-	 * itself is the usage, and anything a specific line needs is the token's `here` remark — a
-	 * learner tapping Լույս in "there's a lot of light in here" doesn't need to hear about
-	 * Բարի լույս. Unlike `note`, this may quote a phrase, since explaining the phrase is the point. */
-	usage?: Translated | undefined;
+	/** The comment that shows everywhere the word appears — its card, the trainer and every
+	 * dialogue popover. Says what the word *is*: a grammatical form, an extra sense, a look-alike
+	 * to keep it apart from (գնալ / գնել, one letter apart). Must be true of the word in any
+	 * sentence and must not quote a phrase (docs/DIALOGUES.md, "Word comments"). */
+	global?: Translated | undefined;
+	/** The comment that shows on the word's card only (the deck list and the trainer), where the
+	 * learner meets the word without a sentence around it: when and to whom it's said, the
+	 * greeting it makes, where its mark sits. Never in a dialogue popover: there the line itself
+	 * is the usage, and anything a specific line needs is the token's `here` remark — a learner
+	 * tapping Լույս in "there's a lot of light in here" doesn't need to hear about բարի լույս.
+	 * Unlike `global`, this may quote a phrase, since explaining the phrase is the point. */
+	cardOnly?: Translated | undefined;
 }
