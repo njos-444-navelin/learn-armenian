@@ -321,7 +321,7 @@
 
 	.desc {
 		color: var(--color-text-secondary);
-		font-size: var(--font-size-sm);
+		font-size: var(--font-size-xs);
 	}
 
 	.meta {

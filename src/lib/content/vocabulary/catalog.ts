@@ -24,7 +24,7 @@ export const VOCABULARY_CATALOG: readonly VocabularyDeck[] = [
 		title: { en: 'Essential verbs (pt. 1)', ru: 'Основные глаголы (часть 1)' },
 		description: {
 			en: "The twenty verbs you'll use daily",
-			ru: 'Двадцать глаголов, которые нужны каждый день'
+			ru: 'Двадцать глаголов на каждый день'
 		},
 		level: 'beginner',
 		wordCount: 20,
