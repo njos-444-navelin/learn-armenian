@@ -124,6 +124,40 @@ shape the first eight describe:
    senses fit in one line ("Also means “to learn” (words, a language) and
    “to get used to”"); Աշխատել's in seven words. If a comment wants a
    paragraph, it's two comments, a `here`, or a rule card.
+   **And one fact per sentence, said plainly.** "Also means “wife”." "Any
+   human being. In everyday speech, often specifically a man." A sentence
+   that strings three facts together with dashes and semicolons ("Related
+   by blood, or as close as if you were; also “native”, of a town or a
+   tongue") is two sentences, or one fact fewer. Dashes and semicolons
+   aren't banned, but they should be sparse — the existing comments use
+   a dash for a gloss ("the formal goodbye — literally “until seeing”"),
+   not for stacking clauses. Before writing a new deck's comments, read
+   the greetings and verbs decks' first; the new ones should feel like
+   they were written by the same hand. What that hand does, from the
+   family deck's edit:
+   - **Neutral register, no slang glosses.** "Also a friendly way to
+     address any man" — not "like “bro”", not «брат», «братан». The
+     translation field already carries the meaning; the comment doesn't
+     add colour.
+   - **Hedge a frequency claim.** "In everyday speech, *more often*
+     specifically a man", «*чаще* именно мужчина» — not "often", which
+     reads as a rule.
+   - **A comparison with the reader's language opens the sentence:**
+     «Как и в русском, так называют и любого пожилого мужчину». And it's
+     made once, structurally — not by quoting the Russian word again
+     («как русское “дядя”» was cut: the translation already says дядя).
+   - **English and Russian mirror each other's frame.** "Also means
+     “wife”" and «Также значит «жена»» (with the verb); "In literary
+     Armenian" and «В литературном языке» (not «в книжном»). The *content*
+     is still written for each reader (rule 12); the *shape* matches.
+   - **A fact about the language is not a comment on a word.** "Armenian
+     has no general word for “aunt”" was cut from Մորքուր: it's true of
+     the family, not of this word (rule 10's last paragraph — a rule card
+     or a `here`, if anywhere).
+   - **A comment that's only a fun fact goes.** Ընկեր's "boyfriend / comrade"
+     was cut; the card says "Friend" and needs nothing else. The test is
+     rule 2 — does it say something the translation doesn't *and* that
+     the learner needs?
 2. **Don't restate the translation.** The card already says "Evening";
    the comment starts with what the translation doesn't say. A card-only
    comment about a phrase opens straight on it: "E.g. բարի օր — a formal
@@ -136,7 +170,19 @@ shape the first eight describe:
 4. **Extra senses read "Also means …".** "Also means “to earn” and,
    colloquially, “to try”." — the senses in quotes, nothing about how
    many there are or that it's "one verb for all three".
-5. **A formal/informal counterpart is never named in the text.** The
+5. **Don't explain a word with another new word — and a formal/informal
+   counterpart is never named in the text.** A comment is read by someone
+   who has just met *this* word; opening it with a second unfamiliar word
+   ("Մայր — “mother” — with the affectionate -իկ", on Մայրիկ's card;
+   "The spoken shape of եղբայր", on Ախպեր's) doubles what they have to
+   hold. The other word may still appear, but as the *object*, introduced
+   and mid-sentence, once the sentence is already about this word: "The
+   ending -իկ makes the word մայր soft and affectionate", «Суффикс -իկ
+   делает слово մայր ласковым» — "the word մայր", never bare մայր as the
+   subject. A cross-reference earns its place only when it *is* the fact
+   — a root (մայր), a look-alike (Գնալ / Գնել), a clipped form (Հաջող) —
+   never as a decoration ("with the affectionate -իկ, as in մայրիկ": the
+   "as in" adds nothing and was cut). On counterparts: the
    `register` tag — the italic *fml.* / *inf.* marker on the card and in
    the popover's entry row — is the whole signal: Այո is tagged formal and
    its comment says when it's used, not that հա exists; Երեկո is tagged
@@ -150,15 +196,21 @@ shape the first eight describe:
    light). A word that is a clipped form of another may still name it
    (Հաջող: "հաջողություն clipped to its first half") — that is what the
    word *is*, not a counterpart.
-6. **Examples are lowercase.** An Armenian word or phrase quoted inside a
-   comment is written in lowercase, and so is its translation: "e.g. բարի
-   լույս — “good morning”", "not to be confused with գնել (“to buy”)",
-   "the dative case of դուք — “you”". Capitals are for a word standing on
-   its own — the `armenian` and `translation` fields on a card
-   (Conventions §10) — and for whatever opens the comment ("Բարի գիշեր —
-   “good night” — is a goodbye, not a greeting"). Russian keeps its own
-   orthography for the polite address to the reader («кто Вас
-   обслуживает»), which is not an example.
+6. **Examples are lowercase; the sentence still starts with a capital.**
+   An Armenian word or phrase quoted inside a comment is written in
+   lowercase, and so is its translation: "e.g. բարի լույս — “good
+   morning”", "not to be confused with գնել (“to buy”)", "the dative case
+   of դուք — “you”". Capitals are for a word standing on its own — the
+   `armenian` and `translation` fields on a card (Conventions §10) — and
+   for whatever opens a sentence, an Armenian word included: "Բարի գիշեր
+   — “good night” — is a goodbye, not a greeting", "Մայր — “mother” —
+   with the affectionate -իկ", "Այս used on its own". A comment follows
+   natural sentence flow; "մայր — “mother” — with…" is a fragment, and
+   the family deck's first draft opened eight comments that way (and
+   Սա's, Դա's and Չեմ's had since the start). `entries.ts` throws at load
+   on a comment that opens with a lowercase Armenian letter. Russian
+   keeps its own orthography for the polite address to the reader («кто
+   Вас обслуживает»), which is not an example.
 7. **No pronunciation.** How Ո reads at the start of a word is the
    alphabet trainer's lesson, not Ոչ's comment.
 8. **No extra forms.** A comment doesn't introduce an inflection the
@@ -198,6 +250,15 @@ shape the first eight describe:
     needs a word of framing that "is" doesn't. For every comment, ask what
     *this* reader already knows and what they'd find odd, and write from
     there. This applies to `here` remarks and translations too.
+13. **Set like a sentence in a book.** Ordinary punctuation only — dashes,
+    quotes, brackets, a colon, the hyphen that marks a suffix (-իկ) — and
+    words for everything else: "տղա and մարդ", not "տղա + մարդ"; "as
+    mother becomes mum", not "mother → mum"; "Չ- before եմ", not "չ- +
+    եմ". No arrows, plus signs, asterisks, emoji. A comment sits under a
+    word on a card the way a gloss sits in a textbook, and those are
+    typeset, not diagrammed. `entries.ts` throws at load on an arrow, a
+    plus sign, an emoji and the like; a slash between alternatives
+    («он/она/оно») is ordinary typography and passes.
 
 To read every comment in one place — the way they can't be read in
 `entries.ts`, where each sits inside its own entry — run `node
@@ -207,7 +268,10 @@ comments as editable fields, and saves an edit straight back into the
 entry (removing a comment emptied in both languages, adding one to a word
 that had none). Each save re-imports the file, so the tripwire above runs
 on it and a rejected wording comes back as an error on the card instead
-of landing in the file. Dialogue `here` remarks aren't on the page:
+of landing in the file. `?deck=<id>` narrows it to one deck, in the
+deck's order — the view for writing a new deck's comments, which are
+drafted in the file and then edited there, not the other way round (the
+README's "Adding words"). Dialogue `here` remarks aren't on the page:
 they're about a line, and are reviewed with the dialogue.
 
 **Rules for a `here` remark:**

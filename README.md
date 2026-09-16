@@ -198,6 +198,9 @@ Again/Hard/Good/Easy, Anki-style.
   [`docs/VOCABULARY_AUDIO.md`](docs/VOCABULARY_AUDIO.md) for the storage/
   encoding rationale and, importantly, **the checklist for voicing a newly
   added word** — there's no fallback for a missing clip.
+- **New words are drafted in code and reviewed on the word-comments
+  page**, not written to completion in the editor — see
+  [Adding words](#adding-words) below.
 
 ## Dialogues
 
@@ -229,6 +232,9 @@ node scripts/words/notes.js
 # then open http://localhost:4747   (PORT=… to change it)
 ```
 
+(It's also the `word-comments` entry in [`.claude/launch.json`](.claude/launch.json),
+so Claude can start it as a preview server.)
+
 - **What it shows:** every word, grouped by the file's section comments,
   with its Armenian, the *fml.*/*inf.* register tag, and six editable
   fields: the translation, the global comment and the card-only comment,
@@ -237,6 +243,14 @@ node scripts/words/notes.js
   default) hides the bare alphabet examples until you want to add
   something to one. Dialogue *Here:* remarks aren't on the page — they
   belong to a line and are reviewed with the dialogue.
+- **`?deck=<id>` shows one deck only** — `http://localhost:4747/?deck=family`
+  lists exactly that deck's words, in the deck's own order, reused words
+  included, and with the "only words with a comment" filter off so the
+  bare ones show too. The ids come from the deck file itself
+  (`src/lib/content/vocabulary/decks/<id>.ts`), imported the way the app
+  imports it; an id the library lacks is named in red at the top instead
+  of silently dropped. This is the view for a deck in progress — see
+  [Adding words](#adding-words).
 - **Saving writes straight into `entries.ts`.** A changed card gets a
   *Save* button; *Save all* at the bottom of the page, or
   <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>S</kbd>, saves every changed card.
@@ -247,15 +261,58 @@ node scripts/words/notes.js
   first). Filling in only one language, or emptying a translation, is
   refused.
 - **Every save runs the file's own checks.** After writing, `entries.ts`
-  is re-imported, so its load-time tripwire for dialogue-specific wording
-  ("here", "this time", "the shopkeeper"…) and the duplicate-id check
-  run on the result. If they throw, the write is rolled back and the
-  message shows on the card instead of landing in the file.
+  is re-imported, so its load-time checks — the tripwire for
+  dialogue-specific wording ("here", "this time", "the shopkeeper"…),
+  the duplicate-id check, a comment opening with a lowercase Armenian
+  word, arrows, plus signs or emoji in a comment, and a Latin letter
+  inside a Cyrillic word — run on the result. If they throw, the write is rolled back and the message shows
+  on the card instead of landing in the file.
 - **It's a plain Node script, not part of the app.** It lives under
   [`scripts/words/`](scripts/words/), binds to localhost only, and reads
   the library the same way the app does — by importing the module — so
   what it shows is exactly what the app shows. Nothing of it ships.
   Review the resulting diff and commit it like any other content change.
+
+### Adding words
+
+New vocabulary — a deck from a lesson, a batch of nouns a dialogue needs
+— goes in as a **draft in code first, then gets edited on the review
+page**, never polished in the editor. The reason is the same one the page
+exists for: a comment can only be judged next to the other comments it
+sits between, and a deck's twenty entries are unreadable as twenty object
+literals. So, on a branch named for the deck (`family-deck`):
+
+1. **Draft every entry** in [`entries.ts`](src/lib/content/words/entries.ts)
+   under its own `// --- Section ---` header, with a first pass at the
+   translation, `register`, `global` and `cardOnly` — written to the
+   rules in [`docs/DIALOGUES.md`, "Word comments"](docs/DIALOGUES.md#word-comments-global-card-only-and-the-here-remark)
+   but not agonised over. Read the existing decks' comments first and
+   match their feel: short plain statements about this word ("Also means
+   “wife”."), one fact per sentence, no opening with a different word
+   (another word may come in mid-sentence as "the word մայր", never as the
+   subject), neutral register, no slang glosses.
+   The family deck's first draft got this wrong in every way at once
+   ("Մայր — “mother” — with the affectionate -իկ, as in մայրիկ") and every
+   comment had to be rewritten. Check first whether a word already exists
+   (Conventions §10: one flat namespace; the alphabet examples cover a
+   lot of everyday nouns — Քույր, Աղջիկ, Ընկեր were all there before the
+   family deck), and reuse that id rather than adding a near-duplicate;
+   a comment the new deck wants on it goes on the existing entry.
+2. **Add the deck file** (`decks/<id>.ts`, the ordered id list) and the
+   catalog entry (`vocabulary/catalog.ts`, with its `wordCount`; a deck
+   with no fitting icon adds one to `VocabularyDeckIconId` and
+   `VocabularyDeckIcon.svelte`). Importing `entries.ts` — which the review
+   page does on every load — already runs the tripwire and duplicate-id
+   checks over the draft.
+3. **Read and edit the draft at `http://localhost:4747/?deck=<id>`**,
+   saving from the page; that is the editing step, and the diff it
+   produces is the review. Anything the page can't change — the `armenian`
+   spelling, the `register` tag, the id, the order — is edited in the file.
+4. **Voice the new words** per the checklist in
+   [`docs/VOCABULARY_AUDIO.md`](docs/VOCABULARY_AUDIO.md), in the same
+   branch — the clip says the Armenian word only, so it doesn't wait on the
+   comments being final, but the deck can't merge without it (Conventions
+   §11).
 
 ## Database schema and Supabase management
 

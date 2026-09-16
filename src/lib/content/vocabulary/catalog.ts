@@ -29,5 +29,16 @@ export const VOCABULARY_CATALOG: readonly VocabularyDeck[] = [
 		level: 'beginner',
 		wordCount: 20,
 		icon: 'zap'
+	},
+	{
+		id: 'family',
+		title: { en: 'Family', ru: 'Семья' },
+		description: {
+			en: 'Parents, siblings, and which side the uncle is on',
+			ru: 'Родители, братья и сёстры — и с какой стороны дядя'
+		},
+		level: 'beginner',
+		wordCount: 20,
+		icon: 'people'
 	}
 ];

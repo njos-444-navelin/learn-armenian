@@ -4,14 +4,28 @@
 		{
 			"name": "learn-armenian",
 			"runtimeExecutable": "npm",
-			"runtimeArgs": ["run", "dev"],
+			"runtimeArgs": [
+				"run",
+				"dev"
+			],
 			"port": 5173
 		},
 		{
 			"name": "learn-armenian-preview",
 			"runtimeExecutable": "npm",
-			"runtimeArgs": ["run", "preview"],
+			"runtimeArgs": [
+				"run",
+				"preview"
+			],
 			"port": 4173
+		},
+		{
+			"name": "word-comments",
+			"runtimeExecutable": "node",
+			"runtimeArgs": [
+				"scripts/words/notes.js"
+			],
+			"port": 4747
 		}
 	]
 }

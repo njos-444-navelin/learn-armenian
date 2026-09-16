@@ -39,6 +39,25 @@
 				d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"
 			/>
 		</svg>
+	{:else if icon === 'people'}
+		<!-- Two figures, the second half behind the first — hand-drawn in the
+		     spirit of Lucide's `users`, not its path data (see docs/DESIGN.md,
+		     Icons, on provenance). -->
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2.75"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			width={glyphSize}
+			height={glyphSize}
+		>
+			<circle cx="9" cy="7.5" r="3.5" />
+			<path d="M2.5 21v-1.5a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5V21" />
+			<path d="M16 4.3a3.5 3.5 0 0 1 0 6.4" />
+			<path d="M21.5 21v-1.5a5 5 0 0 0-3.5-4.77" />
+		</svg>
 	{:else}
 		<svg
 			viewBox="0 0 24 24"
