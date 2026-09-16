@@ -332,6 +332,11 @@ Rules that follow from that:
   transliteration of the word (`khaghal`, not `play`), matching the existing
   entries — `xaghal`/`khaghal` once coexisted as two ids for one word and
   had to be merged.
+- **New words are drafted in `entries.ts`, then edited on the review
+  page, not in the editor.** Add the entries and the deck file, open
+  `http://localhost:4747/?deck=<id>` (`node scripts/words/notes.js`) and
+  do the actual wording there, where the deck reads as a set — the
+  README's "Adding words" has the steps.
 - **Never import a `decks/*.ts` or `dialogues/dialogues/*.ts` file
   directly.** Go through `loadDeckWords()` in
   [`loadDeck.ts`](../src/lib/content/vocabulary/loadDeck.ts) and
@@ -365,10 +370,21 @@ Rules that follow from that:
 - **Inside a comment, examples are lowercase — the Armenian and its
   translation alike:** `e.g. բարի լույս — “good morning”`, `գնել (“to
   buy”)`, `դուք — «вы»`. Capitals are for a word standing on its own (the
-  two fields above) and for whatever opens the comment (`Բարի գիշեր —
-  “good night” — is a goodbye`). Applies to `global`, `cardOnly` and a
-  dialogue `here` remark alike — docs/DIALOGUES.md, "Word comments",
-  rule 6.
+  two fields above) and for whatever opens a sentence, an Armenian word
+  included (`Բարի գիշեր — “good night” — is a goodbye`, `Մայր — “mother”
+  — with the affectionate -իկ`, never `մայր — …`): a comment follows
+  natural sentence flow. Applies to `global`, `cardOnly` and a dialogue
+  `here` remark alike — docs/DIALOGUES.md, "Word comments", rule 6.
+- **A comment says one fact per sentence, about this word, in plain
+  words** — not an etymology that opens with a different word, not three
+  facts stacked with dashes. Match the feel of the existing decks' comments
+  before writing new ones — docs/DIALOGUES.md, "Word comments", rules 1
+  and 5.
+- **A comment is typeset like a book, not diagrammed:** words for
+  relations (`տղա and մարդ`, `as mother becomes mum`), never `+`, `→` or
+  emoji — rule 13 there. `entries.ts` throws at load on this, on a
+  lowercase Armenian opening, and on a Latin letter inside a Cyrillic word
+  (the invisible «женщинy» typo).
 
 The library is one plain module, not code-split — at low hundreds of short
 entries it's a few KB gzipped, cheaper than the duplication a per-feature

@@ -279,6 +279,15 @@ speech — it would have deleted the word. Three conditions prevent that:
 
 If any fails, keep the clip whole. Silence is cheap; a truncated word is not.
 
+This is [`scripts/audio/breath_trim.py`](../scripts/audio/breath_trim.py)
+(`python3 scripts/audio/breath_trim.py <mp3_dir> <m4a_dir>`): it runs the
+rule over a directory of downloaded takes and writes the trimmed ones in
+the app's encoding, printing a line per file. It applies the rule again
+while a trailing blip remains — a take with two breaths is the same shape
+twice — which is what turned three 1.6–2.0 s family-deck takes back into
+0.65–0.8 s words. Run it before building the picker page, so what the
+human hears is what ships.
+
 ### The glued breath: fixable by hand, NOT safe to automate
 
 Some inhales never rise above the noise gate. They ride straight out of the
@@ -325,14 +334,18 @@ detect less.
 Three things about the ElevenLabs connector are worth knowing before a big
 batch, because each one cost a round trip here:
 
-**Five concurrent generations, and no more.** The subscription caps parallel
-requests at five. Firing eighteen flows of four takes at once returns
-`Too many concurrent requests` on individual generations while the rest
-succeed — it bit twice in one session, once losing three of a speaker's four
-reads. Fan out in groups of four to six calls per message, not all at once.
-Failed generations still come back carrying a `price` field; whether they are
-actually charged is unverified, but staying under the limit costs nothing
-either way.
+**Three concurrent generations, and no more — check the number in the
+error, it has changed.** The subscription caps parallel requests; the cap
+was five in early September 2026 and **three** on 2026-09-16, when the family
+deck's first batch — four words, four takes each, in one message — came back
+with `Too many concurrent requests … a maximum of 3 concurrent requests`
+on 7 of 16 generations (one word lost all four). Failed generations still
+come back carrying a `price` field; whether they are actually charged is
+unverified, but staying under the limit costs nothing either way. So, at a
+cap of three: **one word per message, `generations_count: 3`** — a single
+call of four already exceeds it. The rest of the deck went through that way
+with no failures. A three-take word is a smaller choice than four, and it
+has been enough; if the cap goes back up, go back to four.
 
 **Signed download URLs expire 7200 s after their `X-Goog-Date`.** When they
 do, downloads fail with HTTP 400. **Re-polling the same `flow_id` and
@@ -398,6 +411,44 @@ cents. **Take volume is the cheap lever; the human's listening time is the
 expensive one.** Design the review page around their attention, not around
 saving generations.
 
+## An ending that stops dead: add 150 ms of room
+
+Some takes end within a few hundredths of a second of the last consonant —
+`Բարեկամ`, `Տղամարդ` and `Պապիկ` all did it, on take after take, across
+three rounds. The word is complete, but the file ends on it and the player
+stops with a thud; the reviewer hears "cut off too early" even on a take
+nothing was cut from. The fix is `apad=pad_dur=0.15` — 150 ms of silence
+after the word — not a re-roll: the new takes ended the same way. It's
+harmless on a take that already has room, so when a reviewer says a word
+ends too abruptly, pad every candidate of that word and let them pick on
+the voice alone. (Sometimes there *is* something in that last stretch: a
+tick at −37 dB against a −47 dB floor just after the release, or an inhale
+starting to rise right before the file ends. Print a 10 ms RMS profile of
+the tail, cut before it with a 30–50 ms fade, then pad.)
+
+## A word the model doesn't know: Հոպար
+
+`Հոպար` — the colloquial "father's brother" — came out with the stress on
+the first syllable and a sharp fall onto the second, "HO-par", in every take
+of every arm tried on 2026-09-16: plain `Հոպար։` ×6, `Հոպա՛ր։` with the
+stress mark ×3, `[calmly] Հոպար։` ×3 (which also cost 15 credits a take
+against 6), `eleven_multilingual_v2` ×3, and the word said twice
+(`Հոպար։ Հոպար։` ×3, each occurrence cut out) — 21 readings, none neutral.
+The shesht and the full stop fix a *loanword's* stress; they don't help a
+word the model has no reading for at all. The shipped clip is the least
+bad of the multilingual_v2 arm and the reviewer called it "abysmal"; it is
+a known weak clip, not a settled one. (That arm also came out ~11 dB
+quieter than the v3 takes around it — peak −14.5 dB against −3.5 to 0 dB
+for the rest of the deck — so the shipped clip carries `volume=8dB`, which
+puts it at the quiet end of the deck rather than the middle; a full match
+would have been a 12 dB lift, and "slightly" was the brief. Check
+`volumedetect` on a clip from a different model before shipping it next
+to v3 clips.) **Stop after two arms** on a word
+like this and ask a native speaker for a recording, or accept the clip and
+mark it here. Candidates for the same trouble: the other colloquial kin
+terms (`Մորքուր`, `Հորքուր`, which did come out fine) and anything not in
+a dictionary.
+
 ## A one-letter word: prompt the bare letter, no full stop
 
 `Է` (the third-person "is") with the usual `Է։` prompt came out as a long,
@@ -422,13 +473,19 @@ by hand:
    wrong syllable" above) — **and words starting with a standalone "Ո" need
    the "Ո"→"Վ" prompt respelling above** — `model_id: "eleven_v3"`,
    `voice_id: B7DEF4tn54LpozCVN7ah` (Tereza jan — see "Voices and model"
-   above; words always use the main voice), `generations_count: 4` — takes
-   vary run to run and nobody generating them can hear them, so give the
-   human something to choose between (see "Reviewing takes" above).
+   above; words always use the main voice), `generations_count` = the
+   concurrency cap (three as of 2026-09-16 — see "Connector mechanics"),
+   **one word per message** — takes vary run to run and nobody generating
+   them can hear them, so give the human something to choose between (see
+   "Reviewing takes" above).
 2. Poll `creative_get_flow_run_status` with the returned `flow_id` +
    `session_ids` until `all_completed`, then take each `media[].url`.
-3. Download all four, then transcode each with the exact `ffmpeg` command
-   above — the human should audition the exact bytes that will ship.
+3. Download every take, then run `scripts/audio/breath_trim.py` over the
+   directory and transcode whatever it left alone with the exact `ffmpeg`
+   command above — the human should audition the exact bytes that will
+   ship. Save the `flow_id` and `session_ids` somewhere outside the
+   scratchpad as you go: re-polling them mints fresh download URLs for
+   free, and the scratchpad has been wiped mid-session before.
 4. Get a human to listen and pick. For a batch, build the picker page
    described above; for a single word, four chips in any playable form will
    do. Do not skip this because generation succeeded.
@@ -445,10 +502,13 @@ was upgraded to a paid plan — if generation starts failing with a
 
 ### Current coverage
 
-As of 2026-09-10, **all 89 words in `entries.ts` have a clip** — every one
-chosen by a human from at least four takes via the picker described above,
-and every one passed through the gap-based breath trim. That includes the
-eighteen words the bread-shop dialogue introduced.
+As of 2026-09-16, **all 112 words in `entries.ts` have a clip** — every one
+chosen by a human from the picker described above and passed through the
+gap-based breath trim. The 89 up to 2026-09-10 (including the eighteen
+bread-shop words) were picked from four takes each; the seventeen family
+deck words from three, the concurrency cap having dropped to three. Two of
+those (`papik`, `keri`) had a glued breath cut by hand, and `hopar` is the
+known weak clip described above.
 
 Six words — `em`, `chem`, `da`, `isk`, `te`, `kat` — were rejected on a first
 pass as "low energy" and re-rolled at eight takes each, split into a plain arm

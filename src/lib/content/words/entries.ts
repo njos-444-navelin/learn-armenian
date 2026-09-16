@@ -276,6 +276,166 @@ export const WORDS: readonly Word[] = [
 	{ id: 'linel', armenian: 'Լինել', translation: { en: 'To be', ru: 'Быть' } },
 	{ id: 'khndrel', armenian: 'Խնդրել', translation: { en: 'To ask for', ru: 'Просить' } },
 
+	// --- Family (vocabulary deck `family`) ---
+	// The four -իկ words each explain the suffix on their own card: a card is
+	// read alone in the trainer, so the repetition is deliberate (compare the
+	// "E.g." time-of-day set in Greetings).
+	{
+		id: 'mayrik',
+		armenian: 'Մայրիկ',
+		translation: { en: 'Mum', ru: 'Мама' },
+		global: {
+			en: 'The ending -իկ makes the word մայր soft and affectionate.',
+			ru: 'Суффикс -իկ делает слово մայր ласковым.'
+		}
+	},
+	{
+		id: 'hayrik',
+		armenian: 'Հայրիկ',
+		translation: { en: 'Dad', ru: 'Папа' },
+		global: {
+			en: 'The ending -իկ makes the word հայր soft and affectionate.',
+			ru: 'Суффикс -իկ делает слово հայր ласковым.'
+		}
+	},
+	{
+		id: 'papik',
+		armenian: 'Պապիկ',
+		translation: { en: 'Grandpa', ru: 'Дедушка' },
+		global: {
+			en: 'The ending -իկ makes the word պապ soft and affectionate.',
+			ru: 'Суффикс -իկ делает слово պապ ласковым. Не путать с պապա — это «папа».'
+		},
+		cardOnly: {
+			en: 'Also used for any elderly man.',
+			ru: 'Как и в русском, так называют и любого пожилого мужчину.'
+		}
+	},
+	{
+		id: 'tatik',
+		armenian: 'Տատիկ',
+		translation: { en: 'Grandma', ru: 'Бабушка' },
+		global: {
+			en: 'The ending -իկ makes the word տատ soft and affectionate.',
+			ru: 'Суффикс -իկ делает слово տատ ласковым.'
+		},
+		cardOnly: {
+			en: 'Also used for any elderly woman.',
+			ru: 'Как и в русском, так называют и любую пожилую женщину.'
+		}
+	},
+	// Քույր, Աղջիկ and Ընկեր are already in the library as alphabet examples
+	// (next section) — the deck reuses those ids; their comments live there.
+	{
+		id: 'akhper',
+		armenian: 'Ախպեր',
+		translation: { en: 'Brother', ru: 'Брат' },
+		register: 'informal',
+		global: {
+			en: 'Also a friendly way to address any man.',
+			ru: 'Также дружеская форма обращения к любому мужчине.'
+		}
+	},
+	{
+		id: 'kin',
+		armenian: 'Կին',
+		translation: { en: 'Woman', ru: 'Женщина' },
+		global: {
+			en: 'Also means “wife”.',
+			ru: 'Также значит «жена».'
+		}
+	},
+	{ id: 'amusin', armenian: 'Ամուսին', translation: { en: 'Husband', ru: 'Муж' } },
+	{
+		id: 'mard',
+		armenian: 'Մարդ',
+		translation: { en: 'Person', ru: 'Человек' },
+		global: {
+			en: 'Any human being. In everyday speech, more often specifically a man.',
+			ru: 'Человек любого пола. В быту чаще именно мужчина.'
+		}
+	},
+	{
+		id: 'tgha',
+		armenian: 'Տղա',
+		translation: { en: 'Boy', ru: 'Мальчик' },
+		global: {
+			en: 'Also means “son” and, loosely, “guy”.',
+			ru: 'Также значит «сын» и иногда «парень» в более широком смысле.'
+		}
+	},
+	{
+		id: 'tghamard',
+		armenian: 'Տղամարդ',
+		translation: { en: 'Man', ru: 'Мужчина' },
+		global: {
+			en: 'Yes, literally “boy-person”.',
+			ru: 'Да, буквально «мальчик-человек».'
+		}
+	},
+	// Colloquial contractions of մորաքույր, հորաքույր and հորեղբայր — hence
+	// the informal tag on these three; the comments don't name the long forms
+	// (a new word explained by another new word). Քեռի is the standard word
+	// and gets no tag.
+	{
+		id: 'morkur',
+		armenian: 'Մորքուր',
+		translation: { en: 'Aunt (mother’s sister)', ru: 'Тётя (сестра матери)' },
+		register: 'informal',
+		global: {
+			en: 'Literally “mother’s sister”, said as one word.',
+			ru: 'Буквально «сестра матери», в одно слово.'
+		}
+	},
+	{
+		id: 'horkur',
+		armenian: 'Հորքուր',
+		translation: { en: 'Aunt (father’s sister)', ru: 'Тётя (сестра отца)' },
+		register: 'informal',
+		global: {
+			en: 'Literally “father’s sister”, said as one word.',
+			ru: 'Буквально «сестра отца», в одно слово.'
+		}
+	},
+	{
+		id: 'hopar',
+		armenian: 'Հոպար',
+		translation: { en: 'Uncle (father’s brother)', ru: 'Дядя (брат отца)' },
+		register: 'informal',
+		global: {
+			en: 'Literally “father’s brother”, worn down to two syllables.',
+			ru: 'Буквально «брат отца», сократившееся до двух слогов.'
+		}
+	},
+	{
+		id: 'keri',
+		armenian: 'Քեռի',
+		translation: { en: 'Uncle (mother’s brother)', ru: 'Дядя (брат матери)' },
+		cardOnly: {
+			en: 'Also a friendly way to address an older man.',
+			ru: 'Также обращение к незнакомому мужчине постарше.'
+		}
+	},
+	{ id: 'yerekha', armenian: 'Երեխա', translation: { en: 'Child', ru: 'Ребёнок' } },
+	{
+		id: 'harazat',
+		armenian: 'Հարազատ',
+		translation: { en: 'One’s own', ru: 'Родной' },
+		global: {
+			en: 'Related by blood, or as close as if you were. Also “native”, of a town or a language.',
+			ru: 'Как русское «родной» во всех смыслах.'
+		}
+	},
+	{
+		id: 'barekam',
+		armenian: 'Բարեկամ',
+		translation: { en: 'Relative', ru: 'Родственник' },
+		global: {
+			en: 'Literally “well-wisher”. In literary Armenian it means “friend”.',
+			ru: 'Буквально «доброжелатель». В литературном языке означает «друг».'
+		}
+	},
+
 	// --- Alphabet "in a word" examples not covered above ---
 	{
 		id: 'ayo',
@@ -297,7 +457,12 @@ export const WORDS: readonly Word[] = [
 	},
 	{ id: 'zang', armenian: 'Զանգ', translation: { en: 'Call', ru: 'Звонок' } },
 	{ id: 'ej', armenian: 'Էջ', translation: { en: 'Page', ru: 'Страница' } },
-	{ id: 'ynker', armenian: 'Ընկեր', translation: { en: 'Friend', ru: 'Друг' } },
+	// Also in the `family` deck.
+	{
+		id: 'ynker',
+		armenian: 'Ընկեր',
+		translation: { en: 'Friend', ru: 'Друг' }
+	},
 	{ id: 'tey', armenian: 'Թեյ', translation: { en: 'Tea', ru: 'Чай' } },
 	{ id: 'zham', armenian: 'Ժամ', translation: { en: 'Hour', ru: 'Час' } },
 	{ id: 'im', armenian: 'Իմ', translation: { en: 'My', ru: 'Мой' } },
@@ -305,7 +470,16 @@ export const WORDS: readonly Word[] = [
 	{ id: 'katu', armenian: 'Կատու', translation: { en: 'Cat', ru: 'Кот' } },
 	{ id: 'hats', armenian: 'Հաց', translation: { en: 'Bread', ru: 'Хлеб' } },
 	{ id: 'dzuk', armenian: 'Ձուկ', translation: { en: 'Fish', ru: 'Рыба' } },
-	{ id: 'aghjik', armenian: 'Աղջիկ', translation: { en: 'Girl', ru: 'Девочка' } },
+	// Also in the `family` deck.
+	{
+		id: 'aghjik',
+		armenian: 'Աղջիկ',
+		translation: { en: 'Girl', ru: 'Девочка' },
+		global: {
+			en: 'Also means “daughter” and, loosely, “young woman”.',
+			ru: 'Также значит «дочь» и иногда «девушка» в более широком смысле.'
+		}
+	},
 	{ id: 'chash', armenian: 'Ճաշ', translation: { en: 'Meal', ru: 'Обед' } },
 	{ id: 'mayr', armenian: 'Մայր', translation: { en: 'Mother', ru: 'Мать' } },
 	{ id: 'yot', armenian: 'Յոթ', translation: { en: 'Seven', ru: 'Семь' } },
@@ -328,7 +502,16 @@ export const WORDS: readonly Word[] = [
 	{ id: 'tun', armenian: 'Տուն', translation: { en: 'House', ru: 'Дом' } },
 	{ id: 'tsurt', armenian: 'Ցուրտ', translation: { en: 'Cold', ru: 'Холодно' } },
 	{ id: 'pogh', armenian: 'Փող', translation: { en: 'Money', ru: 'Деньги' } },
-	{ id: 'kuyr', armenian: 'Քույր', translation: { en: 'Sister', ru: 'Сестра' } },
+	// Also in the `family` deck.
+	{
+		id: 'kuyr',
+		armenian: 'Քույր',
+		translation: { en: 'Sister', ru: 'Сестра' },
+		cardOnly: {
+			en: 'Քույրիկ, with the ending -իկ, is the affectionate form. It is also a friendly way to address a young woman you don’t know.',
+			ru: 'Քույրիկ, с суффиксом -իկ, — ласковая форма. Так же дружелюбно обращаются к незнакомой девушке.'
+		}
+	},
 	{ id: 'film', armenian: 'Ֆիլմ', translation: { en: 'Film', ru: 'Фильм' } },
 	// Capital city name — a natural, already-capitalized way to show և
 	// mid-word, sidestepping the ligature's own missing-uppercase quirk
@@ -381,8 +564,8 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Չեմ',
 		translation: { en: 'Am not', ru: 'Не есть (я)' },
 		global: {
-			en: 'չ- + եմ. In a negative sentence the negation lands on the auxiliary, not the participle.',
-			ru: 'չ- + եմ: отрицательная частица добавляется к вспомогательному глаголу, а не к причастию.'
+			en: 'Չ- before եմ: in a negative sentence the negation lands on the auxiliary, not the participle.',
+			ru: 'Չ- перед եմ: отрицательная частица добавляется к вспомогательному глаголу, а не к причастию.'
 		}
 	},
 	{
@@ -408,8 +591,8 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Սա',
 		translation: { en: 'This one', ru: 'Это' },
 		global: {
-			en: 'այս used on its own, without a noun.',
-			ru: 'այս без существительного.'
+			en: 'Այս used on its own, without a noun.',
+			ru: 'Այս без существительного.'
 		}
 	},
 	{
@@ -417,8 +600,8 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Դա',
 		translation: { en: 'That one', ru: 'То' },
 		global: {
-			en: 'այդ used on its own, without a noun.',
-			ru: 'այդ без существительного.'
+			en: 'Այդ used on its own, without a noun.',
+			ru: 'Այդ без существительного.'
 		}
 	},
 	{
@@ -546,6 +729,17 @@ const SITUATIONAL = [
 	/\b(here|this time|this line|again|as before|the shopkeeper|the customer|the counter)\b/i,
 	/(здесь|на этот раз|в этой реплике|снова|как раньше|продав|покупател|прилав)/i
 ];
+// A comment reads like a sentence in a book (docs/DIALOGUES.md, "Word
+// comments", rules 6 and 13): whatever opens it is capitalized, an Armenian
+// word included — "Մայր — “mother” — with…", not "մայր — …" — and it's set
+// in ordinary punctuation, never arrows, plus signs or emoji ("տղա and
+// մարդ", not "տղա + մարդ"; "as mother becomes mum", not "mother → mum").
+// Both slipped into the first draft of the family deck.
+const LOWERCASE_OPENING = /^[ա-ֆև]/u;
+const NOT_BOOK_TYPOGRAPHY = /[→←↔⇒⇐+*<>=_|~^#@&\\]|\p{Extended_Pictographic}/u;
+// A Latin letter inside a Cyrillic word («женщинy» with a Latin y) renders
+// identically and is invisible in review; it happened once.
+const MIXED_SCRIPT = /[а-яё][a-z]|[a-z][а-яё]/iu;
 for (const word of WORDS) {
 	for (const [field, text] of [
 		['global', word.global?.en],
@@ -553,8 +747,18 @@ for (const word of WORDS) {
 		['cardOnly', word.cardOnly?.en],
 		['cardOnly', word.cardOnly?.ru]
 	] as const) {
-		if (text !== undefined && SITUATIONAL.some((pattern) => pattern.test(text))) {
+		if (text === undefined) continue;
+		if (SITUATIONAL.some((pattern) => pattern.test(text))) {
 			throw new Error(`word "${word.id}": library ${field} reads as dialogue-specific — move it to the token's \`here\`: ${text}`);
+		}
+		if (LOWERCASE_OPENING.test(text)) {
+			throw new Error(`word "${word.id}": library ${field} opens with a lowercase Armenian word — a comment is a sentence, capitalize its first word: ${text}`);
+		}
+		if (NOT_BOOK_TYPOGRAPHY.test(text)) {
+			throw new Error(`word "${word.id}": library ${field} uses a symbol a book wouldn't (arrow, plus sign, emoji…) — write it out in words: ${text}`);
+		}
+		if (MIXED_SCRIPT.test(text)) {
+			throw new Error(`word "${word.id}": library ${field} has a Latin letter inside a Cyrillic word — a look-alike typo: ${text}`);
 		}
 	}
 }

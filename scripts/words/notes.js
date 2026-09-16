@@ -9,6 +9,12 @@
  *
  *     node scripts/words/notes.js          # then open http://localhost:4747
  *
+ * `?deck=<id>` narrows the page to one vocabulary deck's words, in the
+ * deck's order (`http://localhost:4747/?deck=family`) — the view for
+ * drafting a new deck: add the entries and the deck file, then read and
+ * edit only those words, the reused ones included. See the README,
+ * "Adding words".
+ *
  * Saving writes straight back into `entries.ts`, editing just the one
  * entry's `translation`, `global` and `cardOnly` in place (a comment emptied
  * in both languages is removed; a comment added to a word that had none is
@@ -25,11 +31,12 @@
  */
 import http from 'node:http';
 import path from 'node:path';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 const ROOT = path.resolve(import.meta.dirname, '../..');
 const ENTRIES = path.join(ROOT, 'src/lib/content/words/entries.ts');
+const DECKS = path.join(ROOT, 'src/lib/content/vocabulary/decks');
 const PORT = Number(process.env['PORT'] ?? 4747);
 /** The two optional comment blocks, in the order the file keeps them. */
 const COMMENTS = /** @type {const} */ (['global', 'cardOnly']);
@@ -51,6 +58,25 @@ async function loadWords() {
 	const url = `${pathToFileURL(ENTRIES).href}?t=${Date.now()}`;
 	const module = /** @type {{ WORDS: readonly Word[] }} */ (await import(url));
 	return module.WORDS;
+}
+
+/**
+ * Every deck's ordered word ids, by deck id — read from the deck files the
+ * same way the app does (importing them), so the page's `?deck=` view is
+ * exactly the deck's own list. Deck files are plain id lists with no
+ * imports, so Node loads them as-is.
+ * @returns {Promise<Record<string, readonly string[]>>}
+ */
+async function loadDecks() {
+	const files = (await readdir(DECKS)).filter((file) => file.endsWith('.ts'));
+	const entries = await Promise.all(
+		files.map(async (file) => {
+			const url = `${pathToFileURL(path.join(DECKS, file)).href}?t=${Date.now()}`;
+			const module = /** @type {{ WORD_IDS: readonly string[] }} */ (await import(url));
+			return /** @type {const} */ ([file.slice(0, -'.ts'.length), module.WORD_IDS]);
+		})
+	);
+	return Object.fromEntries(entries);
 }
 
 /**
@@ -208,11 +234,14 @@ async function wordsPayload() {
 
 const server = http.createServer(async (request, response) => {
 	try {
-		if (request.method === 'GET' && request.url === '/') {
+		const { pathname } = new URL(request.url ?? '/', 'http://localhost');
+		if (request.method === 'GET' && pathname === '/') {
 			response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
 			response.end(PAGE);
-		} else if (request.method === 'GET' && request.url === '/api/words') {
+		} else if (request.method === 'GET' && pathname === '/api/words') {
 			sendJson(response, 200, await wordsPayload());
+		} else if (request.method === 'GET' && pathname === '/api/decks') {
+			sendJson(response, 200, await loadDecks());
 		} else if (request.method === 'POST' && request.url === '/api/save') {
 			const { id, translation, global, cardOnly } = JSON.parse(await readBody(request));
 			const before = await readFile(ENTRIES, 'utf8');
@@ -284,6 +313,8 @@ button:disabled{opacity:.45;cursor:default}
 .msg.err{color:var(--terra)}
 .hint{font-size:.82rem}
 .hint code{font-family:var(--mono);font-size:.78rem}
+.hint a{color:var(--sage)}
+.hint .err{color:var(--terra)}
 kbd{font-family:var(--mono);font-size:.75rem;border:1px solid var(--line);border-radius:4px;padding:0 .3rem}
 .bottom{display:flex;gap:.75rem;align-items:center;padding:1.25rem 0 3rem;border-top:1px solid var(--line)}
 .bottom button{font-size:.95rem;padding:.45rem 1.2rem}
@@ -293,6 +324,7 @@ kbd{font-family:var(--mono);font-size:.75rem;border:1px solid var(--line);border
 <main>
 	<div>
 		<h1>Word comments</h1>
+		<p class="hint" id="deckHint" hidden>Showing one deck’s words in the deck’s order — the whole library is at <a href="/">/</a>. A word the deck lists but the library lacks is named below in red.</p>
 		<p class="hint">Every library word with its translation and its two comments: <code>global</code> shows everywhere — cards and dialogue popovers — and never quotes a phrase; <code>card-only</code> shows on the card and in the trainer only, and may quote the phrase. Edits save into <code>entries.ts</code> and go through its own checks. <kbd>Ctrl</kbd>+<kbd>S</kbd> saves everything changed. Rules: docs/DIALOGUES.md, “Word comments”.</p>
 	</div>
 	<div class="bar">
@@ -315,6 +347,8 @@ const LANGS = ['en', 'ru'];
 let words = [];
 let shown = 0;
 const drafts = new Map();
+// ?deck=<id>: show only that deck's words, in its order (see the README, "Adding words").
+const deck = new URLSearchParams(location.search).get('deck');
 
 const $ = (sel, el = document) => el.querySelector(sel);
 const list = $('#list'), q = $('#q'), only = $('#only'), count = $('#count'), saveAllButton = $('#saveAll'), saveAllMsg = $('#saveAllMsg');
@@ -445,7 +479,35 @@ document.addEventListener('keydown', (e) => {
 });
 window.addEventListener('beforeunload', (e) => { if (words.some(isDirty)) e.preventDefault(); });
 
-fetch('/api/words').then((r) => r.json()).then((data) => { words = data; render(); });
+async function load() {
+	words = await fetch('/api/words').then((r) => r.json());
+	if (deck) {
+		const decks = await fetch('/api/decks').then((r) => r.json());
+		const ids = decks[deck];
+		const hint = $('#deckHint');
+		hint.hidden = false;
+		if (!ids) {
+			hint.innerHTML = 'No deck <code></code> under <code>src/lib/content/vocabulary/decks/</code> — known: <code></code>. The whole library is at <a href="/">/</a>.';
+			hint.querySelectorAll('code')[0].textContent = deck;
+			hint.querySelectorAll('code')[1].textContent = Object.keys(decks).sort().join(', ');
+			words = [];
+		} else {
+			const byId = new Map(words.map((w) => [w.id, w]));
+			const missing = ids.filter((id) => !byId.has(id));
+			words = ids.filter((id) => byId.has(id)).map((id) => ({ ...byId.get(id), section: 'Deck: ' + deck }));
+			if (missing.length) {
+				const err = document.createElement('span');
+				err.className = 'err';
+				err.textContent = ' Not in the library: ' + missing.join(', ') + '.';
+				hint.append(err);
+			}
+			only.checked = false;
+			document.title = 'Word comments · ' + deck;
+		}
+	}
+	render();
+}
+load();
 </script>
 </body>
 </html>
