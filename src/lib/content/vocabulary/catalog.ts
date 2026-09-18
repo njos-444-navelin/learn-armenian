@@ -20,6 +20,17 @@ export const VOCABULARY_CATALOG: readonly VocabularyDeck[] = [
 		icon: 'hand'
 	},
 	{
+		id: 'pronouns',
+		title: { en: 'Pronouns', ru: 'Местоимения' },
+		description: {
+			en: 'I, you, and the three distances of “this”',
+			ru: 'Я, ты и три «дистанции» слова «это»'
+		},
+		level: 'beginner',
+		wordCount: 13,
+		icon: 'person'
+	},
+	{
 		id: 'verbs-1',
 		title: { en: 'Essential verbs (pt. 1)', ru: 'Основные глаголы (часть 1)' },
 		description: {
@@ -40,16 +51,5 @@ export const VOCABULARY_CATALOG: readonly VocabularyDeck[] = [
 		level: 'beginner',
 		wordCount: 20,
 		icon: 'people'
-	},
-	{
-		id: 'pronouns',
-		title: { en: 'Pronouns', ru: 'Местоимения' },
-		description: {
-			en: 'I, you, and the three distances of “this”',
-			ru: 'Я, ты и три «дистанции» слова «это»'
-		},
-		level: 'beginner',
-		wordCount: 13,
-		icon: 'person'
 	}
 ];
