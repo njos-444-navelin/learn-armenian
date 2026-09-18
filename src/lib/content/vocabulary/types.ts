@@ -14,7 +14,7 @@ export type VocabularyLevel = 'beginner';
 /** One glyph per deck, rendered by `VocabularyDeckIcon.svelte` — see
  * docs/DESIGN.md's Icons section. Extend this union (and that component's
  * icon lookup) when a new deck needs a shape that doesn't exist yet. */
-export type VocabularyDeckIconId = 'hand' | 'zap' | 'people';
+export type VocabularyDeckIconId = 'hand' | 'zap' | 'people' | 'person';
 
 export interface VocabularyDeck {
 	id: string;
