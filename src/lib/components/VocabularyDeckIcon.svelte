@@ -58,6 +58,23 @@
 			<path d="M16 4.3a3.5 3.5 0 0 1 0 6.4" />
 			<path d="M21.5 21v-1.5a5 5 0 0 0-3.5-4.77" />
 		</svg>
+	{:else if icon === 'person'}
+		<!-- One figure, the `people` glyph's front person on its own — the
+		     pronouns deck is "I, you, he"; same family as `people` so the two
+		     read as a pair in the deck list. -->
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2.75"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			width={glyphSize}
+			height={glyphSize}
+		>
+			<circle cx="12" cy="7.5" r="3.5" />
+			<path d="M4.5 21v-1.5a5 5 0 0 1 5-5h5a5 5 0 0 1 5 5V21" />
+		</svg>
 	{:else}
 		<svg
 			viewBox="0 0 24 24"

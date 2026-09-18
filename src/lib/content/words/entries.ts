@@ -436,6 +436,68 @@ export const WORDS: readonly Word[] = [
 		}
 	},
 
+	// --- Pronouns (vocabulary deck `pronouns`) ---
+	// The personal pronouns and the demonstratives used on their own. Ես, Այս,
+	// Այդ, Սա, Դա and Այն were already here as dialogue words (below) and the
+	// deck reuses them. The lesson lists Նա and Նրանք twice — once as "he /
+	// she" and "they", once as "that one" and "those" — because the same word
+	// does both jobs; here each is one entry with both senses in its comment.
+	{
+		id: 'du',
+		armenian: 'Դու',
+		translation: { en: 'You (one person)', ru: 'Ты' },
+		global: {
+			en: 'To one person you are on first-name terms with.',
+			ru: 'Как и в русском, одному человеку, с которым Вы на «ты».'
+		}
+	},
+	{
+		id: 'na',
+		armenian: 'Նա',
+		translation: { en: 'He, she', ru: 'Он, она' },
+		global: {
+			en: 'One word for “he” and “she”: the pronoun has no gender. Also means “that one”, away from both speakers.',
+			ru: 'Одно слово для «он» и «она»: у местоимения нет рода. Также значит «тот», «та» — вдали от обоих собеседников.'
+		}
+	},
+	{ id: 'menk', armenian: 'Մենք', translation: { en: 'We', ru: 'Мы' } },
+	{
+		id: 'duk',
+		armenian: 'Դուք',
+		translation: { en: 'You (plural or polite)', ru: 'Вы' },
+		global: {
+			en: 'To several people, or politely to one — a stranger, an elder, anyone serving you.',
+			ru: 'Как и в русском, нескольким людям или вежливо одному.'
+		}
+	},
+	{
+		id: 'nrank',
+		armenian: 'Նրանք',
+		translation: { en: 'They', ru: 'Они' },
+		global: {
+			en: 'The plural of նա. Also means “those ones”, away from both speakers.',
+			ru: 'Множественное число от նա. Также значит «те» — вдали от обоих собеседников.'
+		}
+	},
+	{
+		id: 'srank',
+		armenian: 'Սրանք',
+		translation: { en: 'These ones', ru: 'Эти' },
+		global: {
+			en: 'The plural of սա — near the speaker, used on its own without a noun.',
+			ru: 'Множественное число от սա — рядом с говорящим, без существительного.'
+		}
+	},
+	{
+		id: 'drank',
+		armenian: 'Դրանք',
+		translation: { en: 'Those ones', ru: 'Те' },
+		global: {
+			en: 'The plural of դա — near the person being spoken to, used on its own without a noun.',
+			ru: 'Множественное число от դա — рядом с собеседником, без существительного.'
+		}
+	},
+
 	// --- Alphabet "in a word" examples not covered above ---
 	{
 		id: 'ayo',
