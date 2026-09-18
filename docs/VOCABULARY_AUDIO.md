@@ -502,13 +502,15 @@ was upgraded to a paid plan — if generation starts failing with a
 
 ### Current coverage
 
-As of 2026-09-16, **all 112 words in `entries.ts` have a clip** — every one
+As of 2026-09-18, **all 119 words in `entries.ts` have a clip** — every one
 chosen by a human from the picker described above and passed through the
 gap-based breath trim. The 89 up to 2026-09-10 (including the eighteen
 bread-shop words) were picked from four takes each; the seventeen family
-deck words from three, the concurrency cap having dropped to three. Two of
-those (`papik`, `keri`) had a glued breath cut by hand, and `hopar` is the
-known weak clip described above.
+deck words and the seven pronouns deck words from three, the concurrency
+cap having dropped to three. Two of the family words (`papik`, `keri`) had
+a glued breath cut by hand, and `hopar` is the known weak clip described
+above. The pronouns batch was uneventful: 21 takes, 8 with a trailing
+breath the script cut, none re-rolled.
 
 Six words — `em`, `chem`, `da`, `isk`, `te`, `kat` — were rejected on a first
 pass as "low energy" and re-rolled at eight takes each, split into a plain arm
