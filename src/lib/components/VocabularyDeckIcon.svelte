@@ -75,6 +75,25 @@
 			<circle cx="12" cy="7.5" r="3.5" />
 			<path d="M4.5 21v-1.5a5 5 0 0 1 5-5h5a5 5 0 0 1 5 5V21" />
 		</svg>
+	{:else if icon === 'basket'}
+		<!-- A shopping basket: rim, tapering body, and a handle arching over
+		     it — the food deck is a shopping list. Hand-drawn in the spirit
+		     of Lucide's `shopping-basket`, not its path data (see
+		     docs/DESIGN.md, Icons, on provenance). -->
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2.75"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			width={glyphSize}
+			height={glyphSize}
+		>
+			<path d="M3 10.5h18" />
+			<path d="M5 10.5l1.5 9.2a1.6 1.6 0 0 0 1.6 1.3h7.8a1.6 1.6 0 0 0 1.6-1.3L19 10.5" />
+			<path d="M8 10.5l4-7 4 7" />
+		</svg>
 	{:else}
 		<svg
 			viewBox="0 0 24 24"

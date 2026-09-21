@@ -498,6 +498,72 @@ export const WORDS: readonly Word[] = [
 		}
 	},
 
+	// --- Food (vocabulary deck `food`) ---
+	// Everyday groceries, from a lesson. Nine of the twenty — Հաց, Կաթ, Պանիր,
+	// Ձու, Միս, Ձուկ, Ջուր, Թեյ and Սուրճ — were already here as alphabet
+	// examples and bread-shop words, and the deck reuses those ids.
+	{ id: 'karag', armenian: 'Կարագ', translation: { en: 'Butter', ru: 'Сливочное масло' } },
+	// The two kinds of meat are two-word phrases — the only multi-word entries
+	// in the library so far — hence the hyphenated ids.
+	{
+		id: 'tavari-mis',
+		armenian: 'Տավարի միս',
+		translation: { en: 'Beef', ru: 'Говядина' },
+		global: {
+			en: 'Literally “cattle’s meat” — the -ի on տավար is the genitive ending.',
+			ru: 'Буквально «мясо скота»: -ի на слове տավար — окончание родительного падежа.'
+		}
+	},
+	{
+		id: 'khozi-mis',
+		armenian: 'Խոզի միս',
+		translation: { en: 'Pork', ru: 'Свинина' },
+		global: {
+			en: 'Literally “pig’s meat” — the -ի on խոզ is the genitive ending.',
+			ru: 'Буквально «мясо свиньи»: -ի на слове խոզ — окончание родительного падежа.'
+		}
+	},
+	{
+		id: 'hav',
+		armenian: 'Հավ',
+		translation: { en: 'Chicken', ru: 'Курица' },
+		global: {
+			en: 'As in English, both the bird and the meat.',
+			ru: 'Как и в русском, и птица, и мясо.'
+		}
+	},
+	{ id: 'brindz', armenian: 'Բրինձ', translation: { en: 'Rice', ru: 'Рис' } },
+	{ id: 'alyur', armenian: 'Ալյուր', translation: { en: 'Flour', ru: 'Мука' } },
+	{
+		id: 'shakaravaz',
+		armenian: 'Շաքարավազ',
+		translation: { en: 'Sugar', ru: 'Сахар' },
+		global: {
+			en: 'Literally “sugar sand” — the granulated kind.',
+			ru: 'Как и в русском, буквально «сахарный песок».'
+		}
+	},
+	{ id: 'agh', armenian: 'Աղ', translation: { en: 'Salt', ru: 'Соль' } },
+	{ id: 'dzet', armenian: 'Ձեթ', translation: { en: 'Vegetable oil', ru: 'Растительное масло' } },
+	{
+		id: 'ttvaser',
+		armenian: 'Թթվասեր',
+		translation: { en: 'Sour cream', ru: 'Сметана' },
+		global: {
+			en: 'Literally “sour cream”: թթու is “sour”, սեր is “cream”.',
+			ru: 'Буквально «кислые сливки»: թթու — «кислый», սեր — «сливки».'
+		}
+	},
+	{
+		id: 'katnashor',
+		armenian: 'Կաթնաշոռ',
+		translation: { en: 'Cottage cheese', ru: 'Творог' },
+		global: {
+			en: 'Built on the word կաթ — “milk”.',
+			ru: 'Образовано от слова կաթ — «молоко».'
+		}
+	},
+
 	// --- Alphabet "in a word" examples not covered above ---
 	{
 		id: 'ayo',
@@ -530,7 +596,16 @@ export const WORDS: readonly Word[] = [
 	{ id: 'im', armenian: 'Իմ', translation: { en: 'My', ru: 'Мой' } },
 	{ id: 'tsaghik', armenian: 'Ծաղիկ', translation: { en: 'Flower', ru: 'Цветок' } },
 	{ id: 'katu', armenian: 'Կատու', translation: { en: 'Cat', ru: 'Кот' } },
-	{ id: 'hats', armenian: 'Հաց', translation: { en: 'Bread', ru: 'Хлеб' } },
+	// Also in the `food` deck.
+	{
+		id: 'hats',
+		armenian: 'Հաց',
+		translation: { en: 'Bread', ru: 'Хлеб' },
+		global: {
+			en: 'Also means food or a meal in general.',
+			ru: 'Также значит еду или трапезу вообще.'
+		}
+	},
 	{ id: 'dzuk', armenian: 'Ձուկ', translation: { en: 'Fish', ru: 'Рыба' } },
 	// Also in the `family` deck.
 	{
