@@ -116,6 +116,18 @@ phonetically complex Armenian words — confirmed on `Հաջողություն`
 future word sounds off, don't assume it's the voice — try `eleven_v3` first
 (and if you're not already on it, that's the bug).
 
+**`eleven_multilingual_v2` is a last resort, not an arm to try.** It is
+markedly worse than `eleven_v3` on this voice in general — flatter,
+mushier, and 15–20 dB quieter (the food deck's Կարագ and Աղ control arms
+on 2026-09-21 peaked at −19 to −28 dB against −2 to −8 dB for the v3 takes
+beside them; Հոպար's below was ~11 dB down). Every time it has been
+generated as a comparison arm the reviewer has rejected it, and the one
+clip shipped from it (`hopar`) is the catalog's known weak one. Reach for
+it only when v3 has failed on a word outright, across several rounds and
+prompt variants, and there is no native recording to fall back on; never
+as a routine second opinion. If a v2 take is ever shipped, level it
+(`volume=…dB`) against the v3 clips around it, as `hopar` is.
+
 **If the main voice ever changes again, every existing `.m4a` file needs
 regenerating with the new `voice_id`** — there's no per-word tracking of
 which voice generated which file, so treat a voice swap as "redo the whole
@@ -502,7 +514,7 @@ was upgraded to a paid plan — if generation starts failing with a
 
 ### Current coverage
 
-As of 2026-09-18, **all 119 words in `entries.ts` have a clip** — every one
+As of 2026-09-21, **all 130 words in `entries.ts` have a clip** — every one
 chosen by a human from the picker described above and passed through the
 gap-based breath trim. The 89 up to 2026-09-10 (including the eighteen
 bread-shop words) were picked from four takes each; the seventeen family
@@ -516,3 +528,25 @@ Six words — `em`, `chem`, `da`, `isk`, `te`, `kat` — were rejected on a firs
 pass as "low energy" and re-rolled at eight takes each, split into a plain arm
 and a shesht arm (see the stress section above); their installed clips are
 from that second round.
+
+The eleven food deck words (2026-09-21) took four rounds. Seven were picked
+from the first three takes; four were re-rolled at the reviewer's request,
+and two of those needed more:
+
+- `karag` (Կարագ) came out as "karev" in twelve v3 takes across three
+  rounds, plain and with the shesht alike — the word is ~0.4 s of speech
+  and the final -գ is barely released. The shipped clip is a shesht take
+  from the fourth round, with a trailing gasp cut by hand (the word ends in
+  a stop, so that's safe). **The gap-based trim missed that gasp**: a 3 ms
+  tick — the -գ release — sat in the middle of the 130 ms gap, splitting it
+  into two silences each under the 80 ms detection floor, so the inhale
+  merged into the word as one loud segment. If a take keeps a gasp the
+  script "kept", run `silencedetect` at `d=0.03` and look for exactly that.
+- `agh` (Աղ) came out breathy and drawn out — "inappropriately suggestive"
+  — in six takes of `Աղ։`. The bare `Աղ`, no full stop, gave short plain
+  0.3–0.4 s takes on the first try, and one shipped. So the one-letter
+  rule above (Է) also covers a one-syllable word ending in a voiced
+  fricative: there's no stress to fix, and the stop only invites the
+  model to linger.
+- A `eleven_multilingual_v2` control arm was generated for both and
+  rejected outright — see "Voices and model" for why it's a last resort.
