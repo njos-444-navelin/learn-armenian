@@ -22,10 +22,12 @@
 		gradeLabels,
 		gradeSaveFailedMessage,
 		intervalLabel,
+		nearlyThereHeading,
 		nextCardInLabel,
 		nextRoundLabel,
 		roundDoneHeading,
 		roundRemainingMessage,
+		stragglersReturnLabel,
 		todaysCountLabel
 	} from '$lib/i18n/dictionaries/vocabularyTraining';
 	import { pushToast } from '$lib/stores/toasts.svelte';
@@ -299,17 +301,39 @@
 			{/each}
 		</form>
 	</div>
-{:else if waiting.length > 0}
-	<p aria-live="polite">{t(nextCardInLabel(soonestWaitMinutes))}</p>
-{:else if newCardsHeldBack > 0 || dueCardsHeldBack > 0}
+{:else if moreWaiting}
+	<!-- Deliberately ahead of the `waiting` branch below, not after it: a
+	     round that put a dozen cards on a ten-minute step ends with
+	     `activeQueue` empty and `waiting` full, and checking `waiting` first
+	     meant that learner got a bare countdown while the next round — which
+	     may hold hundreds of reviews — sat behind it, unreachable until every
+	     straggler had been graded back out. Those short steps are the one
+	     thing that shouldn't gate the next round: putting a card off is a
+	     decision to see it later, not a reason to sit and wait for it. -->
 	<h2>{t(roundDoneHeading)}</h2>
 	<p>{t(roundRemainingMessage(dueCardsHeldBack, newCardsHeldBack))}</p>
+	{#if waiting.length > 0}
+		<!-- Demoted to a footnote: the stragglers are still coming if the
+		     learner stays, but they're no longer the only thing on offer, so
+		     they don't get to be the headline. -->
+		<p class="stragglers" aria-live="polite">
+			{t(stragglersReturnLabel(waiting.length, soonestWaitMinutes))}
+		</p>
+	{/if}
 	<div class="actions">
 		<Button variant="primary" loading={nextRoundPending} onclick={onNextRound}>
 			{t(nextRoundLabel)}
 		</Button>
 		<Button href={withLocale(locale, '/learn')} variant="secondary">{t(backToLessonsLabel)}</Button>
 	</div>
+{:else if waiting.length > 0}
+	<!-- Nothing held back, so the stragglers genuinely are all that's left
+	     and the countdown is the whole screen. Still carries a way out —
+	     without one this was the app's only screen offering the learner
+	     nothing at all to do for up to ten minutes. -->
+	<h2>{t(nearlyThereHeading)}</h2>
+	<p aria-live="polite">{t(nextCardInLabel(soonestWaitMinutes))}</p>
+	<Button href={withLocale(locale, '/learn')} variant="secondary">{t(backToLessonsLabel)}</Button>
 {:else}
 	<h2>{t(allCaughtUpHeading)}</h2>
 	<p>{t(allCaughtUpMessage)}</p>
@@ -328,7 +352,11 @@
 		gap: var(--space-2);
 	}
 
-	.summary {
+	/* Same demotion as `.summary` — see the markup comment on this line: it's
+	   a footnote under the round's remaining count, not a heading of its
+	   own. */
+	.summary,
+	.stragglers {
 		color: var(--color-text-secondary);
 		font-size: var(--font-size-sm);
 	}
