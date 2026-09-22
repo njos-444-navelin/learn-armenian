@@ -157,21 +157,33 @@ export const roundDoneHeading: Translated = {
 	ru: 'Круг пройден'
 };
 
-/** How many never-studied words the cap held back from this round.
- * Dynamic/interpolated, see Conventions §1; Russian declines the count's
- * noun, see ruPlural.ts. Says only what is waiting — the button beneath it
- * (`nextRoundLabel`) is what offers to start on them, so this doesn't
- * repeat the invitation. */
-export function newWordsWaitingMessage(count: number): Translated {
+/**
+ * What both caps held back from this round — reviews, never-studied words,
+ * or some of each (the screen only shows this when at least one of them is
+ * above zero). Dynamic/interpolated, see Conventions §1; Russian declines
+ * both nouns, see ruPlural.ts.
+ *
+ * Phrased without a verb on purpose — "60 reviews and 3 new words still to
+ * go", not "…are still waiting" — so neither language has to agree a verb
+ * with a count that might be one, three or nine hundred. Russian's
+ * «осталось» is impersonal here for the same reason. Says only what is
+ * left: the button beneath it (`nextRoundLabel`) is what offers to start on
+ * them, so this doesn't repeat the invitation.
+ */
+export function roundRemainingMessage(dueCount: number, newCount: number): Translated {
+	const en: string[] = [];
+	const ru: string[] = [];
+	if (dueCount > 0) {
+		en.push(`${dueCount} review${dueCount === 1 ? '' : 's'}`);
+		ru.push(`${dueCount} ${ruPluralForm(dueCount, ['повторение', 'повторения', 'повторений'])}`);
+	}
+	if (newCount > 0) {
+		en.push(`${newCount} new word${newCount === 1 ? '' : 's'}`);
+		ru.push(`${newCount} ${ruPluralForm(newCount, ['новое слово', 'новых слова', 'новых слов'])}`);
+	}
 	return {
-		en:
-			count === 1
-				? 'One more new word is waiting in your collection.'
-				: `Another ${count} new words are waiting in your collection.`,
-		ru:
-			count === 1
-				? 'В вашей коллекции осталось ещё одно новое слово.'
-				: `В вашей коллекции осталось ещё ${count} ${ruPluralForm(count, ['новое слово', 'новых слова', 'новых слов'])}.`
+		en: `${en.join(' and ')} still to go in your collection.`,
+		ru: `В вашей коллекции осталось ещё ${ru.join(' и ')}.`
 	};
 }
 

@@ -14,7 +14,8 @@ const EMPTY_RESULT = {
 	queue: [] as TrainingCard[],
 	newCount: 0,
 	dueCount: 0,
-	newCardsHeldBack: 0
+	newCardsHeldBack: 0,
+	dueCardsHeldBack: 0
 };
 
 /**
@@ -31,19 +32,37 @@ const EMPTY_RESULT = {
  */
 const NEW_CARDS_PER_SESSION = 20;
 
+/**
+ * How many reviews one round may hold. A learner who has been away for a
+ * month can have a four-figure backlog, and an unbounded queue served all
+ * of it — every one of those rows fetched, and every card serialised to a
+ * browser that would show forty of them before the bus arrived.
+ *
+ * The cap is as much a product decision as a payload one: nobody clears a
+ * thousand cards in a sitting, and a queue with no end tells them nothing
+ * about where they are. A round that finishes — with the true remainder
+ * named on the way out, which the counts in `vocabularyCounts.ts` know
+ * without fetching anything — gives them a finish line and a choice. Sixty
+ * is four to six minutes of grading; Anki's own default of two hundred a
+ * day is a longer sitting than a phone invites.
+ */
+const DUE_CARDS_PER_ROUND = 60;
+
 const PROGRESS_COLUMNS = 'deck_id, word_id, phase, step, interval_days, ease_factor, due_at, reps, lapses';
 
 /**
- * The cards that are due, oldest first — chosen by the database, not here.
- * `lte('due_at', now)` plus the ordering is served by the table's
- * (user_id, due_at) index, so what comes back is the review queue itself
- * rather than every row the learner owns for us to sift through.
+ * The most overdue cards, up to `limit` of them — chosen, sorted and
+ * counted out by the database, not here. `lte('due_at', now)` with the
+ * ordering and the limit is served by the table's (user_id, due_at) index,
+ * so what comes back is this round's review queue rather than every row the
+ * learner owns for us to sift through and then throw most of away.
  */
 async function loadDueCards(
 	supabase: SupabaseClient,
 	userId: string,
 	deckIds: readonly string[],
-	now: Date
+	now: Date,
+	limit: number
 ): Promise<TrainingCard[]> {
 	const { data, error } = await supabase
 		.from('user_vocabulary_progress')
@@ -51,7 +70,8 @@ async function loadDueCards(
 		.eq('user_id', userId)
 		.in('deck_id', deckIds as string[])
 		.lte('due_at', now.toISOString())
-		.order('due_at', { ascending: true });
+		.order('due_at', { ascending: true })
+		.limit(limit);
 
 	if (error) {
 		console.error('vocabulary train: failed to load due cards', error);
@@ -154,7 +174,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, claims 
 	const now = new Date();
 	const [counts, dueCards] = await Promise.all([
 		countVocabularyProgress(supabase, verified.sub, deckIds, now),
-		loadDueCards(supabase, verified.sub, deckIds, now)
+		loadDueCards(supabase, verified.sub, deckIds, now, DUE_CARDS_PER_ROUND)
 	]);
 
 	// Only worth hunting for new words when the counts say there are some —
@@ -169,15 +189,18 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, claims 
 	// The counts describe the queue that was actually built, not everything
 	// that could have gone into it — `newCount` is what the learner will
 	// meet this session, not how many unseen words their decks still hold.
-	// `newCardsHeldBack` is the rest: what the cap kept back, which the
-	// caught-up screen names so finishing a round reads as "there's more
-	// whenever you want it" rather than as having exhausted the decks.
+	// The two held-back numbers are the rest, which the end-of-round screen
+	// names so finishing reads as "there's more whenever you want it" rather
+	// than as having exhausted the collection. Both come from counts, not
+	// from lists — the queue above is capped precisely so those lists are
+	// never built.
 	return {
 		hasAddedDecks: true,
 		queue: [...dueCards, ...queuedNewCards],
 		newCount: queuedNewCards.length,
 		dueCount: dueCards.length,
-		newCardsHeldBack: Math.max(0, unseen - queuedNewCards.length)
+		newCardsHeldBack: Math.max(0, unseen - queuedNewCards.length),
+		dueCardsHeldBack: Math.max(0, (counts?.due ?? 0) - dueCards.length)
 	};
 };
 

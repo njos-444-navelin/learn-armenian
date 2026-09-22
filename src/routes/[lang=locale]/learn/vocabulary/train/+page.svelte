@@ -54,6 +54,7 @@
 			<VocabularyTrainer
 				initialQueue={data.queue}
 				newCardsHeldBack={data.newCardsHeldBack}
+				dueCardsHeldBack={data.dueCardsHeldBack}
 				onNextRound={startNextRound}
 				{nextRoundPending}
 			/>

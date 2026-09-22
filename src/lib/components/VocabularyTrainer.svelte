@@ -22,10 +22,10 @@
 		gradeLabels,
 		gradeSaveFailedMessage,
 		intervalLabel,
-		newWordsWaitingMessage,
 		nextCardInLabel,
 		nextRoundLabel,
 		roundDoneHeading,
+		roundRemainingMessage,
 		todaysCountLabel
 	} from '$lib/i18n/dictionaries/vocabularyTraining';
 	import { pushToast } from '$lib/stores/toasts.svelte';
@@ -34,12 +34,14 @@
 
 	interface Props {
 		initialQueue: readonly TrainingCard[];
-		/** Never-studied words this round's cap kept out of `initialQueue`
-		 * (see NEW_CARDS_PER_SESSION in the training page's server load).
-		 * Turns the caught-up screen into "that round's done, here's what's
-		 * left" rather than letting a capped session look like the end of
-		 * the collection. */
+		/** What this round's two caps kept out of `initialQueue` (see
+		 * NEW_CARDS_PER_SESSION and DUE_CARDS_PER_ROUND in the training
+		 * page's server load). Turns the caught-up screen into "that round's
+		 * done, here's what's left" rather than letting a capped session
+		 * look like the end of the collection. Both are counts the server
+		 * knows without building either list. */
 		newCardsHeldBack: number;
+		dueCardsHeldBack: number;
 		/** Fetches the next round. The page owns this (and the pending flag
 		 * below) because delivering the new queue means remounting this
 		 * component — see the `{#key}` it sits in. */
@@ -47,7 +49,13 @@
 		nextRoundPending: boolean;
 	}
 
-	let { initialQueue, newCardsHeldBack, onNextRound, nextRoundPending }: Props = $props();
+	let {
+		initialQueue,
+		newCardsHeldBack,
+		dueCardsHeldBack,
+		onNextRound,
+		nextRoundPending
+	}: Props = $props();
 
 	// `initialQueue` is only ever meant to be read once, at mount — this
 	// component owns advancing through it locally afterwards (see
@@ -290,9 +298,9 @@
 	</div>
 {:else if waiting.length > 0}
 	<p aria-live="polite">{t(nextCardInLabel(soonestWaitMinutes))}</p>
-{:else if newCardsHeldBack > 0}
+{:else if newCardsHeldBack > 0 || dueCardsHeldBack > 0}
 	<h2>{t(roundDoneHeading)}</h2>
-	<p>{t(newWordsWaitingMessage(newCardsHeldBack))}</p>
+	<p>{t(roundRemainingMessage(dueCardsHeldBack, newCardsHeldBack))}</p>
 	<div class="actions">
 		<Button variant="primary" loading={nextRoundPending} onclick={onNextRound}>
 			{t(nextRoundLabel)}
