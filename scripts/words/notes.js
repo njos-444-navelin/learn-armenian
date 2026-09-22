@@ -3,7 +3,8 @@
 /**
  * The word-comments review page — internal, local only. Lists every word
  * in the library (`src/lib/content/words/entries.ts`) with its translation,
- * its `global` comment and its `cardOnly` comment, each in both languages,
+ * its `global` comment and its `cardOnly` comment, each in both languages
+ * (or in one — a comment may be written for a single reader),
  * as editable fields — so all the definitions can be read in one place and
  * adjusted without hunting through the file.
  *
@@ -17,7 +18,8 @@
  *
  * Saving writes straight back into `entries.ts`, editing just the one
  * entry's `translation`, `global` and `cardOnly` in place (a comment emptied
- * in both languages is removed; a comment added to a word that had none is
+ * in both languages is removed; one left in a single language is written in
+ * that language alone; a comment added to a word that had none is
  * inserted; a one-line entry is expanded to the multi-line form first).
  * Every other byte of the file — comments, ordering, the other words — is
  * left alone. After writing, the file is re-imported so its own load-time
@@ -158,7 +160,11 @@ function applyEdit(source, id, fields) {
 	if (translationEn === '' || translationRu === '') throw new Error('translation: both languages are required');
 	const translation = `translation: { en: ${quote(translationEn)}, ru: ${quote(translationRu)} }`;
 
-	const addsComment = COMMENTS.some((field) => fields[field].en.trim() !== '' && !object.includes(`\n\t\t${field}: {`));
+	const addsComment = COMMENTS.some(
+		(field) =>
+			(fields[field].en.trim() !== '' || fields[field].ru.trim() !== '') &&
+			!object.includes(`\n\t\t${field}: {`)
+	);
 	if (!object.includes('\n') && addsComment) {
 		const parts = ONE_LINE.exec(object);
 		if (parts === null) throw new Error(`word "${id}": one-line entry has an unexpected shape`);
@@ -171,15 +177,28 @@ function applyEdit(source, id, fields) {
 	if (!TRANSLATION.test(object)) throw new Error(`word "${id}": entry has an unexpected shape`);
 	object = object.replace(TRANSLATION, translation);
 
-	/** @param {'global' | 'cardOnly'} field */
+	/**
+	 * A comment block — either language on its own, or both. A comment may be
+	 * written for one reader only (`PartiallyTranslated`).
+	 * @param {'global' | 'cardOnly'} field
+	 */
 	const blockOf = (field) =>
-		new RegExp(`\\n((?:\\t\\t//[^\\n]*\\n)*)\\t\\t${field}: \\{\\n\\t\\t\\ten: ${STRING},\\n\\t\\t\\tru: ${STRING}\\n\\t\\t\\}`).exec(object);
+		new RegExp(
+			`\\n((?:\\t\\t//[^\\n]*\\n)*)\\t\\t${field}: \\{\\n\\t\\t\\t(?:en: ${STRING}(?:,\\n\\t\\t\\tru: ${STRING})?|ru: ${STRING})\\n\\t\\t\\}`
+		).exec(object);
 
 	for (const field of COMMENTS) {
 		const en = fields[field].en.trim();
 		const ru = fields[field].ru.trim();
-		if ((en === '') !== (ru === '')) throw new Error(`${field}: fill in both languages, or neither`);
-		const wanted = en === '' ? null : `${field}: {\n\t\t\ten: ${quote(en)},\n\t\t\tru: ${quote(ru)}\n\t\t}`;
+		// One language on its own is allowed and meant: a fact can be worth
+		// stating to one reader and not the other, and that other reader then
+		// sees no comment rather than a sentence written for someone else
+		// (docs/DIALOGUES.md, "Word comments", rule 12). Emptying both removes
+		// the comment.
+		const langs = [];
+		if (en !== '') langs.push(`en: ${quote(en)}`);
+		if (ru !== '') langs.push(`ru: ${quote(ru)}`);
+		const wanted = langs.length === 0 ? null : `${field}: {\n\t\t\t${langs.join(',\n\t\t\t')}\n\t\t}`;
 		const existing = blockOf(field);
 
 		if (existing !== null && wanted !== null) {
@@ -325,7 +344,7 @@ kbd{font-family:var(--mono);font-size:.75rem;border:1px solid var(--line);border
 	<div>
 		<h1>Word comments</h1>
 		<p class="hint" id="deckHint" hidden>Showing one deck’s words in the deck’s order — the whole library is at <a href="/">/</a>. A word the deck lists but the library lacks is named below in red.</p>
-		<p class="hint">Every library word with its translation and its two comments: <code>global</code> shows everywhere — cards and dialogue popovers — and never quotes a phrase; <code>card-only</code> shows on the card and in the trainer only, and may quote the phrase. Edits save into <code>entries.ts</code> and go through its own checks. <kbd>Ctrl</kbd>+<kbd>S</kbd> saves everything changed. Rules: docs/DIALOGUES.md, “Word comments”.</p>
+		<p class="hint">Every library word with its translation and its two comments: <code>global</code> shows everywhere — cards and dialogue popovers — and never quotes a phrase; <code>card-only</code> shows on the card and in the trainer only, and may quote the phrase. Either may be left in one language, when the fact is worth stating to one reader and not the other — the other then sees no comment at all. Edits save into <code>entries.ts</code> and go through its own checks. <kbd>Ctrl</kbd>+<kbd>S</kbd> saves everything changed. Rules: docs/DIALOGUES.md, “Word comments”.</p>
 	</div>
 	<div class="bar">
 		<input id="q" type="search" placeholder="Filter — Armenian, translation, id, or comment text" autocomplete="off">
@@ -386,7 +405,12 @@ function render() {
 
 function updateCounts() {
 	const dirty = words.filter(isDirty).length;
-	count.innerHTML = words.length + ' words · ' + words.filter(hasComment).length + ' with a comment · ' + shown + ' shown' + (dirty ? ' · <b>' + dirty + ' unsaved</b>' : '');
+	// One-language comments are deliberate, but a half-written one looks the
+	// same in the file — so they are counted here, where an accidental one
+	// stands out after a save.
+	const oneLang = words.filter((w) => COMMENTS.some((f) => w[f] && !w[f].en !== !w[f].ru)).length;
+	count.innerHTML = words.length + ' words · ' + words.filter(hasComment).length + ' with a comment · ' +
+		(oneLang ? oneLang + ' in one language · ' : '') + shown + ' shown' + (dirty ? ' · <b>' + dirty + ' unsaved</b>' : '');
 	saveAllButton.disabled = dirty === 0;
 	saveAllButton.textContent = dirty ? 'Save all (' + dirty + ')' : 'Save all';
 }

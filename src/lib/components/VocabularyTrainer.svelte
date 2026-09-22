@@ -10,7 +10,7 @@
 	import { fitText } from '$lib/actions/fitText';
 	import { wordAudioSrc } from '$lib/content/words/audio';
 	import type { TrainingCard } from '$lib/content/vocabulary/training';
-	import { getLocale, t } from '$lib/i18n/current';
+	import { getLocale, t, tPartial } from '$lib/i18n/current';
 	import { withLocale } from '$lib/i18n/paths';
 	import { registerLabels } from '$lib/i18n/dictionaries/vocabulary';
 	import {
@@ -230,11 +230,14 @@
 									{#if current.word.register !== undefined}
 										<em class="register">{t(registerLabels[current.word.register])}</em>
 									{/if}
-									{#if current.word.global !== undefined}
-										<p class="note">{t(current.word.global)}</p>
+									<!-- Either comment may exist in one language only. -->
+									{@const global = tPartial(current.word.global)}
+									{#if global !== undefined}
+										<p class="note">{global}</p>
 									{/if}
-									{#if current.word.cardOnly !== undefined}
-										<p class="note">{t(current.word.cardOnly)}</p>
+									{@const cardOnly = tPartial(current.word.cardOnly)}
+									{#if cardOnly !== undefined}
+										<p class="note">{cardOnly}</p>
 									{/if}
 								{/if}
 							</div>

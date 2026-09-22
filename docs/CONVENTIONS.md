@@ -375,6 +375,16 @@ Rules that follow from that:
   — with the affectionate -իկ`, never `մայր — …`): a comment follows
   natural sentence flow. Applies to `global`, `cardOnly` and a dialogue
   `here` remark alike — docs/DIALOGUES.md, "Word comments", rule 6.
+- **Each language is written for its own reader, and a comment may be in
+  one language only.** The `en` and the `ru` are two sentences written
+  from scratch, not one translated twice — down to the construction:
+  «-ի на слове տավար» is "the -ի on տավար" in Russian words and English
+  grammar, where Russian says «в конце слова» (read the Russian aloud
+  before saving it; `entries.ts` throws on that one phrasing as a
+  tripwire). And when a fact is worth stating to only one of the two
+  readers, fill in that language alone — `global` and `cardOnly` are
+  `PartiallyTranslated`, and the other reader then sees no comment, which
+  is better than a sentence written for someone else.
 - **A comment says one fact per sentence, about this word, in plain
   words** — not an etymology that opens with a different word, not three
   facts stacked with dashes. Match the feel of the existing decks' comments
