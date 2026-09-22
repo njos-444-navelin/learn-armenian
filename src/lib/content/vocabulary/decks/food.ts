@@ -4,9 +4,10 @@
  * through `loadDeck.ts`, which resolves the ids and rejects a typo'd one;
  * never import this file directly (Conventions §10).
  *
- * The lesson's order. It already reads well as a sequence: Միս comes before
- * the two kinds of meat built on it, and Կաթ before Կաթնաշոռ, whose comment
- * points back to it.
+ * The lesson's order, with one change: Ձուկ is lifted to sit next to Ձու, a
+ * letter apart and a syllable apart, so the pair is read together. The rest
+ * already reads well as a sequence: Միս comes before the two kinds of meat
+ * built on it, and Կաթ before Կաթնաշոռ, whose comment points back to it.
  */
 export const WORD_IDS: readonly string[] = [
 	'hats',
@@ -14,10 +15,10 @@ export const WORD_IDS: readonly string[] = [
 	'panir',
 	'karag',
 	'dzu',
+	'dzuk',
 	'mis',
 	'tavari-mis',
 	'khozi-mis',
-	'dzuk',
 	'hav',
 	'brindz',
 	'alyur',

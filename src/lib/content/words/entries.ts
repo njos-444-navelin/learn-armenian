@@ -541,6 +541,10 @@ export const WORDS: readonly Word[] = [
 		global: {
 			en: 'Literally “sugar sand” — the granulated kind.',
 			ru: 'Как и в русском, буквально «сахарный песок».'
+		},
+		cardOnly: {
+			en: 'In everyday speech you will often hear the Russian պեսոկ — “sand” on its own.',
+			ru: 'В быту часто говорят просто պեսոկ.'
 		}
 	},
 	{ id: 'agh', armenian: 'Աղ', translation: { en: 'Salt', ru: 'Соль' } },
@@ -552,6 +556,10 @@ export const WORDS: readonly Word[] = [
 		global: {
 			en: 'Literally “sour cream”: թթու is “sour”, սեր is “cream”.',
 			ru: 'Буквально «кислые сливки»: թթու — «кислый», սեր — «сливки».'
+		},
+		cardOnly: {
+			en: 'In everyday speech you will often hear the Russian սմետանա.',
+			ru: 'В быту часто говорят սմետանա.'
 		}
 	},
 	{
@@ -561,6 +569,10 @@ export const WORDS: readonly Word[] = [
 		global: {
 			en: 'Built on the word կաթ — “milk”.',
 			ru: 'Образовано от слова կաթ — «молоко».'
+		},
+		cardOnly: {
+			en: 'In everyday speech you will often hear the Russian տվարոգ.',
+			ru: 'В быту часто говорят տվարոգ.'
 		}
 	},
 
@@ -591,7 +603,15 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Ընկեր',
 		translation: { en: 'Friend', ru: 'Друг' }
 	},
-	{ id: 'tey', armenian: 'Թեյ', translation: { en: 'Tea', ru: 'Чай' } },
+	{
+		id: 'tey',
+		armenian: 'Թեյ',
+		translation: { en: 'Tea', ru: 'Чай' },
+		cardOnly: {
+			en: 'In everyday speech you will often hear the Russian չայ.',
+			ru: 'В быту часто говорят չայ.'
+		}
+	},
 	{ id: 'zham', armenian: 'Ժամ', translation: { en: 'Hour', ru: 'Час' } },
 	{ id: 'im', armenian: 'Իմ', translation: { en: 'My', ru: 'Мой' } },
 	{ id: 'tsaghik', armenian: 'Ծաղիկ', translation: { en: 'Flower', ru: 'Цветок' } },
@@ -602,8 +622,8 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Հաց',
 		translation: { en: 'Bread', ru: 'Хлеб' },
 		global: {
-			en: 'Also means food or a meal in general.',
-			ru: 'Также значит еду или трапезу вообще.'
+			en: 'May also mean food or a meal in general.',
+			ru: 'Может значить и еду, трапезу вообще.'
 		}
 	},
 	{ id: 'dzuk', armenian: 'Ձուկ', translation: { en: 'Fish', ru: 'Рыба' } },
@@ -848,7 +868,15 @@ export const WORDS: readonly Word[] = [
 	{ id: 'kat', armenian: 'Կաթ', translation: { en: 'Milk', ru: 'Молоко' } },
 	{ id: 'dzu', armenian: 'Ձու', translation: { en: 'Egg', ru: 'Яйцо' } },
 	{ id: 'mis', armenian: 'Միս', translation: { en: 'Meat', ru: 'Мясо' } },
-	{ id: 'surch', armenian: 'Սուրճ', translation: { en: 'Coffee', ru: 'Кофе' } }
+	{
+		id: 'surch',
+		armenian: 'Սուրճ',
+		translation: { en: 'Coffee', ru: 'Кофе' },
+		cardOnly: {
+			en: 'In everyday speech you will often hear the Russian կոֆե.',
+			ru: 'В быту часто говорят կոֆե.'
+		}
+	}
 ];
 
 const wordById: ReadonlyMap<string, Word> = new Map(WORDS.map((word) => [word.id, word]));

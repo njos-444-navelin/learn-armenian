@@ -550,3 +550,23 @@ and two of those needed more:
   model to linger.
 - A `eleven_multilingual_v2` control arm was generated for both and
   rejected outright — see "Voices and model" for why it's a last resort.
+
+Two more clips were redone on 2026-09-22, both noticed while listening to
+the finished deck:
+
+- `dzu` (Ձու) read as "zu": the engine dropped the d of the Ձ affricate in
+  every plain take, old and new. Respelling the prompt `Դձու։` — the Ո into
+  Վ trick applied to an affricate — did restore the d but as a separate
+  letter, "d-zu". What was picked is a `Ձու՛։` shesht take. **A surgical
+  arm worth remembering if a shesht ever fails here:** the same voice says
+  the affricate correctly in Ձուկ, so three Ձուկ takes were cut at the dip
+  before the final կ release (~0.26 s, 30 ms fade, 150 ms pad) to make a
+  clean "dzu". It was not needed this time, but a word that is another
+  word's first syllable can be borrowed that way.
+- `tey` (Թեյ) had a small artifact glued to its end — the level decayed to
+  −44 dB at 0.47 s and rose back to −24 dB by 0.55 s with no gap between,
+  so the trim script saw one loud segment and kept it. Cut by hand at
+  0.49 s; safe because Թեյ ends in the glide -յ, not a fricative. Same
+  shape as `karag` above: **when a reviewer reports a gasp the script
+  "kept", print the RMS tail and look for a rise after the decay**, not
+  for a gap.

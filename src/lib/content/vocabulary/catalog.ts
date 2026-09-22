@@ -56,8 +56,8 @@ export const VOCABULARY_CATALOG: readonly VocabularyDeck[] = [
 		id: 'food',
 		title: { en: 'Food', ru: 'Еда' },
 		description: {
-			en: 'Bread, milk, meat and the rest of the shopping list',
-			ru: 'Хлеб, молоко, мясо и остальной список покупок'
+			en: 'Bread, milk, meat and other things on the shopping list',
+			ru: 'Хлеб, молоко, мясо и другие покупки'
 		},
 		level: 'beginner',
 		wordCount: 20,
