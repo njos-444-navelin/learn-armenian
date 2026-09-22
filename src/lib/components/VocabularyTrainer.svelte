@@ -87,6 +87,9 @@
 	// too). Summing both would leave the count unchanged across a
 	// due-card→waiting move, which reads as if grading it did nothing.
 	let remainingDue = $derived(activeQueue.length - remainingNew);
+	// Whether this round is one of several — see `todaysCountLabel`, which
+	// only calls it a round when there's another to reach.
+	let moreWaiting = $derived(dueCardsHeldBack > 0 || newCardsHeldBack > 0);
 	let previews = $derived(current !== undefined ? previewGrades(current.state, now) : undefined);
 	let soonestWaitMinutes = $derived(
 		waiting.length > 0 ? Math.min(...waiting.map((card) => minutesUntilDue(card.state, now))) : 0
@@ -213,7 +216,7 @@
 	     line can only ever say "0 new · 0 due for review", which reads as a
 	     flat contradiction directly above a message naming the dozens of
 	     words still waiting. -->
-	<p class="summary">{t(todaysCountLabel(remainingDue, remainingNew))}</p>
+	<p class="summary">{t(todaysCountLabel(remainingDue, remainingNew, moreWaiting))}</p>
 
 	<div class="trainer">
 		<div class="card-slot">

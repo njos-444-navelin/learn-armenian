@@ -45,24 +45,32 @@ export const heading: Translated = {
 };
 
 /**
- * What's in the round the learner is working through, in the order the
- * queue serves it: reviews, then new words. Dynamic/interpolated, see
- * Conventions §1.
+ * What's in front of the learner, in the order the queue serves it:
+ * reviews, then new words. Dynamic/interpolated, see Conventions §1.
  *
- * Named as a round on purpose. Both numbers are capped (see
- * DUE_CARDS_PER_ROUND and NEW_CARDS_PER_SESSION in the training page's
- * server load), so a learner with a backlog sees a smaller figure here than
- * the "N due now" badge on their profile, which counts their whole
- * collection. Without the framing those two numbers just contradict each
- * other; with it, one says what's waiting and the other says what's in
- * front of you — and it's the same word the end-of-round screen uses when
- * it hands out the next one.
+ * `moreWaiting` names it as a round, and only when it is one. Both numbers
+ * are capped (see DUE_CARDS_PER_ROUND and NEW_CARDS_PER_SESSION in the
+ * training page's server load), so a learner with a backlog sees a smaller
+ * figure here than the "N due now" badge on their profile, which counts
+ * their whole collection — the framing is what keeps those two honest
+ * numbers from reading as a contradiction, and it's the same word the
+ * end-of-round screen uses when it offers the next one.
+ *
+ * With nothing held back there's no gap to explain and no next round to
+ * reach: that learner finishes to "you're all caught up" and never meets a
+ * second one, so naming this one would introduce a thing that doesn't
+ * happen to them. Fixed for the session either way — what's held back is
+ * decided when the round is built, so this can't switch wording partway
+ * through.
  */
-export function todaysCountLabel(dueCount: number, newCount: number): Translated {
-	return {
-		en: `This round: ${dueCount} to review · ${newCount} new`,
-		ru: `Этот раунд: ${dueCount} на повторение · ${newCount} новых`
-	};
+export function todaysCountLabel(
+	dueCount: number,
+	newCount: number,
+	moreWaiting: boolean
+): Translated {
+	const en = `${dueCount} to review · ${newCount} new`;
+	const ru = `${dueCount} на повторение · ${newCount} новых`;
+	return moreWaiting ? { en: `This round: ${en}`, ru: `Этот раунд: ${ru}` } : { en, ru };
 }
 
 export const flipHint: Translated = {
