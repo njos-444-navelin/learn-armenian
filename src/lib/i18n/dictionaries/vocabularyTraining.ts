@@ -87,6 +87,21 @@ export function flipButtonLabel(flipped: boolean): Translated {
 const DAYS_PER_MONTH = 30.44; // 365.25 / 12 — matches Anki's own approximation
 const DAYS_PER_YEAR = 365.25;
 
+/**
+ * Joins a duration's number to its unit. A normal space lets the two wrap
+ * apart — "10" ending one line and "min" starting the next reads as two
+ * separate facts rather than one duration, and both places this renders
+ * invite exactly that break: the grade buttons are a four-column flex row
+ * on a phone (see `.grades` in VocabularyTrainer.svelte), and the countdown
+ * lines below embed the result mid-sentence, where Russian's longer
+ * wording pushes it right up against the measure.
+ *
+ * An escape rather than a literal U+00A0 on purpose: the character is
+ * invisible in an editor and indistinguishable from an ordinary space, so
+ * written literally it survives neither review nor a stray reformat.
+ */
+const NBSP = '\u00A0';
+
 /** Whole minutes until a grade's resulting review — shown on that grade's
  * button. Dynamic/interpolated, see Conventions §1. Months/years get one
  * decimal place (e.g. "2.3 mo"), same as Anki's own reviewer — a card
@@ -96,23 +111,23 @@ const DAYS_PER_YEAR = 365.25;
 export function intervalLabel(minutes: number): Translated {
 	if (minutes < 60) {
 		const value = Math.max(1, minutes);
-		return { en: `${value} min`, ru: `${value} мин` };
+		return { en: `${value}${NBSP}min`, ru: `${value}${NBSP}мин` };
 	}
 	if (minutes < 60 * 24) {
 		const value = Math.max(1, Math.round(minutes / 60));
-		return { en: `${value} h`, ru: `${value} ч` };
+		return { en: `${value}${NBSP}h`, ru: `${value}${NBSP}ч` };
 	}
 	const days = minutes / (60 * 24);
 	if (days < 30) {
 		const value = Math.max(1, Math.round(days));
-		return { en: `${value} d`, ru: `${value} д` };
+		return { en: `${value}${NBSP}d`, ru: `${value}${NBSP}д` };
 	}
 	if (days < DAYS_PER_YEAR) {
 		const value = (days / DAYS_PER_MONTH).toFixed(1);
-		return { en: `${value} mo`, ru: `${value.replace('.', ',')} мес` };
+		return { en: `${value}${NBSP}mo`, ru: `${value.replace('.', ',')}${NBSP}мес` };
 	}
 	const value = (days / DAYS_PER_YEAR).toFixed(1);
-	return { en: `${value} y`, ru: `${value.replace('.', ',')} г` };
+	return { en: `${value}${NBSP}y`, ru: `${value.replace('.', ',')}${NBSP}г` };
 }
 
 /** Full grade name — shown as the primary label on each grade button
@@ -139,6 +154,23 @@ export const browseTopicsLabel: Translated = {
 	ru: 'Выбрать темы'
 };
 
+/**
+ * Heads the countdown screen — the one a learner reaches with nothing held
+ * back and only a card or two still on a short step (see `waiting` in
+ * VocabularyTrainer.svelte).
+ *
+ * Its two sibling end-of-round screens both open with a heading, and
+ * without one this screen was a lone line of text floating mid-page. It
+ * can't borrow either of theirs: `allCaughtUpHeading` would be a lie while
+ * cards are still coming back, and `roundDoneHeading` promises a next round
+ * that, here, doesn't exist. So it says the one true thing — the finish
+ * line is close, it just isn't crossed yet.
+ */
+export const nearlyThereHeading: Translated = {
+	en: 'Nearly there',
+	ru: 'Почти всё'
+};
+
 /** Shown between finishing today's visible queue and a just-graded card
  * resurfacing on its own (see `waiting` in VocabularyTrainer.svelte).
  * Dynamic/interpolated, see Conventions §1. */
@@ -150,6 +182,34 @@ export function nextCardInLabel(minutes: number): Translated {
 	return {
 		en: `Next card in about ${interval.en}`,
 		ru: `Следующая карточка примерно через ${interval.ru}`
+	};
+}
+
+/**
+ * The stragglers footnote on the round-done screen: cards this round put
+ * off by a minute or ten (see `waiting` in VocabularyTrainer.svelte), which
+ * resurface on their own if the learner stays on the page.
+ *
+ * Distinct from `nextCardInLabel` above, which *is* the whole screen when
+ * there's genuinely nothing else to do. Here it sits under
+ * `roundRemainingMessage` as a footnote, so it has to explain why a card is
+ * still coming on a screen that just announced the round is done — hence
+ * "put off" rather than a bare countdown.
+ *
+ * Phrased without a verb, for the same reason `roundRemainingMessage` is:
+ * neither language then has to agree one with a count that might be one or
+ * forty. Russian declines the noun, see ruPlural.ts.
+ */
+export function stragglersReturnLabel(count: number, minutes: number): Translated {
+	const interval = intervalLabel(minutes);
+	const ruCards = ruPluralForm(count, [
+		'отложенная карточка',
+		'отложенные карточки',
+		'отложенных карточек'
+	]);
+	return {
+		en: `Plus ${count} card${count === 1 ? '' : 's'} you put off — back in about ${interval.en}.`,
+		ru: `Плюс ${count} ${ruCards} — примерно через ${interval.ru}.`
 	};
 }
 

@@ -291,6 +291,13 @@ it just because it's mid-sentence (e.g. "как Вы хотите", "Ваш ак
 that's a different, more casual house style some software adopts, but it's
 not the one used here.
 
+It also applies when a comment *mentions* the polite form rather than uses
+it — `тому, с кем на «Вы»` — even though quoted examples inside a comment
+are otherwise lowercase (rule 10). The capital is what marks it as the
+respectful address rather than the plural. Lowercase `«вы»` stays lowercase
+where it names the grammatical form that covers both, as in `форма «вы»` or
+`дательный падеж от դուք — «вы», вежливое или множественное`.
+
 This does **not** apply to infinitive-form verbs (`Проверить себя`,
 `Продолжить`, `Начать обучение`) — infinitives don't inflect for person, so
 they're register-neutral and are the normal convention for button labels
