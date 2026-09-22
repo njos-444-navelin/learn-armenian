@@ -5,7 +5,7 @@
 	import type { DialogueToken } from '$lib/content/dialogues/types';
 	import { wordAudioSrc } from '$lib/content/words/audio';
 	import type { Word } from '$lib/content/words/types';
-	import { t } from '$lib/i18n/current';
+	import { t, tPartial } from '$lib/i18n/current';
 	import { wordBaseFormLabel, wordHereLabel } from '$lib/i18n/dictionaries/dialogues';
 	import { registerLabels } from '$lib/i18n/dictionaries/vocabulary';
 	import SpeakerButton from './SpeakerButton.svelte';
@@ -102,8 +102,11 @@
 			{/if}
 			<SpeakerButton src={wordAudioSrc(word.id)} />
 		</span>
-		{#if word.global !== undefined}
-			<span class="entry-note">{t(word.global)}</span>
+		<!-- The comment may exist in one language only (see
+		     `PartiallyTranslated`); nothing shows in the other, rather than a
+		     sentence written for the other reader. -->
+		{#if tPartial(word.global) !== undefined}
+			<span class="entry-note">{tPartial(word.global)}</span>
 		{/if}
 		<!-- No `word.cardOnly` here, on purpose: the tapped line *is* the
 		     usage, and a card-only comment about some other phrase the word

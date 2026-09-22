@@ -3,7 +3,7 @@
 	import { wordAudioSrc } from '$lib/content/words/audio';
 	import type { Word } from '$lib/content/words/types';
 	import { registerLabels } from '$lib/i18n/dictionaries/vocabulary';
-	import { t } from '$lib/i18n/current';
+	import { t, tPartial } from '$lib/i18n/current';
 
 	interface Props {
 		words: readonly Word[];
@@ -11,6 +11,15 @@
 
 	let { words }: Props = $props();
 </script>
+
+<!-- A comment can be written in one language only (see `PartiallyTranslated`),
+     so it is resolved first and the paragraph skipped when this locale has
+     none — nothing shows, rather than the other reader's sentence. -->
+{#snippet note(text: string | undefined)}
+	{#if text !== undefined}
+		<p class="note">{text}</p>
+	{/if}
+{/snippet}
 
 <ul class="words">
 	{#each words as word (word.id)}
@@ -23,14 +32,10 @@
 						<em class="register">{t(registerLabels[word.register])}</em>
 					{/if}
 				</div>
-				{#if word.global !== undefined}
-					<p class="note">{t(word.global)}</p>
-				{/if}
+				{@render note(tPartial(word.global))}
 				<!-- `cardOnly` is exactly that — the dialogue popover deliberately
 				     doesn't show it (see Word.cardOnly in words/types.ts). -->
-				{#if word.cardOnly !== undefined}
-					<p class="note">{t(word.cardOnly)}</p>
-				{/if}
+				{@render note(tPartial(word.cardOnly))}
 			</div>
 			<SpeakerButton src={wordAudioSrc(word.id)} />
 		</li>

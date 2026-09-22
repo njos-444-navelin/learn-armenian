@@ -250,6 +250,29 @@ shape the first eight describe:
     needs a word of framing that "is" doesn't. For every comment, ask what
     *this* reader already knows and what they'd find odd, and write from
     there. This applies to `here` remarks and translations too.
+
+    **The sentence is traced as easily as the content — watch the
+    phrasing.** Տավարի միս shipped «-ի на слове տավար — окончание
+    родительного падежа», word for word off "the -ի on տավար": every word
+    Russian, the construction English. A Russian speaker says «в конце
+    слова». It passes a read-through because nothing in it is wrong; it
+    only fails when read aloud. So read the Russian aloud, on its own,
+    without the English in front of you — if it sounds like a translation,
+    it is one. `entries.ts` throws on «на слове» specifically, as a
+    tripwire for the one calque that got through; it cannot catch the
+    next one.
+
+    **A comment may be written in one language only.** Sometimes a fact is
+    worth stating to one reader and not the other: Թթվասեր carries
+    «Буквально «кислые сливки»» for a Russian reader and nothing in
+    English, because the English card already says "Sour cream" and the
+    literal reading adds nothing there. Fill in the language that needs it
+    and leave the other empty — the reader of the other language sees no
+    comment at all, which is the point, and beats a sentence written for
+    somebody else or a limp translation of one. (`global` and `cardOnly`
+    are `PartiallyTranslated`; the review page counts one-language
+    comments in its header so an unfinished one stands out. Half of a
+    comment both readers want is unfinished, not this.)
 13. **Set like a sentence in a book.** Ordinary punctuation only — dashes,
     quotes, brackets, a colon, the hyphen that marks a suffix (-իկ) — and
     words for everything else: "տղա and մարդ", not "տղա + մարդ"; "as

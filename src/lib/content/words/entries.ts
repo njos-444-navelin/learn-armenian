@@ -36,10 +36,22 @@ import type { Word } from './types';
  * translation, no naming a formal/informal counterpart (`register` is the
  * tag for that) — are in docs/DIALOGUES.md, "Word comments"; anything
  * about one line goes on that token's `here` instead. The check at the
- * bottom of this file catches the most common slip. And the `en` and `ru`
- * texts are written separately, each for its own reader — never one
- * translated from the other (see Եք: English has to explain the polite
- * plural "you"; Russian just says "like вы").
+ * bottom of this file catches the most common slip.
+ *
+ * The `en` and `ru` texts are written separately, each for its own reader —
+ * never one translated from the other (see Եք: English has to explain the
+ * polite plural "you"; Russian just says "like вы"). That holds right down
+ * to the phrasing: «-ի на слове տավար», traced word for word off "the -ի on
+ * տավար", is grammatical and nobody says it — Russian puts it «в конце
+ * слова». Write the Russian sentence, don't render the English one.
+ *
+ * A comment may also carry just one language (`global`/`cardOnly` are
+ * `PartiallyTranslated`), when the fact is worth stating to one reader and
+ * not the other — Թթվասեր's «Буквально «кислые сливки»» explains a word a
+ * Russian reader already half-knows, and there is nothing an English reader
+ * needs in its place. That reader then sees no comment, which is better than
+ * a sentence written for somebody else. Half of a comment both readers want
+ * is not that; it's unfinished.
  *
  * Sections below are only for reading convenience; ids are a single flat
  * namespace and must be unique across the whole file (checked at module
@@ -498,6 +510,79 @@ export const WORDS: readonly Word[] = [
 		}
 	},
 
+	// --- Food (vocabulary deck `food`) ---
+	// Everyday groceries, from a lesson. Nine of the twenty — Հաց, Կաթ, Պանիր,
+	// Ձու, Միս, Ձուկ, Ջուր, Թեյ and Սուրճ — were already here as alphabet
+	// examples and bread-shop words, and the deck reuses those ids.
+	{ id: 'karag', armenian: 'Կարագ', translation: { en: 'Butter', ru: 'Сливочное масло' } },
+	// The two kinds of meat are two-word phrases — the only multi-word entries
+	// in the library so far — hence the hyphenated ids.
+	{
+		id: 'tavari-mis',
+		armenian: 'Տավարի միս',
+		translation: { en: 'Beef', ru: 'Говядина' },
+		global: {
+			en: 'Literally “cattle’s meat” — the -ի on տավար is the genitive ending.',
+			ru: 'Буквально «мясо скота»: -ի в конце слова տավար — окончание родительного падежа.'
+		}
+	},
+	{
+		id: 'khozi-mis',
+		armenian: 'Խոզի միս',
+		translation: { en: 'Pork', ru: 'Свинина' },
+		global: {
+			en: 'Literally “pig’s meat” — the -ի on խոզ is the genitive ending.',
+			ru: 'Буквально «мясо свиньи»: -ի в конце слова խոզ — окончание родительного падежа.'
+		}
+	},
+	{
+		id: 'hav',
+		armenian: 'Հավ',
+		translation: { en: 'Chicken', ru: 'Курица' },
+		global: {
+			en: 'As in English, both the bird and the meat.',
+			ru: 'Как и в русском, и птица, и мясо.'
+		}
+	},
+	{ id: 'brindz', armenian: 'Բրինձ', translation: { en: 'Rice', ru: 'Рис' } },
+	{ id: 'alyur', armenian: 'Ալյուր', translation: { en: 'Flour', ru: 'Мука' } },
+	{
+		id: 'shakaravaz',
+		armenian: 'Շաքարավազ',
+		translation: { en: 'Sugar', ru: 'Сахар' },
+		global: {
+			en: 'Literally “sugar sand” — the granulated kind.',
+			ru: 'Как и в русском, буквально «сахарный песок».'
+		},
+		cardOnly: {
+			en: 'In everyday speech you will often hear the Russian պեսոկ — “sand” on its own.',
+			ru: 'В быту часто просто говорят русское պեսոկ.'
+		}
+	},
+	{ id: 'agh', armenian: 'Աղ', translation: { en: 'Salt', ru: 'Соль' } },
+	{ id: 'dzet', armenian: 'Ձեթ', translation: { en: 'Vegetable oil', ru: 'Растительное масло' } },
+	{
+		id: 'ttvaser',
+		armenian: 'Թթվասեր',
+		translation: { en: 'Sour cream', ru: 'Сметана' },
+		global: {
+			ru: 'Буквально «кислые сливки».'
+		},
+		cardOnly: {
+			en: 'In everyday speech you will often hear the Russian սմետան.',
+			ru: 'В быту часто просто говорят вариацию русского слова — սմետան.'
+		}
+	},
+	{
+		id: 'katnashor',
+		armenian: 'Կաթնաշոռ',
+		translation: { en: 'Cottage cheese', ru: 'Творог' },
+		cardOnly: {
+			en: 'In everyday speech you will often hear the Russian տվարոգ.',
+			ru: 'В быту часто просто говорят русское տվարոգ.'
+		}
+	},
+
 	// --- Alphabet "in a word" examples not covered above ---
 	{
 		id: 'ayo',
@@ -525,12 +610,29 @@ export const WORDS: readonly Word[] = [
 		armenian: 'Ընկեր',
 		translation: { en: 'Friend', ru: 'Друг' }
 	},
-	{ id: 'tey', armenian: 'Թեյ', translation: { en: 'Tea', ru: 'Чай' } },
+	{
+		id: 'tey',
+		armenian: 'Թեյ',
+		translation: { en: 'Tea', ru: 'Чай' },
+		cardOnly: {
+			en: 'In everyday speech you will often hear չայ.',
+			ru: 'В быту часто говорят չայ.'
+		}
+	},
 	{ id: 'zham', armenian: 'Ժամ', translation: { en: 'Hour', ru: 'Час' } },
 	{ id: 'im', armenian: 'Իմ', translation: { en: 'My', ru: 'Мой' } },
 	{ id: 'tsaghik', armenian: 'Ծաղիկ', translation: { en: 'Flower', ru: 'Цветок' } },
 	{ id: 'katu', armenian: 'Կատու', translation: { en: 'Cat', ru: 'Кот' } },
-	{ id: 'hats', armenian: 'Հաց', translation: { en: 'Bread', ru: 'Хлеб' } },
+	// Also in the `food` deck.
+	{
+		id: 'hats',
+		armenian: 'Հաց',
+		translation: { en: 'Bread', ru: 'Хлеб' },
+		global: {
+			en: 'May also mean food or a meal in general.',
+			ru: 'Может также значить еду или приём пищи вообще.'
+		}
+	},
 	{ id: 'dzuk', armenian: 'Ձուկ', translation: { en: 'Fish', ru: 'Рыба' } },
 	// Also in the `family` deck.
 	{
@@ -773,7 +875,15 @@ export const WORDS: readonly Word[] = [
 	{ id: 'kat', armenian: 'Կաթ', translation: { en: 'Milk', ru: 'Молоко' } },
 	{ id: 'dzu', armenian: 'Ձու', translation: { en: 'Egg', ru: 'Яйцо' } },
 	{ id: 'mis', armenian: 'Միս', translation: { en: 'Meat', ru: 'Мясо' } },
-	{ id: 'surch', armenian: 'Սուրճ', translation: { en: 'Coffee', ru: 'Кофе' } }
+	{
+		id: 'surch',
+		armenian: 'Սուրճ',
+		translation: { en: 'Coffee', ru: 'Кофе' },
+		cardOnly: {
+			en: 'In everyday speech you will often hear կոֆե.',
+			ru: 'В быту часто говорят կոֆե.'
+		}
+	}
 ];
 
 const wordById: ReadonlyMap<string, Word> = new Map(WORDS.map((word) => [word.id, word]));
@@ -802,6 +912,17 @@ const NOT_BOOK_TYPOGRAPHY = /[→←↔⇒⇐+*<>=_|~^#@&\\]|\p{Extended_Pictogr
 // A Latin letter inside a Cyrillic word («женщинy» with a Latin y) renders
 // identically and is invisible in review; it happened once.
 const MIXED_SCRIPT = /[а-яё][a-z]|[a-z][а-яё]/iu;
+// Russian traced word for word off the English — grammatical, and not what
+// anyone says: «-ի на слове տավար» for "the -ի on տավար", where Russian wants
+// «в конце слова». Each language is written for its own reader, never
+// translated from the other (docs/DIALOGUES.md, "Word comments", rule 12).
+// Like SITUATIONAL above, this is a tripwire for the calques that have
+// actually slipped through, not a test of the rule — most calques it will
+// never catch, so read the Russian aloud before saving it. (Lookarounds on
+// \p{L}, not \b: a JS word boundary is defined on ASCII, so `\bна слове\b`
+// matches nothing at all in Cyrillic — it was written that way first and
+// silently let the calque through.)
+const CALQUE = [/(?<!\p{L})на слове(?!\p{L})/iu];
 for (const word of WORDS) {
 	for (const [field, text] of [
 		['global', word.global?.en],
@@ -821,6 +942,9 @@ for (const word of WORDS) {
 		}
 		if (MIXED_SCRIPT.test(text)) {
 			throw new Error(`word "${word.id}": library ${field} has a Latin letter inside a Cyrillic word — a look-alike typo: ${text}`);
+		}
+		if (CALQUE.some((pattern) => pattern.test(text))) {
+			throw new Error(`word "${word.id}": library ${field} is English traced into Russian — say it as a Russian speaker would («в конце слова», not «на слове»): ${text}`);
 		}
 	}
 }
