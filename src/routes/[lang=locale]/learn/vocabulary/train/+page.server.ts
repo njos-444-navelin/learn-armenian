@@ -6,7 +6,27 @@ import { requireSignedIn } from '$lib/server/authGuard';
 import { NEW_CARD, cardStateFromRow, cardStateToRow, gradeCard, isDue, isGrade } from '$lib/srs/scheduler';
 import type { Actions, PageServerLoad } from './$types';
 
-const EMPTY_RESULT = { hasAddedDecks: false, queue: [] as TrainingCard[], newCount: 0, dueCount: 0 };
+const EMPTY_RESULT = {
+	hasAddedDecks: false,
+	queue: [] as TrainingCard[],
+	newCount: 0,
+	dueCount: 0,
+	newCardsHeldBack: 0
+};
+
+/**
+ * How many never-studied words one session may introduce. Without a cap the
+ * queue held every unseen word of every added deck — someone who adds five
+ * decks at once queues ninety-odd new cards, and since new cards used to sit
+ * ahead of the reviews (see the ordering of the returned `queue` below),
+ * yesterday's due words were simply unreachable and the backlog only grew.
+ * Roughly Anki's own default of twenty a day, but scoped to a session rather
+ * than a day on purpose: reloading the page hands out another batch, which
+ * reads as "keep going" rather than as a limit to work around, and it needs
+ * neither a stored per-day counter nor a ruling on whose midnight ends the
+ * day.
+ */
+const NEW_CARDS_PER_SESSION = 20;
 
 export const load: PageServerLoad = async ({ params, locals: { supabase, claims } }) => {
 	const verified = requireSignedIn(claims, params.lang);
@@ -26,12 +46,17 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, claims 
 		return EMPTY_RESULT;
 	}
 
+	// Walked in catalog order rather than in whatever order the membership
+	// rows came back in: now that only NEW_CARDS_PER_SESSION new words make
+	// it into the queue, this decides *which* unseen words a learner meets
+	// first, and the catalog's order is the course's intended progression —
+	// someone who adds every deck at once should still meet the greetings
+	// before the food.
+	const addedDeckIds = new Set(deckIds);
 	const decksWithWords = await Promise.all(
-		deckIds.map(async (deckId) => {
-			const deck = VOCABULARY_CATALOG.find((candidate) => candidate.id === deckId);
-			if (deck === undefined) return undefined;
-			const words = await loadDeckWords(deckId);
-			return words === undefined ? undefined : { deckId, words };
+		VOCABULARY_CATALOG.filter((deck) => addedDeckIds.has(deck.id)).map(async (deck) => {
+			const words = await loadDeckWords(deck.id);
+			return words === undefined ? undefined : { deckId: deck.id, words };
 		})
 	);
 
@@ -69,12 +94,23 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, claims 
 	}
 
 	dueCards.sort((a, b) => a.state.dueAt.getTime() - b.state.dueAt.getTime());
+	const queuedNewCards = newCards.slice(0, NEW_CARDS_PER_SESSION);
 
+	// Reviews first, new words after: a due card is already late, and its
+	// interval keeps stretching for as long as it waits, whereas a word that
+	// has never been studied loses nothing by being met ten minutes later.
+	// The counts describe the queue that was actually built, not everything
+	// that could have gone into it — `newCount` is what the learner will
+	// meet this session, not how many unseen words their decks still hold.
+	// `newCardsHeldBack` is the rest: what the cap kept back, which the
+	// caught-up screen names so finishing a round reads as "there's more
+	// whenever you want it" rather than as having exhausted the decks.
 	return {
 		hasAddedDecks: true,
-		queue: [...newCards, ...dueCards],
-		newCount: newCards.length,
-		dueCount: dueCards.length
+		queue: [...dueCards, ...queuedNewCards],
+		newCount: queuedNewCards.length,
+		dueCount: dueCards.length,
+		newCardsHeldBack: newCards.length - queuedNewCards.length
 	};
 };
 

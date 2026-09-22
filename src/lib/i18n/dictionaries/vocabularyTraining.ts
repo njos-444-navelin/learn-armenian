@@ -1,4 +1,5 @@
 import { brandName } from './common';
+import { ruPluralForm } from '$lib/i18n/ruPlural';
 import type { Translated } from '../types';
 import type { Grade } from '$lib/srs/scheduler';
 
@@ -144,6 +145,47 @@ export const allCaughtUpMessage: Translated = {
 export const backToLessonsLabel: Translated = {
 	en: 'Back to lessons',
 	ru: 'К урокам'
+};
+
+/** Replaces `allCaughtUpHeading` when the session's new-card cap (see
+ * NEW_CARDS_PER_SESSION in the training page's server load) kept words
+ * back — the reviews really are all caught up, but "all caught up" on its
+ * own would read as "your decks are finished" to someone who still has
+ * eighty unseen words waiting. */
+export const roundDoneHeading: Translated = {
+	en: "That's this round done",
+	ru: 'Круг пройден'
+};
+
+/** How many never-studied words the cap held back from this round.
+ * Dynamic/interpolated, see Conventions §1; Russian declines the count's
+ * noun, see ruPlural.ts. Says only what is waiting — the button beneath it
+ * (`nextRoundLabel`) is what offers to start on them, so this doesn't
+ * repeat the invitation. */
+export function newWordsWaitingMessage(count: number): Translated {
+	return {
+		en:
+			count === 1
+				? 'One more new word is waiting in your collection.'
+				: `Another ${count} new words are waiting in your collection.`,
+		ru:
+			count === 1
+				? 'В вашей коллекции осталось ещё одно новое слово.'
+				: `В вашей коллекции осталось ещё ${count} ${ruPluralForm(count, ['новое слово', 'новых слова', 'новых слов'])}.`
+	};
+}
+
+/** Deliberately carries no number, unlike the message above it: the next
+ * round is whatever is left when it's capped again, which is fewer than a
+ * full round once the collection runs low. */
+export const nextRoundLabel: Translated = {
+	en: 'Start the next round',
+	ru: 'Следующий круг'
+};
+
+export const nextRoundFailedMessage: Translated = {
+	en: "Couldn't start the next round — check your connection",
+	ru: 'Не удалось начать следующий круг — проверьте соединение'
 };
 
 export const gradeSaveFailedMessage: Translated = {
