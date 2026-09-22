@@ -61,7 +61,7 @@ export const heading: Translated = {
 export function todaysCountLabel(dueCount: number, newCount: number): Translated {
 	return {
 		en: `This round: ${dueCount} to review · ${newCount} new`,
-		ru: `Этот круг: ${dueCount} на повторение · ${newCount} новых`
+		ru: `Этот раунд: ${dueCount} на повторение · ${newCount} новых`
 	};
 }
 
@@ -167,7 +167,7 @@ export const backToLessonsLabel: Translated = {
  * eighty unseen words waiting. */
 export const roundDoneHeading: Translated = {
 	en: "That's this round done",
-	ru: 'Круг пройден'
+	ru: 'Раунд пройден'
 };
 
 /**
@@ -205,12 +205,12 @@ export function roundRemainingMessage(dueCount: number, newCount: number): Trans
  * full round once the collection runs low. */
 export const nextRoundLabel: Translated = {
 	en: 'Start the next round',
-	ru: 'Следующий круг'
+	ru: 'Следующий раунд'
 };
 
 export const nextRoundFailedMessage: Translated = {
 	en: "Couldn't start the next round — check your connection",
-	ru: 'Не удалось начать следующий круг — проверьте соединение'
+	ru: 'Не удалось начать следующий раунд — проверьте соединение'
 };
 
 export const gradeSaveFailedMessage: Translated = {
