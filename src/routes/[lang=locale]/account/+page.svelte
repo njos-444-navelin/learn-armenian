@@ -429,13 +429,31 @@
 		transition: opacity var(--transition-fast);
 	}
 
+	/* Both stops in each gradient below are already var(--color-...) tokens,
+	   but the strict-value plugin still flags them, and not for the reason it
+	   looks like: `background` isn't in the rule's property list at all —
+	   `expandShorthand` expands the shorthand into longhands that include
+	   `background-color` (which does match `/-color$/`), and the expander
+	   hands that longhand the whole `linear-gradient(...)`. So the gradient
+	   gets judged as if it were a color, and it isn't a bare var(). Nothing
+	   to do with the `to right`/`to left` keyword: a gradient with no
+	   direction trips it too, while the same gradient on `background-image`
+	   (a longhand, so never expanded) passes.
+
+	   Not fixable in stylelint.config.js without gutting the rule —
+	   `ignoreFunctions: true` silences this but also stops flagging
+	   `color: rgb(...)` and a gradient with literal stops. So: a deliberate,
+	   narrow exception, same as AlphabetLetterGrid.svelte's .level-gradient
+	   (Conventions #2). */
 	.progress-scroller::before {
 		left: 0;
+		/* stylelint-disable-next-line scale-unlimited/declaration-strict-value -- see above: shorthand expansion judges the gradient as a color. */
 		background: linear-gradient(to right, var(--color-background), var(--color-background-clear));
 	}
 
 	.progress-scroller::after {
 		right: 0;
+		/* stylelint-disable-next-line scale-unlimited/declaration-strict-value -- see above: shorthand expansion judges the gradient as a color. */
 		background: linear-gradient(to left, var(--color-background), var(--color-background-clear));
 	}
 
