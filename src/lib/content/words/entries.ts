@@ -206,7 +206,7 @@ export const WORDS: readonly Word[] = [
 		register: 'formal',
 		global: {
 			en: 'Imperative mood, formal or plural — literally “do live!” — but used as praise: “well done!”, to someone you address formally, or to several people.',
-			ru: 'Повелительное наклонение, форма «вы» — буквально «живите!», — но употребляется как похвала: «молодец!» тому, с кем на «вы», или «молодцы!» нескольким.'
+			ru: 'Повелительное наклонение, форма «вы» — буквально «живите!», — но употребляется как похвала: «молодец!» тому, с кем на «Вы», или «молодцы!» нескольким.'
 		}
 	},
 	// Ո is word-initial "vo" here, the second half of the vo/Ո pair in
