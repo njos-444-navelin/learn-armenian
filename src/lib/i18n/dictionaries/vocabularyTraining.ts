@@ -44,11 +44,24 @@ export const heading: Translated = {
 	ru: 'Тренировка слов'
 };
 
-/** Dynamic — see Conventions §1 on why interpolated text is a function, not a literal. */
-export function todaysCountLabel(newCount: number, dueCount: number): Translated {
+/**
+ * What's in the round the learner is working through, in the order the
+ * queue serves it: reviews, then new words. Dynamic/interpolated, see
+ * Conventions §1.
+ *
+ * Named as a round on purpose. Both numbers are capped (see
+ * DUE_CARDS_PER_ROUND and NEW_CARDS_PER_SESSION in the training page's
+ * server load), so a learner with a backlog sees a smaller figure here than
+ * the "N due now" badge on their profile, which counts their whole
+ * collection. Without the framing those two numbers just contradict each
+ * other; with it, one says what's waiting and the other says what's in
+ * front of you — and it's the same word the end-of-round screen uses when
+ * it hands out the next one.
+ */
+export function todaysCountLabel(dueCount: number, newCount: number): Translated {
 	return {
-		en: `${newCount} new · ${dueCount} due for review`,
-		ru: `${newCount} новых · ${dueCount} на повторение`
+		en: `This round: ${dueCount} to review · ${newCount} new`,
+		ru: `Этот круг: ${dueCount} на повторение · ${newCount} новых`
 	};
 }
 

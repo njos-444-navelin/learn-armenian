@@ -213,7 +213,7 @@
 	     line can only ever say "0 new · 0 due for review", which reads as a
 	     flat contradiction directly above a message naming the dozens of
 	     words still waiting. -->
-	<p class="summary">{t(todaysCountLabel(remainingNew, remainingDue))}</p>
+	<p class="summary">{t(todaysCountLabel(remainingDue, remainingNew))}</p>
 
 	<div class="trainer">
 		<div class="card-slot">
