@@ -86,6 +86,7 @@
 	// in the HTTP cache for SpeakerButton, so a low-priority fetch is enough.
 	$effect(() => {
 		playback.preload();
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- a local accumulator, not state: this Set is built and drained in one synchronous pass inside this effect and never escapes it, so there is no later read for a mutation to invalidate. A SvelteSet behaves identically here (checked in the browser: same one fetch per distinct word, no extra effect runs), so swapping it in would only allocate signals nothing observes — and, in a file where `revealed`/`translated` are SvelteSets precisely because the markup reads them, it would tell the next reader this one is watched too.
 		const wordIds = new Set<string>();
 		for (const line of dialogue.lines) for (const token of line.tokens) if (token.wordId !== undefined) wordIds.add(token.wordId);
 		for (const wordId of wordIds) void fetch(wordAudioSrc(wordId), { priority: 'low' }).catch(() => undefined);
