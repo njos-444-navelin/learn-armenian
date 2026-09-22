@@ -3,20 +3,25 @@ import { isSafeInternalPath } from '$lib/i18n/paths';
 import { ALPHABET } from '$lib/content/alphabet';
 import { LEVEL_MAX } from '$lib/alphabet/mastery';
 import { DIALOGUE_CATALOG } from '$lib/content/dialogues/catalog';
-import { VOCABULARY_CATALOG } from '$lib/content/vocabulary/catalog';
-import { loadDeckWords } from '$lib/content/vocabulary/loadDeck';
-import { cardStateFromRow, isDue } from '$lib/srs/scheduler';
+import { countVocabularyProgress } from '$lib/server/vocabularyCounts';
 import type { Actions, PageServerLoad } from './$types';
 
 /**
  * Stats for the signed-in dashboard's progress cards: alphabet mastery (the
  * learner's 0-10 drill level per letter, averaged across the whole
  * alphabet), the vocabulary collection's size split into a total and a
- * due-right-now count — unlike `hasWordsToPractice` in the locale layout's
- * load (a cheap existence check that short-circuits on the first match, run
- * on every signed-in page load app-wide), this tallies every word across
- * every added deck, so it only runs here on the one page that needs the
- * precise numbers — and how many of the catalog's dialogues are completed.
+ * waiting-right-now count, and how many of the catalog's dialogues are
+ * completed.
+ *
+ * The vocabulary half is the same three integers the locale layout asks for
+ * (see `vocabularyCounts.ts`) — this page just needs their values rather
+ * than only whether any of them is above zero. Neither one fetches progress
+ * rows any more.
+ *
+ * The alphabet and dialogue queries below stay row-based on purpose: those
+ * are bounded by *content* (39 letters, a handful of dialogues) rather than
+ * by how much the learner has done, so they can't grow the way vocabulary
+ * can — and the alphabet one needs each letter's level, not a tally.
  */
 export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => {
 	const dialoguesTotalCount = DIALOGUE_CATALOG.length;
@@ -79,44 +84,20 @@ export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => 
 	}
 
 	const deckIds = addedDecks.map((row) => row.deck_id as string);
-	if (deckIds.length === 0) {
+	const counts = await countVocabularyProgress(supabase, claims.sub, deckIds, new Date());
+	if (counts === undefined) {
 		return partial;
 	}
 
-	const { data: progressRows, error: progressError } = await supabase
-		.from('user_vocabulary_progress')
-		.select('deck_id, word_id, phase, step, interval_days, ease_factor, due_at, reps, lapses')
-		.eq('user_id', claims.sub)
-		.in('deck_id', deckIds);
-
-	if (progressError) {
-		console.error('account: failed to load vocabulary progress', progressError);
-		return partial;
-	}
-
-	const progressByKey = new Map(
-		progressRows.map((row) => [`${row.deck_id}:${row.word_id}`, row])
-	);
-
-	const now = new Date();
-	let vocabularyWordCount = 0;
-	let vocabularyDueCount = 0;
-
-	for (const deckId of deckIds) {
-		const deck = VOCABULARY_CATALOG.find((candidate) => candidate.id === deckId);
-		if (deck === undefined) continue;
-		const words = await loadDeckWords(deckId);
-		if (words === undefined) continue;
-		for (const word of words) {
-			vocabularyWordCount++;
-			const row = progressByKey.get(`${deckId}:${word.id}`);
-			if (row === undefined || isDue(cardStateFromRow(row), now)) {
-				vocabularyDueCount++;
-			}
-		}
-	}
-
-	return { ...partial, vocabularyWordCount, vocabularyDueCount };
+	// The dashboard's "due" has always meant everything waiting, new words
+	// included — a learner reading "63 words" then meets 20 new and 43
+	// reviews in the trainer, which splits the same total into its two
+	// halves rather than reporting a different one.
+	return {
+		...partial,
+		vocabularyWordCount: counts.total,
+		vocabularyDueCount: counts.due + counts.unseen
+	};
 };
 
 export const actions: Actions = {
