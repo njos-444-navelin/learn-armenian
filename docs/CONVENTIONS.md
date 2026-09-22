@@ -351,9 +351,13 @@ Rules that follow from that:
   (`no-restricted-imports` in [`eslint.config.js`](../eslint.config.js)).
 - **A deck's `wordCount` and a dialogue's `lineCount` in their catalogs must
   match the content file.** Kept as plain numbers so the catalogs stay free
-  of content; `loadDialogue()` checks its count at load time, a deck's is
-  checked by hand. Update it in the same change that adds or removes an
-  entry.
+  of content; each is checked at load time — `loadDialogue()` against its
+  `LINES`, `loadDeckWordIds()` against its `WORD_IDS` — and throws on a
+  mismatch. Update it in the same change that adds or removes an entry. A
+  deck's count is no longer only printed on a card: the practice counts
+  subtract a learner's progress rows from it (see
+  [`server/vocabularyCounts.ts`](../src/lib/server/vocabularyCounts.ts)), so
+  a drifted number promises words that don't exist.
 - **Every word's `armenian` field is capitalized** (e.g. `Ուշ`, not `ուշ`),
   even where normal running Armenian text would use lowercase, and even
   for function words (`Եմ`, `Այս`). Deliberate, not a typo to "fix":

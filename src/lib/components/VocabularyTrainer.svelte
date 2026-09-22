@@ -23,6 +23,9 @@
 		gradeSaveFailedMessage,
 		intervalLabel,
 		nextCardInLabel,
+		nextRoundLabel,
+		roundDoneHeading,
+		roundRemainingMessage,
 		todaysCountLabel
 	} from '$lib/i18n/dictionaries/vocabularyTraining';
 	import { pushToast } from '$lib/stores/toasts.svelte';
@@ -31,9 +34,28 @@
 
 	interface Props {
 		initialQueue: readonly TrainingCard[];
+		/** What this round's two caps kept out of `initialQueue` (see
+		 * NEW_CARDS_PER_SESSION and DUE_CARDS_PER_ROUND in the training
+		 * page's server load). Turns the caught-up screen into "that round's
+		 * done, here's what's left" rather than letting a capped session
+		 * look like the end of the collection. Both are counts the server
+		 * knows without building either list. */
+		newCardsHeldBack: number;
+		dueCardsHeldBack: number;
+		/** Fetches the next round. The page owns this (and the pending flag
+		 * below) because delivering the new queue means remounting this
+		 * component — see the `{#key}` it sits in. */
+		onNextRound: () => void;
+		nextRoundPending: boolean;
 	}
 
-	let { initialQueue }: Props = $props();
+	let {
+		initialQueue,
+		newCardsHeldBack,
+		dueCardsHeldBack,
+		onNextRound,
+		nextRoundPending
+	}: Props = $props();
 
 	// `initialQueue` is only ever meant to be read once, at mount — this
 	// component owns advancing through it locally afterwards (see
@@ -65,6 +87,9 @@
 	// too). Summing both would leave the count unchanged across a
 	// due-card→waiting move, which reads as if grading it did nothing.
 	let remainingDue = $derived(activeQueue.length - remainingNew);
+	// Whether this round is one of several — see `todaysCountLabel`, which
+	// only calls it a round when there's another to reach.
+	let moreWaiting = $derived(dueCardsHeldBack > 0 || newCardsHeldBack > 0);
 	let previews = $derived(current !== undefined ? previewGrades(current.state, now) : undefined);
 	let soonestWaitMinutes = $derived(
 		waiting.length > 0 ? Math.min(...waiting.map((card) => minutesUntilDue(card.state, now))) : 0
@@ -186,9 +211,13 @@
 	}
 </script>
 
-<p class="summary">{t(todaysCountLabel(remainingNew, remainingDue))}</p>
-
 {#if current !== undefined}
+	<!-- Only while there are cards in hand: on the end-of-round screens this
+	     line can only ever say "0 new · 0 due for review", which reads as a
+	     flat contradiction directly above a message naming the dozens of
+	     words still waiting. -->
+	<p class="summary">{t(todaysCountLabel(remainingDue, remainingNew, moreWaiting))}</p>
+
 	<div class="trainer">
 		<div class="card-slot">
 			<div class="card-clip">
@@ -272,6 +301,15 @@
 	</div>
 {:else if waiting.length > 0}
 	<p aria-live="polite">{t(nextCardInLabel(soonestWaitMinutes))}</p>
+{:else if newCardsHeldBack > 0 || dueCardsHeldBack > 0}
+	<h2>{t(roundDoneHeading)}</h2>
+	<p>{t(roundRemainingMessage(dueCardsHeldBack, newCardsHeldBack))}</p>
+	<div class="actions">
+		<Button variant="primary" loading={nextRoundPending} onclick={onNextRound}>
+			{t(nextRoundLabel)}
+		</Button>
+		<Button href={withLocale(locale, '/learn')} variant="secondary">{t(backToLessonsLabel)}</Button>
+	</div>
 {:else}
 	<h2>{t(allCaughtUpHeading)}</h2>
 	<p>{t(allCaughtUpMessage)}</p>
@@ -279,6 +317,17 @@
 {/if}
 
 <style>
+	/* Centred rather than stretched, so the pair reads the same as the
+	   single button the other end-of-session screen shows — the tighter
+	   gap is what groups them as one block of actions inside PageShell's
+	   own, much airier, page-wide gap. */
+	.actions {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-2);
+	}
+
 	.summary {
 		color: var(--color-text-secondary);
 		font-size: var(--font-size-sm);

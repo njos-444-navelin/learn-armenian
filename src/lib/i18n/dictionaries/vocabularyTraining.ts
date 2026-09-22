@@ -1,4 +1,5 @@
 import { brandName } from './common';
+import { ruPluralForm } from '$lib/i18n/ruPlural';
 import type { Translated } from '../types';
 import type { Grade } from '$lib/srs/scheduler';
 
@@ -43,12 +44,33 @@ export const heading: Translated = {
 	ru: 'Тренировка слов'
 };
 
-/** Dynamic — see Conventions §1 on why interpolated text is a function, not a literal. */
-export function todaysCountLabel(newCount: number, dueCount: number): Translated {
-	return {
-		en: `${newCount} new · ${dueCount} due for review`,
-		ru: `${newCount} новых · ${dueCount} на повторение`
-	};
+/**
+ * What's in front of the learner, in the order the queue serves it:
+ * reviews, then new words. Dynamic/interpolated, see Conventions §1.
+ *
+ * `moreWaiting` names it as a round, and only when it is one. Both numbers
+ * are capped (see DUE_CARDS_PER_ROUND and NEW_CARDS_PER_SESSION in the
+ * training page's server load), so a learner with a backlog sees a smaller
+ * figure here than the "N due now" badge on their profile, which counts
+ * their whole collection — the framing is what keeps those two honest
+ * numbers from reading as a contradiction, and it's the same word the
+ * end-of-round screen uses when it offers the next one.
+ *
+ * With nothing held back there's no gap to explain and no next round to
+ * reach: that learner finishes to "you're all caught up" and never meets a
+ * second one, so naming this one would introduce a thing that doesn't
+ * happen to them. Fixed for the session either way — what's held back is
+ * decided when the round is built, so this can't switch wording partway
+ * through.
+ */
+export function todaysCountLabel(
+	dueCount: number,
+	newCount: number,
+	moreWaiting: boolean
+): Translated {
+	const en = `${dueCount} to review · ${newCount} new`;
+	const ru = `${dueCount} на повторение · ${newCount} новых`;
+	return moreWaiting ? { en: `This round: ${en}`, ru: `Этот раунд: ${ru}` } : { en, ru };
 }
 
 export const flipHint: Translated = {
@@ -144,6 +166,59 @@ export const allCaughtUpMessage: Translated = {
 export const backToLessonsLabel: Translated = {
 	en: 'Back to lessons',
 	ru: 'К урокам'
+};
+
+/** Replaces `allCaughtUpHeading` when the session's new-card cap (see
+ * NEW_CARDS_PER_SESSION in the training page's server load) kept words
+ * back — the reviews really are all caught up, but "all caught up" on its
+ * own would read as "your decks are finished" to someone who still has
+ * eighty unseen words waiting. */
+export const roundDoneHeading: Translated = {
+	en: "That's this round done",
+	ru: 'Раунд пройден'
+};
+
+/**
+ * What both caps held back from this round — reviews, never-studied words,
+ * or some of each (the screen only shows this when at least one of them is
+ * above zero). Dynamic/interpolated, see Conventions §1; Russian declines
+ * both nouns, see ruPlural.ts.
+ *
+ * Phrased without a verb on purpose — "60 reviews and 3 new words still to
+ * go", not "…are still waiting" — so neither language has to agree a verb
+ * with a count that might be one, three or nine hundred. Russian's
+ * «осталось» is impersonal here for the same reason. Says only what is
+ * left: the button beneath it (`nextRoundLabel`) is what offers to start on
+ * them, so this doesn't repeat the invitation.
+ */
+export function roundRemainingMessage(dueCount: number, newCount: number): Translated {
+	const en: string[] = [];
+	const ru: string[] = [];
+	if (dueCount > 0) {
+		en.push(`${dueCount} review${dueCount === 1 ? '' : 's'}`);
+		ru.push(`${dueCount} ${ruPluralForm(dueCount, ['повторение', 'повторения', 'повторений'])}`);
+	}
+	if (newCount > 0) {
+		en.push(`${newCount} new word${newCount === 1 ? '' : 's'}`);
+		ru.push(`${newCount} ${ruPluralForm(newCount, ['новое слово', 'новых слова', 'новых слов'])}`);
+	}
+	return {
+		en: `${en.join(' and ')} still to go in your collection.`,
+		ru: `В вашей коллекции осталось ещё ${ru.join(' и ')}.`
+	};
+}
+
+/** Deliberately carries no number, unlike the message above it: the next
+ * round is whatever is left when it's capped again, which is fewer than a
+ * full round once the collection runs low. */
+export const nextRoundLabel: Translated = {
+	en: 'Start the next round',
+	ru: 'Следующий раунд'
+};
+
+export const nextRoundFailedMessage: Translated = {
+	en: "Couldn't start the next round — check your connection",
+	ru: 'Не удалось начать следующий раунд — проверьте соединение'
 };
 
 export const gradeSaveFailedMessage: Translated = {
