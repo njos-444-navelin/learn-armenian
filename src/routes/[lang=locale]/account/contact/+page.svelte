@@ -6,7 +6,13 @@
 	import PageShell from '$lib/components/PageShell.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import { t } from '$lib/i18n/current';
-	import { heading, pageTitle, pageDescription, body, supportEmail } from '$lib/i18n/dictionaries/contact';
+	import {
+		heading,
+		pageTitle,
+		pageDescription,
+		body,
+		supportEmail
+	} from '$lib/i18n/dictionaries/contact';
 </script>
 
 <Seo title={pageTitle} description={pageDescription} />

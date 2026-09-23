@@ -1,12 +1,9 @@
 import type { Character, CharacterId } from './types';
 
 /**
- * The app's two characters — the same two people as its two ElevenLabs
- * voices (docs/VOCABULARY_AUDIO.md, "Voices and model"), so a line
- * attributed to Tereza on screen is spoken by Tereza's voice. Their faces
- * are the two drawn avatars in `CharacterAvatar.svelte`. Their names are
- * proper nouns but still go through `Translated`: they're transliterated
- * differently per locale (Tereza/Тереза), not left as-is like `brandName`.
+ * The app's two characters, one per ElevenLabs voice, so a line attributed to
+ * Tereza is spoken by Tereza's voice. Their names go through `Translated`
+ * because they're transliterated per locale (Tereza/Тереза).
  */
 export const CHARACTERS: Record<CharacterId, Character> = {
 	tereza: { id: 'tereza', name: { en: 'Tereza', ru: 'Тереза' } },

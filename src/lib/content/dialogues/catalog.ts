@@ -1,11 +1,9 @@
 import type { DialogueSummary } from './types';
 
 /**
- * Every dialogue, in the order they're meant to be taken — the list page
- * numbers them from this order, and the done screen's "Next" button is
- * simply the following entry. Carries no lines: those live one file per
- * dialogue under `dialogues/` and are loaded by `loadDialogue.ts`, the same
- * split as `vocabulary/catalog.ts` vs. `vocabulary/decks/`.
+ * Every dialogue in the order they're meant to be taken: the list page numbers
+ * them from it, and "Next" is the following entry. Carries no lines — those
+ * are loaded per dialogue by `loadDialogue.ts`.
  */
 export const DIALOGUE_CATALOG: readonly DialogueSummary[] = [
 	{

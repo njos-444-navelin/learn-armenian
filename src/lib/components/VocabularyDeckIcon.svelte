@@ -6,13 +6,9 @@
 		/** `sm` (48px) for a deck-list row, `lg` (72px) for the deck page's own
 		 * hero. */
 		size?: 'sm' | 'lg' | undefined;
-		/** `filled` (solid terracotta, cream glyph) marks a deck in the
-		 * learner's collection; `muted` (warm sand, ink glyph) marks one they
-		 * haven't added. Unlike the generic "icon-badge inside a card" rule in
-		 * docs/DESIGN.md (which wants a plain `--color-background` fill for a
-		 * badge with no meaning of its own), this badge's fill *is* the
-		 * meaning — collection membership — so it earns its own tint per the
-		 * "reserve tinted backgrounds for small elements" exception. */
+		/** `filled` marks a deck in the learner's collection, `muted` one they
+		 * haven't added. This badge's fill is the meaning, so unlike the generic
+		 * icon-badge rule in docs/DESIGN.md it earns its own tint. */
 		variant?: 'filled' | 'muted' | undefined;
 	}
 
@@ -40,9 +36,8 @@
 			/>
 		</svg>
 	{:else if icon === 'people'}
-		<!-- Two figures, the second half behind the first — hand-drawn in the
-		     spirit of Lucide's `users`, not its path data (see docs/DESIGN.md,
-		     Icons, on provenance). -->
+		<!-- Hand-drawn in the spirit of Lucide's `users`, not its path data (see
+		     docs/DESIGN.md, Icons, on provenance). -->
 		<svg
 			viewBox="0 0 24 24"
 			fill="none"
@@ -59,9 +54,8 @@
 			<path d="M21.5 21v-1.5a5 5 0 0 0-3.5-4.77" />
 		</svg>
 	{:else if icon === 'person'}
-		<!-- One figure, the `people` glyph's front person on its own — the
-		     pronouns deck is "I, you, he"; same family as `people` so the two
-		     read as a pair in the deck list. -->
+		<!-- The `people` glyph's front person on its own, so the pronouns and
+		     people decks read as a pair in the list. -->
 		<svg
 			viewBox="0 0 24 24"
 			fill="none"
@@ -76,10 +70,8 @@
 			<path d="M4.5 21v-1.5a5 5 0 0 1 5-5h5a5 5 0 0 1 5 5V21" />
 		</svg>
 	{:else if icon === 'basket'}
-		<!-- A shopping basket: rim, tapering body, and a handle arching over
-		     it — the food deck is a shopping list. Hand-drawn in the spirit
-		     of Lucide's `shopping-basket`, not its path data (see
-		     docs/DESIGN.md, Icons, on provenance). -->
+		<!-- Hand-drawn in the spirit of Lucide's `shopping-basket`, not its path
+		     data (see docs/DESIGN.md, Icons, on provenance). -->
 		<svg
 			viewBox="0 0 24 24"
 			fill="none"

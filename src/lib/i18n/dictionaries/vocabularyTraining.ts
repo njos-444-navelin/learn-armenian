@@ -10,18 +10,13 @@ export const trainVocabularyMenuLabel: Translated = {
 	ru: 'Тренировать слова'
 };
 
-/** Announced by screen readers alongside the (purely visual) notification
- * dot shown when the learner has words due for review or never-studied
- * words waiting in a deck they've added — see the `hasWordsToPractice`
- * check in the locale layout's server load. */
+/** Screen-reader text for the purely visual notification dot. */
 export const wordsToPracticeHint: Translated = {
 	en: 'Words are ready to practice',
 	ru: 'Есть слова для практики'
 };
 
-/** Shown as the floating "Train vocabulary" button's subtitle (see
- * `VocabularyTrainCta.svelte`) when `wordsToPracticeHint` doesn't apply —
- * i.e. every added deck is fully caught up right now. */
+/** The train button's subtitle when every added deck is caught up. */
 export const nothingDueYetLabel: Translated = {
 	en: 'Nothing due yet',
 	ru: 'Пока нечего повторять'
@@ -45,23 +40,8 @@ export const heading: Translated = {
 };
 
 /**
- * What's in front of the learner, in the order the queue serves it:
- * reviews, then new words. Dynamic/interpolated, see Conventions §1.
- *
- * `moreWaiting` names it as a round, and only when it is one. Both numbers
- * are capped (see DUE_CARDS_PER_ROUND and NEW_CARDS_PER_SESSION in the
- * training page's server load), so a learner with a backlog sees a smaller
- * figure here than the "N due now" badge on their profile, which counts
- * their whole collection — the framing is what keeps those two honest
- * numbers from reading as a contradiction, and it's the same word the
- * end-of-round screen uses when it offers the next one.
- *
- * With nothing held back there's no gap to explain and no next round to
- * reach: that learner finishes to "you're all caught up" and never meets a
- * second one, so naming this one would introduce a thing that doesn't
- * happen to them. Fixed for the session either way — what's held back is
- * decided when the round is built, so this can't switch wording partway
- * through.
+ * Both counts are capped per round, so `moreWaiting` frames them as a round
+ * rather than as the learner's whole collection. Conventions §1.
  */
 export function todaysCountLabel(
 	dueCount: number,
@@ -87,27 +67,12 @@ export function flipButtonLabel(flipped: boolean): Translated {
 const DAYS_PER_MONTH = 30.44; // 365.25 / 12 — matches Anki's own approximation
 const DAYS_PER_YEAR = 365.25;
 
-/**
- * Joins a duration's number to its unit. A normal space lets the two wrap
- * apart — "10" ending one line and "min" starting the next reads as two
- * separate facts rather than one duration, and both places this renders
- * invite exactly that break: the grade buttons are a four-column flex row
- * on a phone (see `.grades` in VocabularyTrainer.svelte), and the countdown
- * lines below embed the result mid-sentence, where Russian's longer
- * wording pushes it right up against the measure.
- *
- * An escape rather than a literal U+00A0 on purpose: the character is
- * invisible in an editor and indistinguishable from an ordinary space, so
- * written literally it survives neither review nor a stray reformat.
- */
+/** Escaped rather than a literal U+00A0, which is invisible in an editor and
+ * doesn't survive a stray reformat. */
 const NBSP = '\u00A0';
 
-/** Whole minutes until a grade's resulting review — shown on that grade's
- * button. Dynamic/interpolated, see Conventions §1. Months/years get one
- * decimal place (e.g. "2.3 mo"), same as Anki's own reviewer — a card
- * reviewed successfully many times keeps compounding its interval well
- * past a year, where a whole-number rounding would lose too much
- * precision to be useful. */
+/** Months and years keep one decimal: a compounded interval loses too much to
+ * whole-number rounding. Conventions §1. */
 export function intervalLabel(minutes: number): Translated {
 	if (minutes < 60) {
 		const value = Math.max(1, minutes);
@@ -130,8 +95,6 @@ export function intervalLabel(minutes: number): Translated {
 	return { en: `${value}${NBSP}y`, ru: `${value.replace('.', ',')}${NBSP}г` };
 }
 
-/** Full grade name — shown as the primary label on each grade button
- * (with the resulting review interval below it), see VocabularyTrainer.svelte. */
 export const gradeLabels: Record<Grade, Translated> = {
 	again: { en: 'Again', ru: 'Снова' },
 	hard: { en: 'Hard', ru: 'Трудно' },
@@ -154,26 +117,14 @@ export const browseTopicsLabel: Translated = {
 	ru: 'Выбрать темы'
 };
 
-/**
- * Heads the countdown screen — the one a learner reaches with nothing held
- * back and only a card or two still on a short step (see `waiting` in
- * VocabularyTrainer.svelte).
- *
- * Its two sibling end-of-round screens both open with a heading, and
- * without one this screen was a lone line of text floating mid-page. It
- * can't borrow either of theirs: `allCaughtUpHeading` would be a lie while
- * cards are still coming back, and `roundDoneHeading` promises a next round
- * that, here, doesn't exist. So it says the one true thing — the finish
- * line is close, it just isn't crossed yet.
- */
+/** Heads the countdown screen: nothing held back, a card or two still on a
+ * short step (see `waiting` in VocabularyTrainer.svelte). */
 export const nearlyThereHeading: Translated = {
 	en: 'Nearly there',
 	ru: 'Почти всё'
 };
 
-/** Shown between finishing today's visible queue and a just-graded card
- * resurfacing on its own (see `waiting` in VocabularyTrainer.svelte).
- * Dynamic/interpolated, see Conventions §1. */
+/** Shown while waiting for a just-graded card to resurface. Conventions §1. */
 export function nextCardInLabel(minutes: number): Translated {
 	if (minutes <= 0) {
 		return { en: 'Next card coming right up…', ru: 'Следующая карточка уже совсем скоро…' };
@@ -185,21 +136,8 @@ export function nextCardInLabel(minutes: number): Translated {
 	};
 }
 
-/**
- * The stragglers footnote on the round-done screen: cards this round put
- * off by a minute or ten (see `waiting` in VocabularyTrainer.svelte), which
- * resurface on their own if the learner stays on the page.
- *
- * Distinct from `nextCardInLabel` above, which *is* the whole screen when
- * there's genuinely nothing else to do. Here it sits under
- * `roundRemainingMessage` as a footnote, so it has to explain why a card is
- * still coming on a screen that just announced the round is done — hence
- * "put off" rather than a bare countdown.
- *
- * Phrased without a verb, for the same reason `roundRemainingMessage` is:
- * neither language then has to agree one with a count that might be one or
- * forty. Russian declines the noun, see ruPlural.ts.
- */
+/** Footnote under `roundRemainingMessage` for cards this round put off.
+ * Verbless so neither language agrees a verb with the count. */
 export function stragglersReturnLabel(count: number, minutes: number): Translated {
 	const interval = intervalLabel(minutes);
 	const ruCards = ruPluralForm(count, [
@@ -228,28 +166,15 @@ export const backToLessonsLabel: Translated = {
 	ru: 'К урокам'
 };
 
-/** Replaces `allCaughtUpHeading` when the session's new-card cap (see
- * NEW_CARDS_PER_SESSION in the training page's server load) kept words
- * back — the reviews really are all caught up, but "all caught up" on its
- * own would read as "your decks are finished" to someone who still has
- * eighty unseen words waiting. */
+/** Replaces `allCaughtUpHeading` when a cap held words back from the round. */
 export const roundDoneHeading: Translated = {
 	en: "That's this round done",
 	ru: 'Раунд пройден'
 };
 
 /**
- * What both caps held back from this round — reviews, never-studied words,
- * or some of each (the screen only shows this when at least one of them is
- * above zero). Dynamic/interpolated, see Conventions §1; Russian declines
- * both nouns, see ruPlural.ts.
- *
- * Phrased without a verb on purpose — "60 reviews and 3 new words still to
- * go", not "…are still waiting" — so neither language has to agree a verb
- * with a count that might be one, three or nine hundred. Russian's
- * «осталось» is impersonal here for the same reason. Says only what is
- * left: the button beneath it (`nextRoundLabel`) is what offers to start on
- * them, so this doesn't repeat the invitation.
+ * What the caps held back from this round. Verbless, and impersonal in
+ * Russian, so neither language agrees a verb with the count. Conventions §1.
  */
 export function roundRemainingMessage(dueCount: number, newCount: number): Translated {
 	const en: string[] = [];
@@ -268,9 +193,6 @@ export function roundRemainingMessage(dueCount: number, newCount: number): Trans
 	};
 }
 
-/** Deliberately carries no number, unlike the message above it: the next
- * round is whatever is left when it's capped again, which is fewer than a
- * full round once the collection runs low. */
 export const nextRoundLabel: Translated = {
 	en: 'Start the next round',
 	ru: 'Следующий раунд'

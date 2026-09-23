@@ -1,10 +1,8 @@
 import type { Translated } from '$lib/i18n/types';
 
 /**
- * The app has exactly two voices, and so exactly two dialogue characters —
- * see docs/VOCABULARY_AUDIO.md's "Voices and model": Tereza (the app's main
- * voice) and Dmitrii (the second voice, used only where two speakers are
- * necessary — i.e. here). Every dialogue is a conversation between the two.
+ * The app has two voices, and so two dialogue characters — see
+ * docs/VOCABULARY_AUDIO.md. Every dialogue is a conversation between them.
  */
 export type CharacterId = 'tereza' | 'dmitrii';
 
@@ -15,10 +13,8 @@ export interface Character {
 }
 
 /**
- * One tappable word of a dialogue line, as it's actually spoken — an
- * inflected form (հա՞ցը) with its punctuation, linked back to the library
- * word it's a form of (`hats`), so the popover can show the base form,
- * play the shared clip, and reuse the library's translation and global comment.
+ * One tappable word of a dialogue line as it's actually spoken: an inflected
+ * form (հա՞ցը) linked back to the library word it's a form of (`hats`).
  */
 export interface DialogueToken {
 	/** The surface form exactly as it appears in the line, punctuation included. */
@@ -27,19 +23,12 @@ export interface DialogueToken {
 	 * for a token with nothing to look up (a bare punctuation mark, a
 	 * proper noun) — such a token renders as plain text, not a button. */
 	wordId?: string | undefined;
-	/** What the token means *in this line* when that differs from the
-	 * library word's translation — "the bread" for հացը where `hats` says
-	 * "Bread", "want" for ուզում where `uzel` says "To want". Falls back to
-	 * the library translation. */
+	/** What the token means *in this line*, when that differs from the library
+	 * word's translation. Falls back to the library translation. */
 	gloss?: Translated | undefined;
-	/** A remark about this occurrence specifically (why the -ը, where the
-	 * ՞ sits). Shown with the gloss, under a "Here:" label; the library
-	 * word's own global comment is shown separately, with the dictionary
-	 * entry, so the two never read as one text. Anything true of the word
-	 * in any sentence belongs on the library entry, not here. The library's
-	 * `cardOnly` comment (the phrase a word is mostly met in) is never shown
-	 * in a dialogue — so when a line *is* that phrase (բարի լույս), this is
-	 * where the learner is told so. */
+	/** A remark about this occurrence specifically. Shown under a "Here:" label,
+	 * separately from the library word's global comment. Anything true of the
+	 * word in any sentence belongs on the library entry instead. */
 	here?: Translated | undefined;
 }
 
@@ -74,9 +63,8 @@ export interface DialogueRule {
 }
 
 /**
- * The catalog entry for a dialogue — everything the list page and the
- * account dashboard need, with none of the lines. Safe to import anywhere;
- * the lines themselves are loaded per dialogue by `loadDialogue.ts`.
+ * Everything the list page and dashboard need, with none of the lines —
+ * those are loaded per dialogue by `loadDialogue.ts`.
  */
 export interface DialogueSummary {
 	id: string;
@@ -87,9 +75,9 @@ export interface DialogueSummary {
 	ruleLabel: string;
 	/** Rough listening time, shown as "2 min" on the list card. */
 	durationMinutes: number;
-	/** Number of lines — kept here (not derived) so the list and dashboard
-	 * never load the lines; must match the dialogue file, like a deck's
-	 * `wordCount` (Conventions §10). */
+	/** Kept here rather than derived, so the list and dashboard never load the
+	 * lines; must match the dialogue file, like a deck's `wordCount`
+	 * (Conventions §10). */
 	lineCount: number;
 }
 

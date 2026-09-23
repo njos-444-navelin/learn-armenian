@@ -46,9 +46,8 @@ export const levelLabels: Record<VocabularyLevel, Translated> = {
 	beginner: { en: 'Beginner', ru: 'Начальный' }
 };
 
-/** Dynamic — see Conventions §1. Shown as the "Beginner · 20 words" chip on
- * a deck-list row — see `deckSubtitle()` below for the deck page's own,
- * differently-ordered combination of the same two facts. */
+/** The "Beginner · 20 words" chip on a deck-list row. See `deckSubtitle()`
+ * for the deck page's own ordering of the same two facts. Conventions §1. */
 export function deckMetaLabel(level: VocabularyLevel, wordCount: number): Translated {
 	const levelText = levelLabels[level];
 	return {
@@ -57,10 +56,8 @@ export function deckMetaLabel(level: VocabularyLevel, wordCount: number): Transl
 	};
 }
 
-/** Dynamic — see Conventions §1. Aria-label for a deck-list row's inline
- * "add" button — spells out which deck, since a screen reader landing on
- * one of several identical-looking icon buttons in a list has no other way
- * to tell them apart. */
+/** Names the deck, since a screen reader landing on one of several identical
+ * icon buttons has no other way to tell them apart. Conventions §1. */
 export function addDeckAriaLabel(deckTitle: Translated): Translated {
 	return {
 		en: `Add ${deckTitle.en} to your collection`,
@@ -79,10 +76,8 @@ export function removeDeckAriaLabel(deckTitle: Translated): Translated {
 
 // --- Shared between the deck page and the trainer card ---
 
-/** Aria-label for the pronunciation button next to a word's Armenian text —
- * see `SpeakerButton.svelte`. Kept generic rather than interpolating the
- * word itself: a screen reader would otherwise have to attempt Armenian
- * script pronunciation on every single row of a word list. */
+/** Kept generic rather than naming the word: a screen reader would otherwise
+ * attempt Armenian script on every row of a word list. */
 export const playPronunciationLabel: Translated = {
 	en: 'Play pronunciation',
 	ru: 'Прослушать произношение'
@@ -104,10 +99,8 @@ export function deckPageDescription(deckTitle: Translated): Translated {
 	};
 }
 
-/** Dynamic — see Conventions §1. The deck page's own subheading — its
- * description, word count and level in one line (a different order from
- * `deckMetaLabel`'s list-row chip, which has no separate description line
- * next to it and so leads with the level instead). */
+/** The deck page's subheading. Leads with the description, unlike
+ * `deckMetaLabel`, which has no description line beside it. Conventions §1. */
 export function deckSubtitle(deck: VocabularyDeck): Translated {
 	const levelText = levelLabels[deck.level];
 	return {

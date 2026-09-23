@@ -4,7 +4,11 @@
 	import type { Word } from '$lib/content/words/types';
 	import { wordAudioSrc } from '$lib/content/words/audio';
 	import { t } from '$lib/i18n/current';
-	import { closeSheetLabel, inWordLabel, playPronunciationLabel } from '$lib/i18n/dictionaries/alphabetTrainer';
+	import {
+		closeSheetLabel,
+		inWordLabel,
+		playPronunciationLabel
+	} from '$lib/i18n/dictionaries/alphabetTrainer';
 	import SpeakerButton from './SpeakerButton.svelte';
 
 	interface Props {
@@ -15,10 +19,9 @@
 
 	let { letter, words, onClose }: Props = $props();
 	let dialogEl: HTMLDialogElement | undefined = $state();
-	// True while the close animation is playing — `onClose` (which unmounts
-	// this component) doesn't fire until the animation finishes and actually
-	// calls `dialogEl.close()`, so the exit gets to play instead of the
-	// component vanishing instantly.
+	// True while the close animation plays: `onClose` unmounts this component,
+	// so it can't fire until the animation has finished and called
+	// `dialogEl.close()`.
 	let closing = $state(false);
 
 	// Same rationale as Modal.svelte: a native <dialog> gives a focus trap,
@@ -29,10 +32,8 @@
 
 	function requestClose(): void {
 		if (closing) return;
-		// Reduced-motion: skip straight to closing rather than starting an
-		// animation whose end event this component is waiting on to actually
-		// close — with the animation disabled below, that event would never
-		// fire and the dialog would be stuck open.
+		// Reduced motion disables the animation below, so its end event —
+		// which the close path waits on — would never fire.
 		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 			dialogEl?.close();
 			return;
@@ -40,9 +41,8 @@
 		closing = true;
 	}
 
-	/** Escape fires `cancel` and would otherwise close the dialog immediately,
-	 * skipping the exit animation — intercept it and run the same animated
-	 * close path as the backdrop/button instead. */
+	/** Escape fires `cancel`, which would close the dialog immediately and skip
+	 * the exit animation; run the same animated close path instead. */
 	function handleCancel(event: Event): void {
 		event.preventDefault();
 		requestClose();
@@ -58,7 +58,9 @@
 		requestClose();
 	}
 
-	let pair = $derived(letter.uppercase === undefined ? letter.lowercase : `${letter.uppercase} ${letter.lowercase}`);
+	let pair = $derived(
+		letter.uppercase === undefined ? letter.lowercase : `${letter.uppercase} ${letter.lowercase}`
+	);
 </script>
 
 <dialog
@@ -73,7 +75,13 @@
 >
 	<button type="button" class="cross" onclick={requestClose} aria-label={t(closeSheetLabel)}>
 		<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="20" height="20">
-			<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" />
+			<path
+				d="M6 6l12 12M18 6L6 18"
+				stroke="currentColor"
+				stroke-width="2.75"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
 		</svg>
 	</button>
 
@@ -173,10 +181,9 @@
 		}
 	}
 
-	/* Past phone width, an edge-anchored sheet reads oddly on a page that has
-	   plenty of room either side — present it as a centered modal instead,
-	   with a corner-anchored close affordance replacing the drag-handle
-	   metaphor (which only ever meant something on a touch sheet). */
+	/* Past phone width an edge-anchored sheet reads oddly with room either side,
+	   so it becomes a centred modal with a corner close button instead of the
+	   drag-handle metaphor. */
 	@media (min-width: 768px) {
 		.sheet {
 			top: 0;
@@ -305,5 +312,4 @@
 		font-size: var(--font-size-sm);
 		color: var(--color-text-secondary);
 	}
-
 </style>

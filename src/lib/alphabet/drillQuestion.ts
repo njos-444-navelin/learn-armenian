@@ -14,10 +14,8 @@ export interface DrillQuestion {
 	letter: AlphabetLetter;
 	/** 4 letter ids, shuffled, one of which is `letter.id`. */
 	optionIds: readonly string[];
-	/** Only meaningful for `type: 'case'` — which form is shown vs. asked for,
-	 * chosen randomly per question so both directions occur (per the user's
-	 * own spec: "sometimes ... a capitalized letter for a lowercase one and
-	 * vice versa"). */
+	/** `type: 'case'` only — which form is shown and which is asked for, chosen
+	 * randomly per question so both directions occur. */
 	caseDirection?: CaseDirection | undefined;
 }
 
@@ -37,14 +35,11 @@ function shuffle<T>(items: readonly T[]): T[] {
 }
 
 /**
- * Builds one drill question for `letter`: its confusable partner (if any) is
- * the first-choice distractor — the wrong option actually worth testing
- * against — backfilled with shuffled random fillers up to 4 options total.
+ * One drill question for `letter`: its confusable partner, if it has one, is
+ * the first-choice distractor, backfilled with shuffled fillers to 4 options.
  *
- * `type: 'case'` needs a `letter.uppercase` to ask about — 'yev' (և) has
- * none (see alphabet.ts), so that one letter quietly falls back to a
- * `'sound'` question instead whenever the round-robin would otherwise land
- * it on 'case'.
+ * `type: 'case'` needs a `letter.uppercase`, which 'yev' (և) hasn't got, so
+ * that letter falls back to a `'sound'` question.
  */
 export function buildDrillQuestion(
 	letter: AlphabetLetter,
@@ -52,16 +47,20 @@ export function buildDrillQuestion(
 	type: DrillQuestionType
 ): DrillQuestion {
 	const effectiveType = type === 'case' && letter.uppercase === undefined ? 'sound' : type;
-	// A case question's distractors must also have both forms — 'yev' (և)
-	// can't fill in as a wrong option any more than it can be the letter
-	// being tested, or it'd have no glyph to show in whichever direction
-	// this question asks.
+	// A case question's distractors need both forms too, so 'yev' (և) can't
+	// fill in as a wrong option either.
 	const candidateLetters =
-		effectiveType === 'case' ? allLetters.filter((entry) => entry.uppercase !== undefined) : allLetters;
+		effectiveType === 'case'
+			? allLetters.filter((entry) => entry.uppercase !== undefined)
+			: allLetters;
 
-	const partner = shuffle(confusablePartners(letter.id).filter((id) => candidateLetters.some((entry) => entry.id === id))).slice(0, 1);
+	const partner = shuffle(
+		confusablePartners(letter.id).filter((id) => candidateLetters.some((entry) => entry.id === id))
+	).slice(0, 1);
 	const usedIds = new Set([letter.id, ...partner]);
-	const fillers = shuffle(candidateLetters.filter((entry) => !usedIds.has(entry.id))).map((entry) => entry.id);
+	const fillers = shuffle(candidateLetters.filter((entry) => !usedIds.has(entry.id))).map(
+		(entry) => entry.id
+	);
 	const optionIds = shuffle([letter.id, ...partner, ...fillers].slice(0, OPTION_COUNT));
 
 	if (effectiveType !== 'case') {

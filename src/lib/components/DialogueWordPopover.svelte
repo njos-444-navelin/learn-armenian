@@ -21,26 +21,27 @@
 
 	let gloss = $derived(token.gloss ?? word.translation);
 
-	/** Punctuation and the intonation marks stripped, lowercased, the և
-	 * ligature expanded (the library capitalizes it as Եվ) — so "հա՞ցը։"
-	 * still differs from "Հաց" but "Ես" equals "Ես". */
+	/** Punctuation and intonation marks stripped, lowercased, և expanded (the
+	 * library capitalizes it as Եվ). */
 	function bare(text: string): string {
-		return text.replace(/[։,.?!՞՛՜]/g, '').replace(/և/g, 'եվ').toLowerCase();
+		return text
+			.replace(/[։,.?!՞՛՜]/g, '')
+			.replace(/և/g, 'եվ')
+			.toLowerCase();
 	}
 	/** True when the token *is* the dictionary form (Ես, Այս, հաց), so the
 	 * "from …" framing would only restate the word. */
 	let isBaseForm = $derived(bare(token.text) === bare(word.armenian));
 	/** The library translation is worth a second line only when the
 	 * in-context gloss says something different ("the bread" vs "Bread"). */
-	let showTranslation = $derived(!isBaseForm || t(word.translation).toLowerCase() !== t(gloss).toLowerCase());
+	let showTranslation = $derived(
+		!isBaseForm || t(word.translation).toLowerCase() !== t(gloss).toLowerCase()
+	);
 
 	/**
-	 * A short fade with a 4px rise, played forwards on open and backwards on
-	 * close. A Svelte transition rather than the CSS `animation` used
-	 * elsewhere (see DESIGN.md's Motion section) because this element sits
-	 * in an `{#if}`: only a transition directive keeps the outgoing node in
-	 * the DOM long enough to animate out. Reduced motion collapses it to
-	 * nothing, same as AlphabetTrainer's screen fade.
+	 * A Svelte transition rather than the CSS `animation` used elsewhere (see
+	 * DESIGN.md) because this sits in an `{#if}`: only a transition directive
+	 * keeps the outgoing node around long enough to animate out.
 	 */
 	const reducedMotion = browser && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 	function pop(_node: Element, { duration }: { duration: number }): TransitionConfig {
@@ -54,10 +55,9 @@
 	/** Viewport margin the popover keeps clear of, in px. */
 	const EDGE_PX = 12;
 	let root = $state<HTMLElement | undefined>(undefined);
-	// Hangs off its word's left edge, then slides just far enough to stay
-	// inside the viewport — a word can sit anywhere on a wrapped line, so
-	// neither a fixed left- nor right-anchoring fits every token. Measured
-	// once on mount; the popover is re-created per tap, so that's per open.
+	// Hangs off its word's left edge, then slides just far enough to stay in the
+	// viewport — a word can sit anywhere on a wrapped line. Measured on mount,
+	// which is per open, since the popover is re-created per tap.
 	let shiftPx = $state(0);
 	$effect(() => {
 		if (root === undefined) return;
@@ -79,13 +79,10 @@
 	in:pop={{ duration: 170 }}
 	out:pop={{ duration: 140 }}
 >
-	<!-- The gloss is what the tapped form means in this line. Under the
-	     rule: the dictionary entry — base form, library translation, the
-	     one clip (which says the base form, so the button lives here and
-	     not next to "ուզում"), the library's global comment in the entry's
-	     grey — and then, last, the token's own "Here:" remark in the
-	     primary colour: the general rule first, the exception for this
-	     line after it. -->
+	<!-- Order is the general rule first, the exception after: the gloss for this
+	     line, then the dictionary entry (base form, library translation, the clip
+	     — which says the base form — and the global comment), then the token's
+	     own "Here:" remark. -->
 	<span class="gloss">{t(gloss)}</span>
 	<span class="entry">
 		<span class="base">
@@ -102,20 +99,17 @@
 			{/if}
 			<SpeakerButton src={wordAudioSrc(word.id)} />
 		</span>
-		<!-- The comment may exist in one language only (see
-		     `PartiallyTranslated`); nothing shows in the other, rather than a
-		     sentence written for the other reader. -->
+		<!-- The comment may exist in one language only (`PartiallyTranslated`);
+		     nothing shows in the other. -->
 		{#if tPartial(word.global) !== undefined}
 			<span class="entry-note">{tPartial(word.global)}</span>
 		{/if}
-		<!-- No `word.cardOnly` here, on purpose: the tapped line *is* the
-		     usage, and a card-only comment about some other phrase the word
-		     lives in (Լույս → բարի լույս) is noise on a line about light. If
-		     this line is that phrase, the token's `here` says so. -->
+		<!-- No `word.cardOnly` here on purpose: the tapped line is the usage, so a
+		     comment about some other phrase the word lives in is noise. If this line
+		     is that phrase, the token's `here` says so. -->
 		{#if token.here !== undefined}
-			<!-- After the global comment, as the exception to it for this line.
-			     Same grey as that comment — the italic label is the only marker,
-			     which is enough; darker text read as undue emphasis. -->
+			<!-- Same grey as the global comment: the italic label is marker enough,
+			     and darker text read as undue emphasis. -->
 			<span class="here"><em class="here-label">{t(wordHereLabel)}</em> {t(token.here)}</span>
 		{/if}
 	</span>
@@ -157,10 +151,8 @@
 		font-style: italic;
 	}
 
-	/* The dictionary entry is its own block under a rule: base form, its
-	   translation, the clip, and the library's general note — in the
-	   secondary colour throughout, so it reads as reference material
-	   rather than as commentary on the line above. */
+	/* Secondary colour throughout, so the entry reads as reference material
+	   rather than commentary on the line above. */
 	.entry {
 		display: flex;
 		flex-direction: column;
@@ -177,9 +169,8 @@
 		font-size: var(--font-size-sm);
 	}
 
-	/* The shared speaker button is tap-target sized; it takes the row's
-	   right edge and pulls a little into the popover's own padding so the
-	   row stays compact without shrinking the target itself. */
+	/* Takes the row's right edge and pulls into the popover's padding, so the row
+	   stays compact without shrinking the tap target. */
 	.base :global(.speaker) {
 		margin: calc(var(--space-2) * -1) calc(var(--space-2) * -1) calc(var(--space-2) * -1) auto;
 	}

@@ -86,9 +86,8 @@ export const hideTranslationLabel: Translated = {
 
 export const playWordLabel: Translated = { en: 'Play word', ru: 'Прослушать слово' };
 
-/** The one-line hint above the lines until the learner opens a first word —
- * nothing else on the page says the words are tappable. Two versions,
- * because in Listen mode the words are blurred and can't be tapped yet. */
+/** Two versions, because in Listen mode the words are blurred and can't be
+ * tapped yet. */
 export const revealThenTapHint: Translated = {
 	en: 'Reveal a line with the eye button, or switch to Read — then tap any word to see what it means.',
 	ru: 'Откройте реплику кнопкой с глазом или перейдите в «Читать» — и нажимайте на любое слово, чтобы узнать, что оно значит.'
@@ -130,9 +129,8 @@ export const markDoneFailedMessage: Translated = {
 	ru: 'Не удалось сохранить прогресс — проверьте соединение и попробуйте снова'
 };
 
-/** What the commit button says once the dialogue is already in the
- * learner's done list — tapping it opens the "remove from done" confirm
- * below rather than marking it done a second time. */
+/** Tapping it opens the "remove from done" confirm below rather than marking
+ * the dialogue done again. */
 export const alreadyDoneLabel: Translated = {
 	en: 'Already done',
 	ru: 'Уже пройден'
@@ -177,7 +175,10 @@ export function linesHeardLabel(count: number): Translated {
 	};
 }
 
-export const tappedWordsHeading: Translated = { en: 'Words you tapped', ru: 'Слова, которые Вы открыли' };
+export const tappedWordsHeading: Translated = {
+	en: 'Words you tapped',
+	ru: 'Слова, которые Вы открыли'
+};
 
 export const noTappedWordsMessage: Translated = {
 	en: 'You went through without opening a single word. Respect.',

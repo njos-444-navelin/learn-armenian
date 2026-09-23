@@ -19,43 +19,27 @@ const EMPTY_RESULT = {
 };
 
 /**
- * How many never-studied words one session may introduce. Without a cap the
- * queue held every unseen word of every added deck — someone who adds five
- * decks at once queues ninety-odd new cards, and since new cards used to sit
- * ahead of the reviews (see the ordering of the returned `queue` below),
- * yesterday's due words were simply unreachable and the backlog only grew.
- * Roughly Anki's own default of twenty a day, but scoped to a session rather
- * than a day on purpose: reloading the page hands out another batch, which
- * reads as "keep going" rather than as a limit to work around, and it needs
- * neither a stored per-day counter nor a ruling on whose midnight ends the
- * day.
+ * How many never-studied words one session may introduce. Uncapped, five
+ * freshly added decks bury the reviews behind ninety new cards. Per session
+ * rather than per day: reloading hands out another batch, and it needs no
+ * stored counter or ruling on whose midnight ends the day.
  */
 const NEW_CARDS_PER_SESSION = 20;
 
 /**
- * How many reviews one round may hold. A learner who has been away for a
- * month can have a four-figure backlog, and an unbounded queue served all
- * of it — every one of those rows fetched, and every card serialised to a
- * browser that would show forty of them before the bus arrived.
- *
- * The cap is as much a product decision as a payload one: nobody clears a
- * thousand cards in a sitting, and a queue with no end tells them nothing
- * about where they are. A round that finishes — with the true remainder
- * named on the way out, which the counts in `vocabularyCounts.ts` know
- * without fetching anything — gives them a finish line and a choice. Sixty
- * is four to six minutes of grading; Anki's own default of two hundred a
- * day is a longer sitting than a phone invites.
+ * How many reviews one round may hold. A month away can leave a four-figure
+ * backlog, which an unbounded queue fetched and serialised in full. The
+ * end-of-round screen names the true remainder from `vocabularyCounts.ts`,
+ * which knows it without fetching anything.
  */
 const DUE_CARDS_PER_ROUND = 60;
 
-const PROGRESS_COLUMNS = 'deck_id, word_id, phase, step, interval_days, ease_factor, due_at, reps, lapses';
+const PROGRESS_COLUMNS =
+	'deck_id, word_id, phase, step, interval_days, ease_factor, due_at, reps, lapses';
 
 /**
- * The most overdue cards, up to `limit` of them — chosen, sorted and
- * counted out by the database, not here. `lte('due_at', now)` with the
- * ordering and the limit is served by the table's (user_id, due_at) index,
- * so what comes back is this round's review queue rather than every row the
- * learner owns for us to sift through and then throw most of away.
+ * The most overdue cards, chosen and sorted by the database: `lte('due_at')`
+ * with this ordering and limit is served by the (user_id, due_at) index.
  */
 async function loadDueCards(
 	supabase: SupabaseClient,
@@ -82,10 +66,9 @@ async function loadDueCards(
 		return [];
 	}
 
-	// A row is only shown if its deck still lists the word: content can drop
-	// a word from a deck while a learner's row for it survives, and a card
-	// from a deck that no longer contains it would be unexplainable. The id
-	// lists are already in memory by now — the counts above sum them.
+	// A row is only shown if its deck still lists the word — content can drop a
+	// word from a deck while a learner's row for it survives. The id lists are
+	// already in memory: the counts above sum them.
 	const cards: TrainingCard[] = [];
 	const listedByDeck = new Map<string, ReadonlySet<string>>();
 	for (const deckId of deckIds) {
@@ -103,20 +86,13 @@ async function loadDueCards(
 }
 
 /**
- * Up to `limit` never-studied words, in catalog order — the course's own
- * progression, so someone who adds every deck at once still meets the
- * greetings before the food. Walks deck by deck and stops as soon as it has
- * enough, so a learner at the start of the catalog never loads the decks
- * beyond their first.
+ * Up to `limit` never-studied words in catalog order, walking deck by deck
+ * and stopping as soon as it has enough.
  *
- * The one query here is the expensive shape this file otherwise avoids: it
- * asks which (deck, word) pairs already have a row, which is the only way
- * to find the pairs that *don't*. Two narrow columns rather than nine, and
- * the caller skips it entirely unless the counts say there are unseen words
- * to find — which for a learner who has worked through their collection is
- * every visit. If a collection ever grows large enough for this to bite,
- * the next step is a grouped count (rows per deck) behind a Postgres
- * function, so only the decks with room are ever listed.
+ * Its one query asks which (deck, word) pairs already have a row, the only
+ * way to find the pairs that don't; the caller skips it unless the counts say
+ * there are unseen words. If a collection ever grows large enough for this to
+ * bite, move to a grouped count behind a Postgres function.
  */
 async function loadNewCards(
 	supabase: SupabaseClient,
@@ -177,23 +153,15 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, claims 
 		loadDueCards(supabase, verified.sub, deckIds, now, DUE_CARDS_PER_ROUND)
 	]);
 
-	// Only worth hunting for new words when the counts say there are some —
-	// and the count is an integer, not a scan of the collection.
+	// Only worth hunting for new words when the counts say there are some.
 	const unseen = counts?.unseen ?? 0;
 	const queuedNewCards =
 		unseen > 0 ? await loadNewCards(supabase, verified.sub, deckIds, NEW_CARDS_PER_SESSION) : [];
 
-	// Reviews first, new words after: a due card is already late, and its
-	// interval keeps stretching for as long as it waits, whereas a word that
-	// has never been studied loses nothing by being met ten minutes later.
-	// The counts describe the queue that was actually built, not everything
-	// that could have gone into it — `newCount` is what the learner will
-	// meet this session, not how many unseen words their decks still hold.
-	// The two held-back numbers are the rest, which the end-of-round screen
-	// names so finishing reads as "there's more whenever you want it" rather
-	// than as having exhausted the collection. Both come from counts, not
-	// from lists — the queue above is capped precisely so those lists are
-	// never built.
+	// Reviews first: a due card is already late and its interval keeps
+	// stretching, while an unseen word loses nothing by waiting. The counts
+	// describe the queue actually built; the held-back numbers are the rest,
+	// and both come from counts rather than from lists.
 	return {
 		hasAddedDecks: true,
 		queue: [...dueCards, ...queuedNewCards],

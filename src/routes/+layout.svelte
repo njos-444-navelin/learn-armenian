@@ -17,12 +17,9 @@
 			import('virtual:pwa-register').then(({ registerSW }) =>
 				registerSW({
 					immediate: true,
-					// Without this, the default behavior on a new deploy is an
-					// unprompted `window.location.reload()` the instant the updated
-					// service worker activates — including mid-navigation, which is
-					// what produced the "flash of unstyled content" (a hard reload
-					// interrupting an in-flight SPA navigation). Prompt instead and
-					// let the reload happen on the user's own tap.
+					// The default is an unprompted reload the moment the updated service
+					// worker activates, including mid-navigation — which is what produced
+					// the flash of unstyled content. Prompt, and let the user tap.
 					onNeedReload() {
 						pushToast(newVersionAvailableMessage, 'info', () => window.location.reload());
 					}
@@ -31,13 +28,9 @@
 		}
 	});
 
-	// Cross-fades between pages using the browser's native View Transitions
-	// API — the UA default cross-fade is used as-is (see app.css for just a
-	// duration tweak). Feature-detected: browsers without support just
-	// navigate instantly, same as before. `::view-transition-*`
-	// pseudo-elements live outside the regular DOM tree, so they aren't
-	// reached by app.css's `*, *::before, *::after` reduced-motion rule —
-	// checked directly here instead, same intent as that rule.
+	// The UA's default cross-fade, used as-is (app.css only tweaks the
+	// duration). `::view-transition-*` pseudo-elements live outside the DOM tree,
+	// so app.css's reduced-motion rule can't reach them — checked here instead.
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
 		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;

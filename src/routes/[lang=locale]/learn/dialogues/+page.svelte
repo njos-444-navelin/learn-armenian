@@ -38,7 +38,17 @@
 							{index + 1}
 							{#if done}
 								<span class="done-mark" role="img" aria-label={t(completedBadgeLabel)}>
-									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="13" height="13">
+									<svg
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.75"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										aria-hidden="true"
+										width="13"
+										height="13"
+									>
 										<path d="M20 6 9 17l-5-5" />
 									</svg>
 								</span>
@@ -47,7 +57,9 @@
 						<span class="info">
 							<span class="title">{t(dialogue.titleTranslation)}</span>
 							<span class="title-hy" lang="hy">{dialogue.title}</span>
-							<span class="meta">{t(dialogueMetaLabel(dialogue.durationMinutes, dialogue.ruleLabel))}</span>
+							<span class="meta"
+								>{t(dialogueMetaLabel(dialogue.durationMinutes, dialogue.ruleLabel))}</span
+							>
 						</span>
 					</a>
 				</li>

@@ -1,7 +1,6 @@
 /**
- * Declines a Russian noun that follows the standard 1/2-4/5+ count pattern
- * (e.g. слово/слова/слов) by count. `forms` is `[one, few, many]` — the
- * singular, the 2-4 form, and the 5+/11-14 form, in that order.
+ * Declines a Russian noun on the standard 1/2-4/5+ pattern. `forms` is
+ * `[one, few, many]`: the singular, the 2-4 form and the 5+/11-14 form.
  */
 export function ruPluralForm(count: number, forms: readonly [string, string, string]): string {
 	const mod10 = count % 10;
@@ -11,9 +10,7 @@ export function ruPluralForm(count: number, forms: readonly [string, string, str
 	return forms[2];
 }
 
-/** `ruPluralForm()` specialized for "слово" (word) — used wherever a count of
- * vocabulary words needs a Russian noun, e.g. `collectionCountLabel` in
- * `dictionaries/account.ts` and `deckMetaLabel` in `dictionaries/vocabulary.ts`. */
+/** `ruPluralForm()` specialized for "слово". */
 export function ruWordForm(count: number): string {
 	return ruPluralForm(count, ['слово', 'слова', 'слов']);
 }

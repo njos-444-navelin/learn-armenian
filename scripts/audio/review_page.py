@@ -1,7 +1,6 @@
 """Build the single-file review page a human auditions takes on — see
-docs/VOCABULARY_AUDIO.md, "Reviewing takes". Every clip is inlined as a
-data: URI so the page can be published as an Artifact with no external
-requests. Styled on the app's own tokens.
+docs/VOCABULARY_AUDIO.md, "Reviewing takes". Every clip is inlined as a data:
+URI, so the page can be published with no external requests.
 
     python3 scripts/audio/review_page.py spec.json out.html
 

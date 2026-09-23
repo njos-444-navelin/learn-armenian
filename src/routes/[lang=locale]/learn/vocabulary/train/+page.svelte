@@ -21,13 +21,10 @@
 	let { data }: { data: PageData } = $props();
 	let locale = $derived(getLocale());
 
-	// The trainer reads `initialQueue` once, at mount, and owns advancing
-	// through it afterwards (see its own comment) — so a freshly loaded
-	// `data.queue` doesn't reach a mounted one. Bumping this is what hands
-	// the next round over, by remounting it. Both of these live here rather
-	// than in the trainer precisely because they have to survive that
-	// remount, which is also why the button's pending state is passed back
-	// down instead of being owned where it's rendered.
+	// The trainer reads `initialQueue` once at mount, so a freshly loaded
+	// `data.queue` doesn't reach a mounted one; bumping `round` remounts it and
+	// hands the next round over. Both live here because they have to survive
+	// that remount — which is why the pending state is passed back down.
 	let round = $state(0);
 	let nextRoundPending = $state(false);
 

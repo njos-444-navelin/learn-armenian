@@ -8,12 +8,9 @@ export function isLocale(value: string): value is Locale {
 	return (LOCALES as readonly string[]).includes(value);
 }
 
-/**
- * Decorative flag glyph per locale. Not translatable text (the emoji is
- * identical regardless of UI language), so it lives outside the i18n
+/** Decorative, identical in every UI language, so it lives outside the i18n
  * dictionaries and must always be rendered `aria-hidden` alongside a real
- * translated label — see docs/CONVENTIONS.md.
- */
+ * translated label — see docs/CONVENTIONS.md. */
 export const LOCALE_FLAGS: Record<Locale, string> = {
 	en: '🇬🇧',
 	ru: '🇷🇺'

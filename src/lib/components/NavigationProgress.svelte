@@ -5,16 +5,11 @@
 	let opacity = $state(0);
 	let fast = $state(false);
 
-	// Waits before showing anything — most navigations in this app (hover-
-	// preloaded links, cached routes) resolve well under this delay, and a
-	// bar that flashes on for every single click (e.g. repeatedly toggling
-	// the language on the home screen) reads as noise, not progress. Only a
-	// navigation that's still running once the delay elapses starts the
-	// "trickle": filling slowly toward (but not reaching) completion, since
-	// we have no real progress percentage to report. If a *new* navigation
-	// supersedes this one before the delay fires, the effect reruns
-	// (`navigating.to` is a fresh object) and the stale timeout is cleared
-	// before it ever shows the bar.
+	// Waits before showing anything: most navigations here resolve well under
+	// this delay, and a bar that flashes on every click reads as noise. Past it,
+	// the bar trickles toward but never reaches completion, since there's no real
+	// percentage to report. A superseding navigation reruns the effect and clears
+	// the stale timeout.
 	$effect(() => {
 		if (navigating.to === null) return;
 		const show = setTimeout(() => {
@@ -43,31 +38,20 @@
 	});
 </script>
 
-<!-- The bar is an ornament, not a line: a band of 4px "pixels" in the
-     flag's colours, drawn once as an SVG pattern and revealed as the bar
-     widens (the pattern is anchored at the left edge, so it never
-     scrolls or shifts under the growing tip).
-
-     The ground is --color-primary, the app's theme colour, so on an
-     Android PWA the band reads as the status bar's colour continuing
-     down into the page, with the motif set *in* that field — not as a
-     second line drawn under it. On the ground, in flag red (R) and flag
-     blue (B), meshed teeth: stepped pendants (3 cells over 1) hanging
-     from the top in red, and the same shape rising from the bottom in
-     blue, interleaved so each tip sits between the other row's teeth.
-     One tile is 4 cells (16px); four tiles shown:
+<!-- A band of 4px "pixels" in the flag's colours, drawn once as an SVG
+     pattern anchored at the left edge, so it never shifts under the growing
+     tip. The ground is --color-primary, so on an Android PWA the band reads
+     as the status bar's colour continuing into the page. Flag red (R) and
+     blue (B) mesh as stepped teeth — the smallest form of the stair pattern
+     on the Artsakh flag and in Armenian carpet borders — which is what makes
+     it read as woven. One tile is 4 cells (16px); four tiles shown:
 
        RRR·RRR·RRR·RRR·
        ·R·B·R·B·R·B·R·B
        B·BBB·BBB·BBB·BB
 
-     The stepped tooth is the smallest form of the stair pattern on the
-     Artsakh flag and in Armenian carpet borders; meshing two rows of
-     them is what makes the band read as woven rather than as things
-     hanging off a string (an earlier version with one row of pendants
-     and air between them looked like a garland). The rects below are
-     generated from this grid — edit the grid in this comment first,
-     then the rects to match. See DESIGN.md's Motion section. -->
+     The rects below are generated from this grid — edit the grid first, then
+     the rects to match. -->
 <div class="bar" class:fast style="width: {width}%; opacity: {opacity}" aria-hidden="true">
 	<svg class="ornament" height="12" preserveAspectRatio="none">
 		<defs>

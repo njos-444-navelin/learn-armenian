@@ -6,7 +6,11 @@
 	import { page } from '$app/state';
 	import { isAudioMuted } from '$lib/alphabet/audioMute';
 	import { applyAnswer } from '$lib/alphabet/mastery';
-	import { buildDrillQuestion, DRILL_QUESTION_TYPES, type DrillQuestion } from '$lib/alphabet/drillQuestion';
+	import {
+		buildDrillQuestion,
+		DRILL_QUESTION_TYPES,
+		type DrillQuestion
+	} from '$lib/alphabet/drillQuestion';
 	import { buildSession } from '$lib/alphabet/session';
 	import { setCloseAction } from '$lib/stores/topLeftAction.svelte';
 	import type { AlphabetLetter } from '$lib/content/alphabet';
@@ -14,7 +18,13 @@
 	import type { Word } from '$lib/content/words/types';
 	import { getLocale, t } from '$lib/i18n/current';
 	import { withLocaleQuery } from '$lib/i18n/paths';
-	import { heading, practiceLabel, practiceSignInHint, practiceSubtitleNew, practiceSubtitleWeakest } from '$lib/i18n/dictionaries/alphabetTrainer';
+	import {
+		heading,
+		practiceLabel,
+		practiceSignInHint,
+		practiceSubtitleNew,
+		practiceSubtitleWeakest
+	} from '$lib/i18n/dictionaries/alphabetTrainer';
 	import AlphabetDrillQuestion from './AlphabetDrillQuestion.svelte';
 	import AlphabetLearnStep from './AlphabetLearnStep.svelte';
 	import AlphabetLetterGrid from './AlphabetLetterGrid.svelte';
@@ -32,41 +42,22 @@
 
 	let { letters, initialLevels, signedIn }: Props = $props();
 
-	// Screen-to-screen fade (home <-> learn <-> drill <-> summary) — a plain
-	// Svelte transition on the `{#if}` block below, not the app's page-level
-	// View Transition (see app.css / root +layout.svelte): that one is
-	// wired to SvelteKit's `onNavigate` hook and fires on real route
-	// changes, which switching `screen` here isn't — it's client-side state
-	// inside one route. Reaching for it anyway would mean manually driving
-	// `document.startViewTransition()` around a state update, fighting a
-	// mechanism built for a different kind of transition (and risking it
-	// sweeping in page-level chrome — the fixed back/account bubbles — that
-	// isn't part of this screen switch at all). Svelte's own transition
-	// directives are the right-sized tool for animating between states
-	// inside a single component.
+	// Screen-to-screen fade. A plain Svelte transition, not the app's page-level
+	// View Transition: that one is wired to `onNavigate`, and switching `screen`
+	// is client-side state inside one route, not a navigation.
 	//
-	// `in:` only, deliberately not `transition:` (both directions): a true
-	// two-way crossfade keeps the outgoing screen in the DOM, as a normal
-	// flow sibling, until its own out-transition finishes — so for that
-	// overlap window PageShell's centered column briefly contains *both*
-	// screens stacked, doubling its height and visibly shifting everything
-	// as the centering recalculates. Fading only the incoming screen in
-	// means the outgoing one is removed the instant `screen` changes, so
-	// only one is ever in the DOM — no overlap, no height doubling, no
-	// shift. The swap still reads as soft rather than a jump-cut, since the
-	// new content eases in; it just doesn't fade the old one out first.
+	// `in:` only, not `transition:`: a two-way crossfade keeps the outgoing
+	// screen in the DOM as a flow sibling, so PageShell's column briefly holds
+	// both and visibly shifts as its centring recalculates.
 	//
-	// Computed once (not reactive) since a transition's params are read
-	// when it's created, matching how the letter sheet's own reduced-motion
-	// check works — guarded by `browser` here (unlike that click-triggered
-	// check) because this one runs at component init, which also happens
-	// during SSR, where `window` doesn't exist.
-	const screenFadeMs = browser && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 150;
+	// Computed once, since a transition's params are read when it's created.
+	// Guarded by `browser` because this runs at init, which also happens in SSR.
+	const screenFadeMs =
+		browser && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 150;
 
 	type Screen = 'home' | 'learn' | 'drill' | 'summary';
 
-	// Read once at mount — this component owns advancing/persisting from here
-	// on, same pattern as VocabularyTrainer's `activeQueue`.
+	// Read once at mount; this component owns advancing and persisting from here.
 	let levels = $state<Record<string, number>>(untrack(() => ({ ...initialLevels })));
 	let screen = $state<Screen>('home');
 	let caseDisplay = $state<'upper' | 'lower'>('upper');
@@ -87,10 +78,8 @@
 	let sessionLog = $state<LogEntry[]>([]);
 
 	let locale = $derived(getLocale());
-	// buildSession shuffles which letters it picks, so this and the real
-	// session built in startPractice() below normally land on different
-	// letters — harmless, since this is only ever read for its *counts*
-	// (learnLetters.length, drillLetters.length), never specific letters.
+	// buildSession shuffles, so this and the real session in startPractice()
+	// normally pick different letters — only its counts are ever read.
 	let sessionPreview = $derived(buildSession(letters, levels));
 	let practiceSubtitle = $derived(
 		!signedIn
@@ -100,7 +89,9 @@
 				: t(practiceSubtitleWeakest(sessionPreview.drillLetters.length))
 	);
 
-	let openLetter = $derived(sheetLetterId === null ? undefined : letters.find((letter) => letter.id === sheetLetterId));
+	let openLetter = $derived(
+		sheetLetterId === null ? undefined : letters.find((letter) => letter.id === sheetLetterId)
+	);
 	function wordsFor(letter: AlphabetLetter | undefined): Word[] {
 		if (letter === undefined) return [];
 		return letter.exampleWordIds.map(getWord).filter((word): word is Word => word !== undefined);
@@ -179,10 +170,9 @@
 		const letter = drillLetters[index];
 		if (letter === undefined) return undefined;
 		let type = DRILL_QUESTION_TYPES[index % DRILL_QUESTION_TYPES.length] ?? 'sound';
-		// Muted via the audio question's own "I can't listen right now" —
-		// falls back to 'sound' rather than skipping this letter outright,
-		// same substitution buildDrillQuestion already does for 'yev' (which
-		// has no case-type answer available at all).
+		// Muted via the audio question's own "I can't listen right now".
+		// Falls back to 'sound' rather than skipping the letter, the same
+		// substitution buildDrillQuestion makes for 'yev'.
 		if (type === 'audio' && isAudioMuted()) type = 'sound';
 		return buildDrillQuestion(letter, letters, type);
 	}
@@ -214,25 +204,19 @@
 		screen = 'home';
 	}
 
-	// Swaps the layout's top-left "Back" bubble for a "Close" (X) one for
-	// every screen but 'home' — see topLeftAction.svelte.ts for why this
-	// can't just be a prop. The cleanup (run before each re-run and on
-	// unmount) always hands the bubble back, so navigating away mid-session
-	// can't leave some other page stuck with this override.
+	// Swaps the layout's top-left "Back" bubble for a "Close" one outside the
+	// home screen — see topLeftAction.svelte.ts for why this can't be a prop.
+	// The cleanup always hands the bubble back, so navigating away mid-session
+	// can't leave another page stuck with the override.
 	$effect(() => {
 		if (screen === 'home') return;
 		setCloseAction(backHome);
 		return () => setCloseAction(null);
 	});
 
-	// Screen changes are client-side state, not real navigations, so the
-	// browser never resets scroll position for them the way it would on an
-	// actual page load. Without this, scrolling down on a tall screen (the
-	// summary's rows list, most often) leaves the *next* screen scrolled to
-	// that same spot, cutting off its own top content — e.g. "Practice
-	// again" landing straight into an already-scrolled-down drill question.
-	// `void screen` is what makes this effect track `screen` at all; the
-	// scroll call itself doesn't read it.
+	// Screen changes are state, not navigations, so the browser never resets
+	// scroll for them — without this the next screen opens already scrolled
+	// down. `void screen` is what makes the effect track it.
 	$effect(() => {
 		void screen;
 		if (browser) window.scrollTo(0, 0);
@@ -250,7 +234,13 @@
 	{#if screen === 'home'}
 		<div class="screen" in:fade={{ duration: screenFadeMs }}>
 			<h1>{t(heading)}</h1>
-			<AlphabetLetterGrid {letters} {levels} {caseDisplay} onToggleCase={toggleCase} onOpenLetter={openLetterSheet} />
+			<AlphabetLetterGrid
+				{letters}
+				{levels}
+				{caseDisplay}
+				onToggleCase={toggleCase}
+				onOpenLetter={openLetterSheet}
+			/>
 			<FloatingActionBar bare>
 				<PulseCta label={t(practiceLabel)} subtitle={practiceSubtitle} onclick={clickPractice} />
 			</FloatingActionBar>
@@ -284,7 +274,11 @@
 		</div>
 	{:else if screen === 'summary'}
 		<div class="screen" in:fade={{ duration: screenFadeMs }}>
-			<AlphabetSessionSummary rows={summaryRows} onBackHome={backHome} onPracticeAgain={startPractice} />
+			<AlphabetSessionSummary
+				rows={summaryRows}
+				onBackHome={backHome}
+				onPracticeAgain={startPractice}
+			/>
 		</div>
 	{/if}
 </PageShell>
@@ -294,14 +288,11 @@
 {/if}
 
 <style>
-	/* Each screen becomes the single child PageShell's own flex column sees
-	   (rather than several siblings), so it needs to reproduce that column's
-	   own layout for its own children — `gap: inherit` copies PageShell's
-	   `--space-5` gap rather than repeating the value, so the two can't
-	   silently drift apart. This wrapper is also what `in:fade` attaches to
-	   above: a transition needs one element to animate, and a
-	   multi-root screen (home renders an h1 + grid + action bar as three
-	   siblings) doesn't give it one on its own. */
+	/* Each screen is the single child PageShell's flex column sees, so it
+	   reproduces that column's layout for its own children — `gap: inherit`
+	   copies PageShell's gap rather than repeating the value. It's also what
+	   `in:fade` attaches to: a multi-root screen gives a transition no single
+	   element to animate. */
 	.screen {
 		display: flex;
 		width: 100%;
@@ -309,5 +300,4 @@
 		align-items: center;
 		gap: inherit;
 	}
-
 </style>

@@ -10,13 +10,8 @@
 	let pathname = $derived(withoutLocale(page.url.pathname));
 	let parent = $derived(parentPath(pathname));
 	let signedIn = $derived(page.data.claims !== null);
-	/**
-	 * A signed-in user landing on `/` gets bounced straight back to
-	 * `/learn` (see `[lang=locale]/+page.server.ts`) once they have a
-	 * saved locale preference — which, in practice, is true by the time
-	 * they've reached `/learn` at all. So "back" from `/learn` would just
-	 * round-trip to the same page with no visible effect; hide it instead.
-	 */
+	/** "Back" from `/learn` would round-trip: a signed-in user landing on `/` is
+	 * bounced straight to `/learn` once they have a saved locale preference. */
 	let backBounces = $derived(signedIn && pathname === '/learn');
 	let backHref = $derived(
 		parent !== undefined && !backBounces ? resolveRuntimePath(locale, parent) : undefined

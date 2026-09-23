@@ -4,13 +4,9 @@ import { DEFAULT_LOCALE, isLocale } from '$lib/i18n/locale';
 import { withLocale } from '$lib/i18n/paths';
 
 /**
- * Identifies a gated action to replay once the visitor is back, signed in —
- * see the "resume after login" section in docs/AUTH.md. `url` is the page
- * they were on when the gate turned them away (typically `event.url` from
- * the action that called `requireSignedIn`); `action` is an id the calling
- * page's own client code recognizes and knows how to re-trigger (e.g.
- * re-submitting a specific form) after landing back on `url` with
- * `?resume=<action>`.
+ * A gated action to replay once the visitor is back, signed in — see
+ * docs/AUTH.md. `url` is the page they were turned away from; `action` is an
+ * id that page's own client code knows how to re-trigger on `?resume=<action>`.
  */
 interface ResumeAfterLogin {
 	url: URL;
@@ -18,22 +14,15 @@ interface ResumeAfterLogin {
 }
 
 /**
- * Redirects to the locale-prefixed sign-in page if `claims` is `null`,
- * otherwise returns the narrowed, non-null claims. `redirect()` returns
- * `never`, so TypeScript narrows `claims` correctly after the guard.
+ * Redirects to sign-in if `claims` is `null`, otherwise returns the narrowed
+ * claims — `redirect()` returns `never`, so the narrowing holds after the call.
  *
- * Call this from BOTH a protected page's `load` (blocks direct navigation)
- * AND the top of every action on that page — SvelteKit runs a POST's action
- * before `load` re-runs to render the result, so a `load`-only guard does
- * not protect the action itself from an unauthenticated direct POST.
+ * Call it from a protected page's `load` *and* the top of every action on it:
+ * SvelteKit runs a POST's action before `load` re-runs, so a `load`-only guard
+ * leaves the action open to an unauthenticated POST.
  *
- * Pass `resume` when the gated thing is an action worth automatically
- * replaying after sign-in (see docs/AUTH.md) — this only round-trips
- * through **password** sign-in (`account/+page.server.ts`'s `login`
- * action); the magic-link flow's landing page is fixed by the Supabase
- * dashboard email template and can't carry a dynamic `next`, so a
- * magic-link sign-in from here just lands on the bare account page same as
- * calling this without `resume`.
+ * `resume` only round-trips through password sign-in — the magic-link landing
+ * page is fixed by the Supabase email template and can't carry a `next`.
  */
 export function requireSignedIn(
 	claims: JwtPayload | null,

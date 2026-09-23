@@ -36,7 +36,10 @@ export const actions: Actions = {
 		// doc comment) so the client knows which of this page's several "Add"
 		// forms to replay after sign-in — see the `resume` effect in
 		// VocabularyDeckList.svelte.
-		const verified = requireSignedIn(claims, params.lang, { url, action: `addToCollection:${deckId}` });
+		const verified = requireSignedIn(claims, params.lang, {
+			url,
+			action: `addToCollection:${deckId}`
+		});
 		return addDeckToCollection(supabase, verified.sub, deckId);
 	},
 

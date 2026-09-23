@@ -2,18 +2,12 @@ import type { Action } from 'svelte/action';
 
 /**
  * Marks a horizontally scrolling row with `data-cue-start` / `data-cue-end`
- * while there is hidden content on that side, so the element's own CSS can
- * fade the edge that's cut off (see the account dashboard's progress row).
- * The cue is information, not decoration: neither attribute is set when
- * everything fits, only the end one when the row sits at its start, only
- * the start one when it's scrolled to the end. Re-measured on scroll and
- * whenever the row or its content resizes, so a tile appearing later or a
- * window resize that makes everything fit is picked up without a reload.
+ * while content is hidden on that side, so the element's CSS can fade the cut
+ * edge. Re-measured on scroll and on resize of the row or its content.
  *
- * Runs against the node itself when it is the scroll container, or the
- * first child otherwise — the attributes always land on `node`, which is
- * where the overlay pseudo-elements have to live (a pseudo-element on the
- * scroller itself would scroll away with the content).
+ * Runs against the node itself when it is the scroll container, or its first
+ * child otherwise; the attributes always land on `node`, since a
+ * pseudo-element on the scroller would scroll away with the content.
  */
 export const scrollEdgeCues: Action<HTMLElement> = (node) => {
 	const scroller =

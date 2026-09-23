@@ -3,11 +3,9 @@ import { preferredLocaleSaveFailedMessage } from './dictionaries/common';
 import { pushToast } from '$lib/stores/toasts.svelte';
 
 /**
- * Fire-and-forget: persists the user's chosen locale in the background while
- * navigation to that locale proceeds immediately — the same optimistic,
- * no-rollback shape as grading a card (see Conventions §8). Only call when
- * the user is signed in; there's nowhere to persist a signed-out visitor's
- * choice.
+ * Fire-and-forget: persists the chosen locale while navigation proceeds, the
+ * same optimistic shape as grading a card (Conventions §8). Signed-in callers
+ * only — there's nowhere to persist a signed-out visitor's choice.
  */
 export function persistPreferredLocale(locale: Locale): void {
 	fetch('/api/preferred-locale', {

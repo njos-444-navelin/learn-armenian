@@ -30,10 +30,9 @@
 
 	let { data }: { data: PageData } = $props();
 
-	// A local override so a just-submitted add/remove shows immediately
-	// without waiting for a re-fetch of `data`. `undefined` defers to
-	// `data.added`; reset on navigation to a different deck so it doesn't
-	// leak that deck's state onto the next one.
+	// A local override so a just-submitted add/remove shows without waiting for
+	// a re-fetch. `undefined` defers to `data.added`; reset on navigation so it
+	// doesn't leak onto the next deck.
 	let addedOverride = $state<boolean | undefined>(undefined);
 	let added = $derived(addedOverride ?? data.added);
 	$effect(() => {
@@ -47,12 +46,10 @@
 	let addForm = $state<HTMLFormElement | undefined>(undefined);
 
 	/**
-	 * Replays "Add to my collection" after a signed-out visitor gets sent to
-	 * sign in and back — see requireSignedIn()'s `resume` option and the
-	 * "resume after login" section in docs/AUTH.md. `resumeHandled` guards
-	 * this to fire at most once per page load, set before `requestSubmit()`
-	 * so a re-run of this effect (e.g. from `pending` changing as the
-	 * replayed submit starts) can never double-submit.
+	 * Replays "Add to my collection" after a signed-out visitor is sent to sign in
+	 * and back — see requireSignedIn()'s `resume` option and docs/AUTH.md.
+	 * `resumeHandled` is set before `requestSubmit()`, so a re-run of this effect
+	 * can't double-submit.
 	 */
 	let resumeHandled = $state(false);
 	$effect(() => {
@@ -139,10 +136,8 @@
 		<VocabularyTrainCta />
 	{:else}
 		<!-- The screen's one call to action, so the same pulsing pill as the
-		     alphabet trainer's Practice and the Train vocabulary link, in a
-		     bare bar. The plus goes in as the trailing icon so the spinner
-		     replaces it while the add posts (Conventions #15); no
-		     width/height — the slot sizes it. -->
+		     alphabet trainer's Practice. The plus is the trailing icon, so the
+		     spinner replaces it while the add posts (see Button.svelte). -->
 		{#snippet addIcon()}
 			<svg
 				viewBox="0 0 24 24"

@@ -1,61 +1,17 @@
 import type { Word } from './types';
 
 /**
- * The app-wide word library — id -> Word, one definition and one audio clip
- * per word, shared by every feature that shows or plays a word:
+ * The app-wide word library: one definition and one clip per word, shared by
+ * vocabulary decks, the alphabet trainer's examples and dialogue tokens. A word
+ * used in several places is defined here once, never re-declared per feature.
  *
- * - vocabulary decks (`vocabulary/decks/*.ts`) are ordered lists of ids into
- *   this library, resolved by `loadDeckWords()`;
- * - the alphabet trainer's "in a word" examples reference ids via
- *   `AlphabetLetter.exampleWordIds`;
- * - dialogues link each spoken token to the library word it's a form of
- *   (`DialogueToken.wordId`), so tapping "հա՞ցը" in a transcript opens and
- *   plays `hats`, the same entry a vocabulary card for "bread" would use.
+ * Not code-split: at this scale one shared module is a few KB gzipped. Shard it
+ * behind `getWord()` if it ever grows enough to matter.
  *
- * A word that appears in several places (`barev` is a greetings-deck word,
- * the alphabet's example for Բ, and the first word of the bread-shop
- * dialogue) is defined here exactly once, with exactly one clip at
- * `static/audio/words/<id>.m4a` — never re-declared or re-recorded per
- * feature. When a feature needs a word this file doesn't have yet, add it
- * here (and generate its clip — see docs/VOCABULARY_AUDIO.md), then
- * reference it by id from the feature.
- *
- * Not code-split: at this scale (low hundreds of short entries) one shared
- * module is a few KB gzipped, far cheaper than the duplication a per-feature
- * split would reintroduce. If the library ever grows large enough to matter,
- * split it into lazily-loaded shards keyed by id here — behind `getWord()` —
- * rather than letting features grow private copies again.
- *
- * A word can carry two comments, named for where they show. `global`
- * shows on every occurrence — the card, the trainer and every dialogue
- * popover — so it says what the word *is* (its case, its mood, an extra
- * sense, a look-alike to keep apart) and never quotes a phrase. `cardOnly`
- * shows on the card and in the trainer only: when and to whom the word is
- * said, the greeting it makes, where its mark sits. The rules for writing
- * either — one short sentence, lowercase examples, no restating the
- * translation, no naming a formal/informal counterpart (`register` is the
- * tag for that) — are in docs/DIALOGUES.md, "Word comments"; anything
- * about one line goes on that token's `here` instead. The check at the
- * bottom of this file catches the most common slip.
- *
- * The `en` and `ru` texts are written separately, each for its own reader —
- * never one translated from the other (see Եք: English has to explain the
- * polite plural "you"; Russian just says "like вы"). That holds right down
- * to the phrasing: «-ի на слове տավար», traced word for word off "the -ի on
- * տավար", is grammatical and nobody says it — Russian puts it «в конце
- * слова». Write the Russian sentence, don't render the English one.
- *
- * A comment may also carry just one language (`global`/`cardOnly` are
- * `PartiallyTranslated`), when the fact is worth stating to one reader and
- * not the other — Թթվասեր's «Буквально «кислые сливки»» explains a word a
- * Russian reader already half-knows, and there is nothing an English reader
- * needs in its place. That reader then sees no comment, which is better than
- * a sentence written for somebody else. Half of a comment both readers want
- * is not that; it's unfinished.
- *
- * Sections below are only for reading convenience; ids are a single flat
- * namespace and must be unique across the whole file (checked at module
- * load — see the bottom of this file).
+ * How to write a word's `global` and `cardOnly` comments is in
+ * docs/DIALOGUES.md, "Word comments"; the checks at the bottom of this file
+ * catch the slips that have actually happened. Ids are one flat namespace and
+ * must be unique across the file.
  */
 export const WORDS: readonly Word[] = [
 	// --- Greetings (vocabulary deck `greetings`; several double as alphabet examples) ---
@@ -87,13 +43,9 @@ export const WORDS: readonly Word[] = [
 			ru: 'Дательный падеж от դուք — «вы», вежливое или множественное.'
 		}
 	},
-	// Neither word carries a `register`: the informal/formal split below is a
-	// property of the two *greetings*, not of the words — Առավոտ by itself is
-	// the neutral time-of-day word, and Լույս by itself just means light. And
-	// it's `cardOnly`, not `global`: it explains the greetings, which is what
-	// the Greetings deck's cards need and exactly what a dialogue popover doesn't
-	// — someone tapping Լույս in a line about light shouldn't be told about
-	// Բարի լույս. A dialogue that says Բարի լույս adds a `here` on the token.
+	// Neither word carries a `register`: the informal/formal split is a property
+	// of the two greetings, not of the words. `cardOnly`, not `global`, because
+	// it explains the greetings — a dialogue that says Բարի լույս adds a `here`.
 	{
 		id: 'luys',
 		armenian: 'Լույս',
@@ -290,8 +242,7 @@ export const WORDS: readonly Word[] = [
 
 	// --- Family (vocabulary deck `family`) ---
 	// The four -իկ words each explain the suffix on their own card: a card is
-	// read alone in the trainer, so the repetition is deliberate (compare the
-	// "E.g." time-of-day set in Greetings).
+	// read alone in the trainer, so the repetition is deliberate.
 	{
 		id: 'mayrik',
 		armenian: 'Մայրիկ',
@@ -385,10 +336,9 @@ export const WORDS: readonly Word[] = [
 			ru: 'Да, буквально «мальчик-человек».'
 		}
 	},
-	// Colloquial contractions of մորաքույր, հորաքույր and հորեղբայր — hence
-	// the informal tag on these three; the comments don't name the long forms
-	// (a new word explained by another new word). Քեռի is the standard word
-	// and gets no tag.
+	// Colloquial contractions of մորաքույր, հորաքույր and հորեղբայր, hence the
+	// informal tag. The comments don't name the long forms, which would explain
+	// a new word with another new word. Քեռի is standard and gets no tag.
 	{
 		id: 'morkur',
 		armenian: 'Մորքուր',
@@ -449,11 +399,9 @@ export const WORDS: readonly Word[] = [
 	},
 
 	// --- Pronouns (vocabulary deck `pronouns`) ---
-	// The personal pronouns and the demonstratives used on their own. Ես, Այս,
-	// Այդ, Սա, Դա and Այն were already here as dialogue words (below) and the
-	// deck reuses them. The lesson lists Նա and Նրանք twice — once as "he /
-	// she" and "they", once as "that one" and "those" — because the same word
-	// does both jobs; here each is one entry with both senses in its comment.
+	// Ես, Այս, Այդ, Սա, Դա and Այն are already here as dialogue words below and
+	// the deck reuses them. The lesson lists Նա and Նրանք twice, as "he/she" and
+	// as "that one"; here each is one entry with both senses in its comment.
 	{
 		id: 'du',
 		armenian: 'Դու',
@@ -511,9 +459,8 @@ export const WORDS: readonly Word[] = [
 	},
 
 	// --- Food (vocabulary deck `food`) ---
-	// Everyday groceries, from a lesson. Nine of the twenty — Հաց, Կաթ, Պանիր,
-	// Ձու, Միս, Ձուկ, Ջուր, Թեյ and Սուրճ — were already here as alphabet
-	// examples and bread-shop words, and the deck reuses those ids.
+	// Nine of the twenty were already here as alphabet examples and bread-shop
+	// words; the deck reuses those ids.
 	{ id: 'karag', armenian: 'Կարագ', translation: { en: 'Butter', ru: 'Сливочное масло' } },
 	// The two kinds of meat are two-word phrases — the only multi-word entries
 	// in the library so far — hence the hyphenated ids.
@@ -654,13 +601,9 @@ export const WORDS: readonly Word[] = [
 	{ id: 'chors', armenian: 'Չորս', translation: { en: 'Four', ru: 'Четыре' } },
 	{ id: 'panir', armenian: 'Պանիր', translation: { en: 'Cheese', ru: 'Сыр' } },
 	{ id: 'jur', armenian: 'Ջուր', translation: { en: 'Water', ru: 'Вода' } },
-	// Was "Ռուս" ("a Russian person"), chosen to sidestep the loanword-stress
-	// ambiguity "Ռադիո" had — but the TTS voice consistently generated
-	// "Ռուսական" ("Russian", adjective, e.g. "Russian cuisine") instead, no
+	// Was "Ռուս", but the TTS voice consistently generated "Ռուսական" instead, no
 	// matter how the prompt was adjusted. Renamed to match what's actually
-	// spoken rather than keep fighting the model — same principle as the
-	// kov->mot swap above, but the fix this time is "adopt the word the
-	// audio already says" instead of "pick a different word from scratch".
+	// spoken rather than keep fighting the model.
 	{ id: 'rusakan', armenian: 'Ռուսական', translation: { en: 'Russian', ru: 'Русский' } },
 	{ id: 'seghan', armenian: 'Սեղան', translation: { en: 'Table', ru: 'Стол' } },
 	{ id: 'tun', armenian: 'Տուն', translation: { en: 'House', ru: 'Дом' } },
@@ -677,16 +620,13 @@ export const WORDS: readonly Word[] = [
 		}
 	},
 	{ id: 'film', armenian: 'Ֆիլմ', translation: { en: 'Film', ru: 'Фильм' } },
-	// Capital city name — a natural, already-capitalized way to show և
-	// mid-word, sidestepping the ligature's own missing-uppercase quirk
-	// (see AlphabetLetter's `yev` entry) rather than forcing one.
+	// A natural, already-capitalized way to show և mid-word, sidestepping the
+	// ligature's missing uppercase.
 	{ id: 'yerevan', armenian: 'Երևան', translation: { en: 'Yerevan', ru: 'Ереван' } },
 
-	// --- Dialogue words: function words and nouns first met in the bread-shop
-	// dialogue (`dialogues/dialogues/bread-shop.ts`). No clips yet — their
-	// audio is pending generation (see docs/DIALOGUES.md). ---
-	// Word-initial Ե reads "yes" — hence the id, even though this is the
-	// pronoun "I", not the answer "yes" (that's `ayo`).
+	// --- Dialogue words: first met in the bread-shop dialogue. No clips yet ---
+	// Word-initial Ե reads "yes", hence the id, though this is the pronoun
+	// "I", not the answer "yes" (that's `ayo`).
 	{
 		id: 'yes',
 		armenian: 'Ես',
@@ -888,40 +828,26 @@ export const WORDS: readonly Word[] = [
 
 const wordById: ReadonlyMap<string, Word> = new Map(WORDS.map((word) => [word.id, word]));
 
-// A global comment shows on every occurrence of the word, in every
-// dialogue, so it must be true of the word anywhere. Wording that only
-// makes sense in one dialogue's situation belongs on that token's `here`
-// instead (docs/DIALOGUES.md, "Word comments"). This catches the
-// phrasings that slipped through in review — twice — before the rule was
-// written down; it is a tripwire, not a definition of "general". A
-// card-only comment never reaches a dialogue at all, but it's held to the
-// same wording — it's about the word in general too, just a different
-// side of it — so the same tripwire runs over it.
+// A global comment shows on every occurrence, so it must be true of the word
+// anywhere; wording that fits only one dialogue belongs on that token's
+// `here`. A tripwire for the phrasings that slipped through review, not a
+// definition of "general". `cardOnly` is held to the same wording.
 const SITUATIONAL = [
 	/\b(here|this time|this line|again|as before|the shopkeeper|the customer|the counter)\b/i,
 	/(здесь|на этот раз|в этой реплике|снова|как раньше|продав|покупател|прилав)/i
 ];
-// A comment reads like a sentence in a book (docs/DIALOGUES.md, "Word
-// comments", rules 6 and 13): whatever opens it is capitalized, an Armenian
-// word included — "Մայր — “mother” — with…", not "մայր — …" — and it's set
-// in ordinary punctuation, never arrows, plus signs or emoji ("տղա and
-// մարդ", not "տղա + մարդ"; "as mother becomes mum", not "mother → mum").
-// Both slipped into the first draft of the family deck.
+// A comment reads like a sentence in a book (docs/DIALOGUES.md, rules 6 and
+// 13): whatever opens it is capitalized, Armenian included, and it uses
+// ordinary punctuation rather than arrows, plus signs or emoji.
 const LOWERCASE_OPENING = /^[ա-ֆև]/u;
 const NOT_BOOK_TYPOGRAPHY = /[→←↔⇒⇐+*<>=_|~^#@&\\]|\p{Extended_Pictographic}/u;
 // A Latin letter inside a Cyrillic word («женщинy» with a Latin y) renders
 // identically and is invisible in review; it happened once.
 const MIXED_SCRIPT = /[а-яё][a-z]|[a-z][а-яё]/iu;
-// Russian traced word for word off the English — grammatical, and not what
-// anyone says: «-ի на слове տավար» for "the -ի on տավար", where Russian wants
-// «в конце слова». Each language is written for its own reader, never
-// translated from the other (docs/DIALOGUES.md, "Word comments", rule 12).
-// Like SITUATIONAL above, this is a tripwire for the calques that have
-// actually slipped through, not a test of the rule — most calques it will
-// never catch, so read the Russian aloud before saving it. (Lookarounds on
-// \p{L}, not \b: a JS word boundary is defined on ASCII, so `\bна слове\b`
-// matches nothing at all in Cyrillic — it was written that way first and
-// silently let the calque through.)
+// Russian traced word for word off the English: «-ի на слове տավար», where
+// Russian wants «в конце слова». A tripwire for the calques that have
+// slipped through, not a test of the rule. (Lookarounds on \p{L}, not \b,
+// which is ASCII-only and silently matched nothing in Cyrillic.)
 const CALQUE = [/(?<!\p{L})на слове(?!\p{L})/iu];
 for (const word of WORDS) {
 	for (const [field, text] of [
@@ -932,26 +858,35 @@ for (const word of WORDS) {
 	] as const) {
 		if (text === undefined) continue;
 		if (SITUATIONAL.some((pattern) => pattern.test(text))) {
-			throw new Error(`word "${word.id}": library ${field} reads as dialogue-specific — move it to the token's \`here\`: ${text}`);
+			throw new Error(
+				`word "${word.id}": library ${field} reads as dialogue-specific — move it to the token's \`here\`: ${text}`
+			);
 		}
 		if (LOWERCASE_OPENING.test(text)) {
-			throw new Error(`word "${word.id}": library ${field} opens with a lowercase Armenian word — a comment is a sentence, capitalize its first word: ${text}`);
+			throw new Error(
+				`word "${word.id}": library ${field} opens with a lowercase Armenian word — a comment is a sentence, capitalize its first word: ${text}`
+			);
 		}
 		if (NOT_BOOK_TYPOGRAPHY.test(text)) {
-			throw new Error(`word "${word.id}": library ${field} uses a symbol a book wouldn't (arrow, plus sign, emoji…) — write it out in words: ${text}`);
+			throw new Error(
+				`word "${word.id}": library ${field} uses a symbol a book wouldn't (arrow, plus sign, emoji…) — write it out in words: ${text}`
+			);
 		}
 		if (MIXED_SCRIPT.test(text)) {
-			throw new Error(`word "${word.id}": library ${field} has a Latin letter inside a Cyrillic word — a look-alike typo: ${text}`);
+			throw new Error(
+				`word "${word.id}": library ${field} has a Latin letter inside a Cyrillic word — a look-alike typo: ${text}`
+			);
 		}
 		if (CALQUE.some((pattern) => pattern.test(text))) {
-			throw new Error(`word "${word.id}": library ${field} is English traced into Russian — say it as a Russian speaker would («в конце слова», not «на слове»): ${text}`);
+			throw new Error(
+				`word "${word.id}": library ${field} is English traced into Russian — say it as a Russian speaker would («в конце слова», not «на слове»): ${text}`
+			);
 		}
 	}
 }
 
-// Ids are a single flat namespace — a duplicate would make one feature's
-// word silently shadow another's. Cheap to check once at module load, and
-// far easier to catch here than as a wrong translation on screen.
+// Ids are one flat namespace: a duplicate would make one feature's word
+// silently shadow another's.
 if (wordById.size !== WORDS.length) {
 	const seen = new Set<string>();
 	const duplicates = WORDS.map((word) => word.id).filter((id) => seen.size === seen.add(id).size);
@@ -963,8 +898,8 @@ export function getWord(id: string): Word | undefined {
 }
 
 /**
- * Resolves a list of ids in order, dropping any that don't exist — callers
- * that must know about a bad id (e.g. `loadDeckWords()`) check the lengths.
+ * Resolves ids in order, dropping any that don't exist — callers that must
+ * know about a bad id (e.g. `loadDeckWords()`) compare the lengths.
  */
 export function getWords(ids: readonly string[]): Word[] {
 	return ids.map(getWord).filter((word): word is Word => word !== undefined);

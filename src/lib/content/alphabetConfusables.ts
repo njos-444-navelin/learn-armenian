@@ -1,9 +1,7 @@
 /**
- * Letters that trade places with each other in a beginner's ear — used as
- * the first-choice distractor when building a drill question, so the wrong
- * options are the ones actually worth testing against, not random filler.
- * Խ and Ճ each appear in two pairs, so this has to be a pair list + lookup
- * function rather than a single `confusableWith?` field per letter.
+ * Letters that trade places in a beginner's ear, used as the first-choice
+ * distractor when building a drill question. A pair list rather than a
+ * `confusableWith?` field, since Խ and Ճ each appear in two pairs.
  */
 export const CONFUSABLE_PAIRS: readonly (readonly [string, string])[] = [
 	['to', 'tiwn'], // Թ / Տ — aspirated vs. unaspirated "t"

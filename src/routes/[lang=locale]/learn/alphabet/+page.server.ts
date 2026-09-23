@@ -18,17 +18,17 @@ export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => 
 		return { levels: {}, signedIn: true };
 	}
 
-	const levels = Object.fromEntries(data.map((row) => [row.letter_id as string, row.level as number]));
+	const levels = Object.fromEntries(
+		data.map((row) => [row.letter_id as string, row.level as number])
+	);
 	return { levels, signedIn: true };
 };
 
 export const actions: Actions = {
 	/**
-	 * The actual security boundary for Practice — see
-	 * AlphabetTrainer.svelte's client-side sign-in check, which is a UX
-	 * nicety only. A skip (the audio question type's "can't listen" option)
-	 * never calls this action at all: it doesn't change a letter's level, so
-	 * there's nothing to persist.
+	 * The actual security boundary for Practice; AlphabetTrainer.svelte's
+	 * client-side check is a UX nicety. A skip never calls this at all, since it
+	 * doesn't change a letter's level.
 	 */
 	answer: async ({ request, params, url, locals: { supabase, claims } }) => {
 		const verified = requireSignedIn(claims, params.lang, { url, action: 'practice' });
@@ -53,13 +53,17 @@ export const actions: Actions = {
 		}
 
 		const current = existing?.level ?? 0;
-		// Recomputed here, not trusted from the client, so a tampered request
-		// can't move a letter's level without actually picking the right
-		// answer — `chosenId` is one of the drill's own option ids either way.
+		// Recomputed rather than trusted from the client, so a tampered request
+		// can't raise a level without picking the right answer.
 		const next = applyAnswer(current, chosenId === letterId);
 
 		const { error: upsertError } = await supabase.from('user_alphabet_progress').upsert(
-			{ user_id: verified.sub, letter_id: letterId, level: next, updated_at: new Date().toISOString() },
+			{
+				user_id: verified.sub,
+				letter_id: letterId,
+				level: next,
+				updated_at: new Date().toISOString()
+			},
 			{ onConflict: 'user_id,letter_id' }
 		);
 

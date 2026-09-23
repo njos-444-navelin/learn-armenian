@@ -1,9 +1,7 @@
 """Crude but adequate F0 tracker for judging a question's contour — see
-docs/DIALOGUES.md, "Questions read as statements". Normalized
-autocorrelation on 30 ms windows every 10 ms; voiced when RMS > -38 dB and
-the ACF peak is strong. Reports where the pitch peak sits (% of the voiced
-span), its prominence over the line's median (st), the terminal movement
-(last 220 ms median vs the rest, st), and the mean level.
+docs/DIALOGUES.md, "Questions read as statements". Reports where the pitch peak
+sits, its prominence over the line's median, the terminal movement and the mean
+level.
 
     python3 scripts/audio/pitch.py clip.m4a [more.m4a ...]   # one JSON line each
 """

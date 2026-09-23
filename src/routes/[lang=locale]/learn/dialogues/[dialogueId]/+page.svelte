@@ -17,9 +17,9 @@
 	// playback state) on replay and when navigating between dialogues.
 	let replayCount = $state(0);
 	let playerKey = $derived(`${data.dialogue.id}:${replayCount}`);
-	// Going from one dialogue's done screen straight to the next dialogue
-	// keeps this page component alive, so the screen has to reset itself.
-	// Only ever writes `screen`; reading it here too would loop.
+	// Going from one dialogue's done screen to the next keeps this component
+	// alive, so the screen resets itself. Only ever writes `screen`; reading
+	// it here would loop.
 	$effect(() => {
 		data.dialogue.id;
 		screen = 'player';
@@ -28,19 +28,17 @@
 	let completeForm = $state<HTMLFormElement | undefined>(undefined);
 
 	/**
-	 * Replays "mark it done" after a signed-out learner gets sent to sign in
-	 * and back — see requireSignedIn()'s `resume` option and the identical
-	 * effect in learn/vocabulary/[deckId]/+page.svelte. `resumeHandled`
-	 * keeps it to at most one replay per page load.
+	 * Replays "mark it done" after a signed-out learner is sent to sign in and
+	 * back — see requireSignedIn()'s `resume` option and the identical effect in
+	 * learn/vocabulary/[deckId]/+page.svelte.
 	 */
 	let resumeHandled = $state(false);
 	$effect(() => {
 		if (resumeHandled) return;
 		if (page.url.searchParams.get('resume') !== 'complete') return;
 		if (page.data.claims === null) return;
-		// Already done (the learner signed in to an account that had it
-		// marked) — the form isn't rendered, so there's nothing to replay;
-		// just drop the param.
+		// Already done, so the form isn't rendered and there's nothing to
+		// replay; just drop the param.
 		if (!data.completed && completeForm === undefined) return;
 		resumeHandled = true;
 		if (!data.completed) completeForm?.requestSubmit();
@@ -89,9 +87,8 @@
 </PageShell>
 
 <style>
-	/* Narrower than PageShell's --measure: chat bubbles read best at
-	   phone-ish widths even on a wide screen (DialoguePlayer's fixed bar
-	   caps itself to the same width so the two line up). */
+	/* Narrower than PageShell's --measure: chat bubbles read best at phone-ish
+	   widths, and DialoguePlayer's fixed bar caps itself to match. */
 	.screen {
 		display: flex;
 		width: 100%;

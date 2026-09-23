@@ -15,16 +15,13 @@ const DISPLAY_MS = 5000;
 
 let nextId = 0;
 
-/** Wrapped in an object so the array can be reassigned (push/remove) while
- * every importer keeps a live reference — see Svelte 5 cross-module state:
- * exporting a bare `let $state(...)` array can't be reassigned from outside
- * this module, only mutated in place. */
+/** Wrapped in an object so the array can be reassigned while importers keep a
+ * live reference: an exported bare `$state` array can only be mutated in
+ * place from outside the module. */
 export const toastState = $state<{ items: ToastEntry[] }>({ items: [] });
 
-/** Queues a toast; it disappears on its own after 5s regardless of how many
- * others are showing (each has its own independent timer, not a shared
- * one-at-a-time queue). Pass `onClick` to make it actionable (e.g. a reload
- * prompt) — tapping it fires the callback and dismisses the toast early. */
+/** Queues a toast, which disappears after 5s on its own timer. Pass `onClick`
+ * to make it actionable; tapping fires the callback and dismisses it. */
 export function pushToast(
 	message: Translated,
 	variant: ToastVariant = 'error',
@@ -39,13 +36,9 @@ export function pushToast(
 }
 
 /**
- * Starts a toast's exit animation rather than removing it outright —
- * `Toast.svelte` actually drops it from `toastState` once that animation's
- * `animationend` fires, via `removeToast()` below. Reduced-motion visitors
- * get no exit animation (`.toast.closing` has `animation: none` — see
- * Toast.svelte), so `animationend` would never fire for them; skip straight
- * to `removeToast()` in that case rather than leaving the toast stuck on
- * screen forever waiting for an event that isn't coming.
+ * Starts the exit animation; `Toast.svelte` drops the toast on `animationend`
+ * via `removeToast()`. Reduced motion has no exit animation, so that event
+ * never fires and the toast is removed directly instead.
  */
 export function dismissToast(id: number): void {
 	if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

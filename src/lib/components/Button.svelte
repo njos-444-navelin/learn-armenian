@@ -4,46 +4,47 @@
 	import { blurAfterClick } from '$lib/actions/blurAfterClick';
 	import Spinner from './Spinner.svelte';
 
-	/** `success-soft` is the tinted, low-emphasis sibling of `success` — for a
-	 * button that leads to a success state rather than announcing one (see
-	 * --color-success-soft in tokens.css). */
+	/**
+	 * A `loading` button's label never moves — not a pixel, with or without an
+	 * icon, however long the label. A pending state should read as the same
+	 * button, now busy. Handled here rather than trusted to each call site,
+	 * because it's twice per click on every async button in the app.
+	 *
+	 * With an icon: the spinner replaces it inside a fixed `1.125em` slot, which
+	 * is why the icon goes through the `icon` prop (one in the children sits
+	 * *after* the spinner) and carries no width/height of its own.
+	 *
+	 * Without one: the label reserves the spinner's room on both sides,
+	 * permanently, and the spinner is absolutely positioned into it, taking no
+	 * layout space. Symmetric so the text stays centred, permanent so nothing
+	 * moves when the spinner arrives. A spinner that looks like it's touching the
+	 * button's edge means something removed that reservation — fix that, don't
+	 * nudge the spinner, whose position is derived from the label's.
+	 */
+
+	/** `success-soft` is the tinted, low-emphasis sibling of `success`: a button
+	 * that leads to a success state rather than announcing one. */
 	type Variant = 'primary' | 'secondary' | 'success' | 'success-soft' | 'error';
 	type Size = 'md' | 'sm';
-	/** Every in-app href is a resolve()-wrapped ResolvedPathname (see
-	 * Conventions #5); the one exception today is contact/+page.svelte's
-	 * `mailto:` link, so that's the only non-internal scheme allowed here —
-	 * widen this union if a future Button needs another (`tel:`, an external
-	 * `https:` link, ...). */
+	/** Every in-app href is a resolve()-wrapped ResolvedPathname (Conventions
+	 * #5); `mailto:` is the one exception in use. Widen if another is needed. */
 	type Href = ResolvedPathname | `mailto:${string}`;
 
 	interface BaseProps {
 		variant?: Variant | undefined;
-		/** Defaults to the standard size. `"sm"` trims padding and font size
-		 * for a lower-emphasis action that doesn't need full visual weight
-		 * (e.g. delete account) — it still keeps the same min-height as the
-		 * standard size, since --tap-target-min is an accessibility floor
-		 * (Conventions §6), not a size to shrink below. */
+		/** `"sm"` trims padding and font size but keeps --tap-target-min, which is
+		 * an accessibility floor (Conventions §6), not a size to shrink below. */
 		size?: Size | undefined;
-		/** Pulses a glow around the button — reserved for rare, high-stakes
-		 * confirm actions (e.g. delete account). Pair with variant="error". */
+		/** Pulses a glow — for rare, high-stakes confirms. Pair with variant="error". */
 		glow?: boolean | undefined;
-		/** Gives a non-primary button the primary's hover physicality — the
-		 * slight rise and deeper shadow (see DESIGN.md's Motion section). For
-		 * the one commit action on a screen when it isn't a primary button,
-		 * e.g. the dialogue player's "mark it done". Primary always lifts. */
+		/** Gives a non-primary button the primary's hover lift (DESIGN.md, Motion),
+		 * for a screen's one commit action. Primary always lifts. */
 		lift?: boolean | undefined;
-		/** variant="secondary" only — swaps its deliberately transparent
-		 * background (see DESIGN.md) for an opaque one. For a secondary button
-		 * that sits over content it must fully occlude, e.g. inside a fixed
-		 * FloatingActionBar. Text/border colors are unaffected since
-		 * --color-on-secondary already equals --color-text-primary. */
+		/** variant="secondary" only — swaps its transparent background for an opaque
+		 * one, for a secondary button that must occlude what it sits over. */
 		opaque?: boolean | undefined;
-		/** A leading icon, rendered inside a fixed-size slot ahead of the
-		 * label. When the button is `loading`, the spinner takes the icon's
-		 * place *in that same slot* rather than appearing beside it, and
-		 * because the slot's box never changes size the label doesn't move
-		 * — see Conventions #15. Pass an inline SVG with no width/height
-		 * of its own; the slot sizes it. */
+		/** A leading icon. Pass an inline SVG with no width/height — the slot sizes
+		 * it, and the spinner stands in for it while `loading`. */
 		icon?: Snippet | undefined;
 		children: Snippet;
 	}
@@ -51,11 +52,8 @@
 	interface LinkProps extends BaseProps {
 		href: Href;
 		ariaCurrent?: 'page' | undefined;
-		/** Fires alongside the browser's normal navigation — doesn't (and
-		 * can't) block or cancel it. For side effects that should happen
-		 * "on the way out", like the fire-and-forget writes in
-		 * persistPreferredLocale.ts, not for anything the click should wait
-		 * on. */
+		/** Fires alongside the browser's navigation and can't block it — for
+		 * fire-and-forget side effects on the way out. */
 		onclick?: (() => void) | undefined;
 	}
 
@@ -63,15 +61,9 @@
 		href?: undefined;
 		type?: 'button' | 'submit' | undefined;
 		disabled?: boolean | undefined;
-		/** Shows a spinner and forces `disabled` — see Conventions #8. Set this
-		 * whenever the button's `onclick`/form action is in flight; never leave
-		 * an async action with no visible pending state. With an `icon`, the
-		 * spinner replaces the icon in its slot; without one it floats just
-		 * left of the label, in room the label reserves on both sides for
-		 * it — so pass this prop (even as `false`) only on a button that can
-		 * actually load; an `undefined` value means "never loads" and skips
-		 * the reservation. Either way the label never moves — see
-		 * Conventions #15. */
+		/** Shows a spinner and forces `disabled` — see Conventions #8. Pass it (even
+		 * as `false`) only on a button that can actually load: `undefined` means
+		 * "never loads" and skips the room an iconless button reserves. */
 		loading?: boolean | undefined;
 		onclick?: (() => void) | undefined;
 	}
@@ -116,8 +108,8 @@
 	>
 		{#if icon !== undefined}
 			<!-- One slot, two occupants: the icon at rest, the spinner while
-			     loading. Swapping what's *inside* a box of fixed size is what
-			     keeps the label from shifting (Conventions #15). -->
+			     loading. A box of fixed size is what keeps the label from
+			     shifting. -->
 			<span class="icon-slot" aria-hidden="true">
 				{#if rest.loading}
 					<Spinner />
@@ -126,12 +118,9 @@
 				{/if}
 			</span>
 		{/if}
-		<!-- The label is wrapped so an iconless button's spinner has something
-		     to hang off: it's absolutely positioned at this span's left edge,
-		     inside room the span reserves on both sides (`reserve`), so the
-		     label keeps the exact centred position it had at rest and the
-		     spinner is always the button's own padding clear of the border
-		     (Conventions #15). -->
+		<!-- Wrapped so an iconless button's spinner has something to hang off:
+		     it's positioned at this span's left edge, inside the room `reserve`
+		     keeps on both sides. -->
 		<span class="label" class:reserve={icon === undefined && rest.loading !== undefined}>
 			{#if icon === undefined && rest.loading}
 				<span class="spinner-float"><Spinner /></span>
@@ -142,9 +131,9 @@
 {/if}
 
 <style>
-	/* --spinner-gap: how far an iconless button's floating spinner sits from
-	   the label — the same --space-2 the icon slot is spaced by, so the
-	   spinner lands exactly where a leading icon would. */
+	/* --spinner-gap: how far an iconless button's floating spinner sits from the
+	   label — the same --space-2 the icon slot uses, so it lands where a leading
+	   icon would. */
 	.button {
 		--spinner-gap: var(--space-2);
 
@@ -172,12 +161,9 @@
 		opacity: 0.6;
 	}
 
-	/* The leading icon's box. Fixed in both dimensions and never shrinking,
-	   so whatever is inside it — the icon, or the spinner standing in for
-	   it — takes up exactly the same room and the label stays put. Sized in
-	   em so it follows the `sm` size's smaller type. Content fills the box
-	   rather than carrying its own width/height, which is what guarantees
-	   the icon and the spinner render at the same size. */
+	/* Fixed in both dimensions and never shrinking, so the icon and the spinner
+	   standing in for it take up exactly the same room. Sized in em so it
+	   follows the `sm` size's smaller type. */
 	.icon-slot {
 		display: inline-grid;
 		flex-shrink: 0;
@@ -191,9 +177,7 @@
 		height: 100%;
 	}
 
-	/* min-height/min-width stay at --tap-target-min — see the `size` prop's
-	   doc comment above; only padding/font-size shrink, and the spinner gap
-	   shrinks with them. */
+	/* min-height/min-width stay at --tap-target-min — see the `size` prop. */
 	.sm {
 		--spinner-gap: var(--space-1);
 
@@ -205,23 +189,15 @@
 		position: relative;
 	}
 
-	/* An iconless button that can load reserves the spinner's room — its
-	   size plus the gap — on BOTH sides of the label, permanently. Symmetric
-	   so the text stays centred; permanent so nothing changes when the
-	   spinner arrives. The spinner then sits at the label box's own left
-	   edge, which on a short label is right beside the text and on a label
-	   that fills the button is still the button's full horizontal padding
-	   clear of the border — it never lands in the padding or against the
-	   pill's cap. The cost is ~25px more width per side on such buttons at
-	   rest; the full-width forms don't show it, and the modal confirms are
-	   flex: 1 beside their Cancel, so they share the width evenly either
-	   way. Reserving only on the left would centre the text off-axis. */
+	/* Reserves the spinner's room on both sides of the label, permanently:
+	   symmetric so the text stays centred, permanent so nothing moves when the
+	   spinner arrives. */
 	.label.reserve {
 		padding-inline: calc(1em + var(--spinner-gap));
 	}
 
-	/* Out of flow, so it adds no width; vertically centred on the label, so
-	   a two-line label gets it midway between the lines. */
+	/* Out of flow, so it adds no width; vertically centred, so a two-line label
+	   gets it midway between the lines. */
 	.spinner-float {
 		position: absolute;
 		top: 50%;
@@ -239,9 +215,7 @@
 		background: var(--color-primary-hover);
 	}
 
-	/* The hover/press physicality — always on the primary variant, opt-in
-	   via the `lift` prop for another variant that carries the screen's one
-	   commit action. Kept as its own class so the two can't drift apart. */
+	/* Its own class so the primary variant and the `lift` prop can't drift. */
 	.lift {
 		position: relative;
 		box-shadow: var(--shadow-sm);
@@ -252,11 +226,9 @@
 			transform var(--transition-fast);
 	}
 
-	/* Extends the hoverable area past the bottom edge by more than the hover
-	 * lift (2px), so a cursor approaching from below stays "inside" once the
-	 * button rises — without this, the edge retreats out from under the
-	 * cursor and hover/lift oscillates. Moves with the button since it's a
-	 * transformed descendant, so the buffer travels with the lift. */
+	/* Extends the hoverable area past the bottom edge by more than the 2px lift,
+	 * so the edge doesn't retreat out from under an approaching cursor and
+	 * oscillate. Transformed descendant, so it travels with the lift. */
 	.lift::after {
 		content: '';
 		position: absolute;
@@ -297,8 +269,8 @@
 		background: var(--color-secondary-hover);
 	}
 
-	/* --color-on-secondary already equals --color-text-primary (see
-	 * tokens.css), so only the background needs swapping here. */
+	/* --color-on-secondary already equals --color-text-primary, so only the
+	 * background needs swapping. */
 	.secondary.opaque {
 		background: var(--color-background);
 	}

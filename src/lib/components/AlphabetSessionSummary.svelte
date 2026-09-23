@@ -30,7 +30,9 @@
 	let downCount = $derived(rows.filter((row) => row.after < row.before).length);
 
 	function pairLabel(letter: AlphabetLetter): string {
-		return letter.uppercase === undefined ? letter.lowercase : `${letter.uppercase} ${letter.lowercase}`;
+		return letter.uppercase === undefined
+			? letter.lowercase
+			: `${letter.uppercase} ${letter.lowercase}`;
 	}
 </script>
 
@@ -46,7 +48,9 @@
 					<div class="pip" class:filled={n < row.after}></div>
 				{/each}
 			</div>
-			<span class="badge" class:up={gained} class:down={!gained}>{t(levelBadgeLabel(row.after))}</span>
+			<span class="badge" class:up={gained} class:down={!gained}
+				>{t(levelBadgeLabel(row.after))}</span
+			>
 		</li>
 	{/each}
 </ul>
@@ -56,7 +60,9 @@
 <FloatingActionBar bare>
 	<div class="actions">
 		<Button type="button" variant="primary" onclick={onBackHome}>{t(backToAlphabetLabel)}</Button>
-		<Button type="button" variant="secondary" opaque onclick={onPracticeAgain}>{t(practiceAgainLabel)}</Button>
+		<Button type="button" variant="secondary" opaque onclick={onPracticeAgain}
+			>{t(practiceAgainLabel)}</Button
+		>
 	</div>
 </FloatingActionBar>
 
@@ -132,11 +138,9 @@
 		color: var(--color-text-secondary);
 	}
 
-	/* No align-items set — the default `stretch` is what makes each
-	   <Button> below span the row's full width; unlike a row-direction
-	   flex parent, `flex: 1` (from FloatingActionBar's `.bar
-	   :global(.button)` rule) grows main-axis (vertical) size here, not
-	   width, so stretch is doing the actual work. */
+	/* No align-items, so the default `stretch` is what makes each <Button> span
+	   the row: in a column, FloatingActionBar's `flex: 1` grows height, not
+	   width. */
 	.actions {
 		display: flex;
 		width: 100%;

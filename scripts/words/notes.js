@@ -1,35 +1,19 @@
 #!/usr/bin/env node
 // @ts-check
 /**
- * The word-comments review page — internal, local only. Lists every word
- * in the library (`src/lib/content/words/entries.ts`) with its translation,
- * its `global` comment and its `cardOnly` comment, each in both languages
- * (or in one — a comment may be written for a single reader),
- * as editable fields — so all the definitions can be read in one place and
- * adjusted without hunting through the file.
+ * The word-comments review page — internal, local only. Lists every word in
+ * the library with its translation and its two comments, in both languages,
+ * as editable fields.
  *
  *     node scripts/words/notes.js          # then open http://localhost:4747
  *
- * `?deck=<id>` narrows the page to one vocabulary deck's words, in the
- * deck's order (`http://localhost:4747/?deck=family`) — the view for
- * drafting a new deck: add the entries and the deck file, then read and
- * edit only those words, the reused ones included. See the README,
- * "Adding words".
+ * `?deck=<id>` narrows the page to one deck's words, in the deck's order —
+ * the view for drafting a new deck. See docs/WORDS.md.
  *
- * Saving writes straight back into `entries.ts`, editing just the one
- * entry's `translation`, `global` and `cardOnly` in place (a comment emptied
- * in both languages is removed; one left in a single language is written in
- * that language alone; a comment added to a word that had none is
- * inserted; a one-line entry is expanded to the multi-line form first).
- * Every other byte of the file — comments, ordering, the other words — is
- * left alone. After writing, the file is re-imported so its own load-time
- * checks (the situational-wording tripwire, duplicate ids) run over the
- * result; if they throw, the write is rolled back and the message shown on
- * the card.
- *
- * Nothing here ships: it isn't under `src/`, and it reads the library the
- * same way the app does — by importing the module — so what the page
- * shows is exactly what the app would.
+ * Saving edits just that entry's `translation`, `global` and `cardOnly` in
+ * place, leaving every other byte of `entries.ts` alone. The file is then
+ * re-imported so its load-time checks run over the result; if they throw, the
+ * write is rolled back and the message shown on the card.
  */
 import http from 'node:http';
 import path from 'node:path';
@@ -53,7 +37,7 @@ const COMMENTS = /** @type {const} */ (['global', 'cardOnly']);
 
 /**
  * Imports `entries.ts` afresh (the query string defeats the module cache),
- * which also runs its load-time checks — the same ones the app runs.
+ * which also runs its load-time checks.
  * @returns {Promise<readonly Word[]>}
  */
 async function loadWords() {
@@ -63,10 +47,8 @@ async function loadWords() {
 }
 
 /**
- * Every deck's ordered word ids, by deck id — read from the deck files the
- * same way the app does (importing them), so the page's `?deck=` view is
- * exactly the deck's own list. Deck files are plain id lists with no
- * imports, so Node loads them as-is.
+ * Every deck's ordered word ids, read by importing the deck files the same
+ * way the app does.
  * @returns {Promise<Record<string, readonly string[]>>}
  */
 async function loadDecks() {
@@ -106,7 +88,10 @@ function sectionsById(source) {
 
 /** @param {string} text */
 function quote(text) {
-	return `'${text.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\s*\n\s*/g, ' ')}'`;
+	return `'${text
+		.replace(/\\/g, '\\\\')
+		.replace(/'/g, "\\'")
+		.replace(/\s*\n\s*/g, ' ')}'`;
 }
 
 /**
@@ -150,14 +135,16 @@ const TRANSLATION = new RegExp(`translation: \\{ en: ${STRING}, ru: ${STRING} \\
 function applyEdit(source, id, fields) {
 	const marker = `id: '${id}'`;
 	const at = source.indexOf(marker);
-	if (at === -1 || at !== source.lastIndexOf(marker)) throw new Error(`word "${id}" not found once in entries.ts`);
+	if (at === -1 || at !== source.lastIndexOf(marker))
+		throw new Error(`word "${id}" not found once in entries.ts`);
 	const start = source.lastIndexOf('{', at);
 	const end = objectEnd(source, start);
 	let object = source.slice(start, end + 1);
 
 	const translationEn = fields.translation.en.trim();
 	const translationRu = fields.translation.ru.trim();
-	if (translationEn === '' || translationRu === '') throw new Error('translation: both languages are required');
+	if (translationEn === '' || translationRu === '')
+		throw new Error('translation: both languages are required');
 	const translation = `translation: { en: ${quote(translationEn)}, ru: ${quote(translationRu)} }`;
 
 	const addsComment = COMMENTS.some(
@@ -190,20 +177,21 @@ function applyEdit(source, id, fields) {
 	for (const field of COMMENTS) {
 		const en = fields[field].en.trim();
 		const ru = fields[field].ru.trim();
-		// One language on its own is allowed and meant: a fact can be worth
-		// stating to one reader and not the other, and that other reader then
-		// sees no comment rather than a sentence written for someone else
-		// (docs/DIALOGUES.md, "Word comments", rule 12). Emptying both removes
-		// the comment.
+		// One language on its own is allowed and meant (docs/DIALOGUES.md,
+		// "Word comments", rule 12). Emptying both removes the comment.
 		const langs = [];
 		if (en !== '') langs.push(`en: ${quote(en)}`);
 		if (ru !== '') langs.push(`ru: ${quote(ru)}`);
-		const wanted = langs.length === 0 ? null : `${field}: {\n\t\t\t${langs.join(',\n\t\t\t')}\n\t\t}`;
+		const wanted =
+			langs.length === 0 ? null : `${field}: {\n\t\t\t${langs.join(',\n\t\t\t')}\n\t\t}`;
 		const existing = blockOf(field);
 
 		if (existing !== null && wanted !== null) {
 			const comments = existing[1] ?? '';
-			object = object.slice(0, existing.index) + `\n${comments}\t\t${wanted}` + object.slice(existing.index + existing[0].length);
+			object =
+				object.slice(0, existing.index) +
+				`\n${comments}\t\t${wanted}` +
+				object.slice(existing.index + existing[0].length);
 		} else if (existing !== null) {
 			// Drop the block and the comma that ended the property before it.
 			const from = object[existing.index - 1] === ',' ? existing.index - 1 : existing.index;
@@ -366,7 +354,7 @@ const LANGS = ['en', 'ru'];
 let words = [];
 let shown = 0;
 const drafts = new Map();
-// ?deck=<id>: show only that deck's words, in its order (see the README, "Adding words").
+// ?deck=<id>: show only that deck's words, in its order (see docs/WORDS.md).
 const deck = new URLSearchParams(location.search).get('deck');
 
 const $ = (sel, el = document) => el.querySelector(sel);

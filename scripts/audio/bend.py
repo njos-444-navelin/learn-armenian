@@ -1,7 +1,6 @@
 """Lift the tail pitch of a clip — a last resort for a question the voice
-insists on reading with a fall (docs/DIALOGUES.md, "Third round"). Ramps
-rubberband's pitch over the final `span` seconds before the voiced end,
-ease-in so the rise is late and quick like speech, formants preserved.
+insists on reading with a fall (docs/DIALOGUES.md, "Third round"). Ease-in, so
+the rise is late and quick like speech.
 
     python3 scripts/audio/bend.py in.m4a out.m4a [rise_st=4] [span=0.28]
 """

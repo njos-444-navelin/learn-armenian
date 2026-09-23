@@ -9,19 +9,15 @@
 		<link rel="apple-touch-icon" href="%sveltekit.assets%/icons/apple-touch-icon.png" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
-		<!-- Loaded as non-render-blocking: a synchronous cross-origin stylesheet
-		     here would hold up first paint on every full navigation until the
-		     round trip to fonts.googleapis.com completes. On a cold PWA launch
-		     over a slow connection that trip can take long enough that the
-		     browser gives up waiting and paints unstyled HTML first, then
-		     restyles once the sheet lands — the "flash of unstyled content".
-		     `media="print"` makes the browser fetch it at low priority without
-		     blocking rendering; the onload swap applies it once it arrives. -->
+		<!-- `media="print"` plus the onload swap keeps this cross-origin sheet off
+		     the render-blocking path: a synchronous one holds first paint until the
+		     round trip to fonts.googleapis.com finishes, which on a cold PWA launch
+		     is long enough to flash unstyled HTML. -->
 		<link
 			rel="stylesheet"
 			href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&family=Noto+Serif+Armenian:wght@400;600;700&display=swap"
 			media="print"
-			onload="this.media='all'"
+			onload="this.media = 'all'"
 		/>
 		<noscript>
 			<link

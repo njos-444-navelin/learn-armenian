@@ -1,11 +1,8 @@
 import type { VocabularyDeck } from './types';
 
 /**
- * The full list of vocabulary decks and their titles — safe to import
- * anywhere (topic list, SEO copy) since it carries no word data. Each
- * deck's actual words live in their own file under `decks/` and are loaded
- * lazily by `loadDeck.ts`, so browsing this catalog never pulls word data
- * into the bundle.
+ * Deck titles and metadata, safe to import anywhere since it carries no word
+ * data — each deck's words are loaded lazily by `loadDeck.ts`.
  */
 export const VOCABULARY_CATALOG: readonly VocabularyDeck[] = [
 	{

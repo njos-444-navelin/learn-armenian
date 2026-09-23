@@ -3,7 +3,12 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import VocabularyDeckList from '$lib/components/VocabularyDeckList.svelte';
 	import { t } from '$lib/i18n/current';
-	import { decksMenuAriaLabel, heading, pageDescription, pageTitle } from '$lib/i18n/dictionaries/vocabulary';
+	import {
+		decksMenuAriaLabel,
+		heading,
+		pageDescription,
+		pageTitle
+	} from '$lib/i18n/dictionaries/vocabulary';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();

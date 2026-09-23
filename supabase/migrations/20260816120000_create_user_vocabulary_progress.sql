@@ -1,10 +1,6 @@
--- Tracks a signed-in user's spaced-repetition progress on individual
--- vocabulary words (see src/lib/srs/scheduler.ts for the scheduling logic
--- that produces these column values from a grade). A word only gets a row
--- here once the user has graded it at least once through the trainer — a
--- (deck_id, word_id) pair with no row is still a "new" card, so this table
--- only ever holds words the learner has actually studied, not every word in
--- every deck they've added to their collection.
+-- Per-word SRS progress; src/lib/srs/scheduler.ts produces these values from a
+-- grade. A pair with no row is still a "new" card, so this only ever holds
+-- words the learner has actually studied.
 create table public.user_vocabulary_progress (
   user_id uuid not null references auth.users (id) on delete cascade,
   deck_id text not null,
@@ -22,10 +18,8 @@ create table public.user_vocabulary_progress (
 
 alter table public.user_vocabulary_progress enable row level security;
 
--- Loading a training session scans every one of a user's due/new cards
--- filtered by due_at — this index supports that without a full-table sort.
--- (user_id, deck_id, word_id) is the primary key, so lookups scoped to a
--- single deck already have index support without a separate index.
+-- Supports the training session's due_at-filtered scan without a full sort.
+-- Single-deck lookups are already covered by the primary key.
 create index user_vocabulary_progress_due_idx
   on public.user_vocabulary_progress (user_id, due_at);
 

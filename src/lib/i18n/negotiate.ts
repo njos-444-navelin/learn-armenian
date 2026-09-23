@@ -2,9 +2,8 @@ import { DEFAULT_LOCALE, isLocale, type Locale } from './locale';
 
 /**
  * Picks the best-matching locale from an `Accept-Language` header, falling
- * back to {@link DEFAULT_LOCALE}. Deliberately a simple primary-subtag match
- * rather than a full RFC 4647 implementation — this only decides where `/`
- * redirects to, not anything users can't immediately override by navigating.
+ * back to {@link DEFAULT_LOCALE}. A simple primary-subtag match rather than
+ * full RFC 4647: it only decides where `/` redirects to.
  */
 export function resolveAcceptLanguage(header: string | null): Locale {
 	if (header === null) {

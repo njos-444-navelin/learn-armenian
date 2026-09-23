@@ -14,11 +14,9 @@ export function t(dict: Translated): string {
 }
 
 /**
- * Resolves text that may be missing in this locale (see `PartiallyTranslated`)
- * — `undefined` when there is none, so the caller can skip the element. There
- * is deliberately no fallback to the other language: showing a Russian reader
- * a sentence written for an English one is the thing this type exists to
- * avoid.
+ * `undefined` when this locale has no text, so the caller can skip the
+ * element. No fallback to the other language on purpose — showing a reader a
+ * sentence written for the other one is what `PartiallyTranslated` avoids.
  */
 export function tPartial(dict: PartiallyTranslated | undefined): string | undefined {
 	return dict?.[getLocale()];

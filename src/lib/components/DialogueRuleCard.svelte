@@ -135,14 +135,11 @@
 		color: var(--color-accent-700);
 	}
 
-	/* The body grows from 0 to its natural height with a native height
-	   transition: `interpolate-size: allow-keywords` lets `height` animate
-	   to and from `auto`, so there's no measured pixel height to keep in
-	   sync with the content. Browsers without it (Firefox/Safari as of this
-	   writing) just snap the height and still get the fade. Padding and the
-	   divider live on .body-inner so the collapsed box is genuinely 0 tall.
-	   Closing also transitions, which is why this is a class toggle on an
-	   always-rendered element rather than an {#if}. */
+	/* `interpolate-size: allow-keywords` lets `height` animate to and from
+	   `auto`, so there's no measured pixel height to keep in sync. Browsers
+	   without it snap the height and still get the fade. Padding and the divider
+	   live on .body-inner so the collapsed box is genuinely 0 tall, and closing
+	   transitions too, hence a class toggle rather than an {#if}. */
 	.body {
 		height: 0;
 		overflow: hidden;
