@@ -32,7 +32,10 @@
 	const reducedMotion = browser && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 	const FADE_IN_MS = 170;
 	const FADE_OUT_MS = 130;
-	function pop(_node: Element, { duration, easing }: { duration: number; easing: (t: number) => number }): TransitionConfig {
+	function pop(
+		_node: Element,
+		{ duration, easing }: { duration: number; easing: (t: number) => number }
+	): TransitionConfig {
 		if (reducedMotion) return { duration: 0 };
 		return {
 			duration,
@@ -66,7 +69,11 @@
 	in:fade={{ duration: FADE_IN_MS, easing: cubicOut }}
 	out:fade={{ duration: FADE_OUT_MS, easing: cubicOut }}
 >
-	<div class="panel" in:pop={{ duration: FADE_IN_MS, easing: cubicOut }} out:pop={{ duration: FADE_OUT_MS, easing: cubicOut }}>
+	<div
+		class="panel"
+		in:pop={{ duration: FADE_IN_MS, easing: cubicOut }}
+		out:pop={{ duration: FADE_OUT_MS, easing: cubicOut }}
+	>
 		<button type="button" class="close" onclick={onClose} aria-label={t(closeLabel)}>
 			<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="20" height="20">
 				<path

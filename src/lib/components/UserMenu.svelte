@@ -26,7 +26,12 @@
 </script>
 
 {#if !onAccountPage}
-	<TopBubbleLink ariaLabel={accountLinkAriaLabel} side="right" badge={hasWordsToPractice} href={accountHref}>
+	<TopBubbleLink
+		ariaLabel={accountLinkAriaLabel}
+		side="right"
+		badge={hasWordsToPractice}
+		href={accountHref}
+	>
 		{#if signedIn}
 			<svg
 				viewBox="0 0 24 24"

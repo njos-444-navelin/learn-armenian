@@ -35,7 +35,9 @@ export async function loadDialogue(id: string): Promise<Dialogue | undefined> {
 	for (const line of module.LINES) {
 		for (const token of line.tokens) {
 			if (token.wordId !== undefined && getWord(token.wordId) === undefined) {
-				throw new Error(`dialogue "${id}": token "${token.text}" references unknown word id "${token.wordId}"`);
+				throw new Error(
+					`dialogue "${id}": token "${token.text}" references unknown word id "${token.wordId}"`
+				);
 			}
 		}
 	}

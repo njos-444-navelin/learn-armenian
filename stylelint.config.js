@@ -35,7 +35,7 @@ export default {
 				expandShorthand: true,
 				recurseLonghand: true,
 				message:
-					'Use a var(--color-...) token from tokens.css instead of a literal color (Conventions #2). Add a new token there if one doesn\'t exist yet.'
+					"Use a var(--color-...) token from tokens.css instead of a literal color (Conventions #2). Add a new token there if one doesn't exist yet."
 			}
 		]
 	}

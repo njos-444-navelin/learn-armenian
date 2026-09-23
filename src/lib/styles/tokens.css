@@ -2,7 +2,11 @@
 	/* Color — surfaces & text. "Organic" design system: a warm cream-and-sand
 	   ground with near-black ink, rather than a neutral gray UI. */
 	--color-background: #f5ead8;
-	--color-background-hover: color-mix(in srgb, var(--color-background) 92%, var(--color-neutral-900) 8%);
+	--color-background-hover: color-mix(
+		in srgb,
+		var(--color-background) 92%,
+		var(--color-neutral-900) 8%
+	);
 	/* A soft, barely-there translucency for a fixed element that mostly
 	   wants a solid backing (see AlphabetDrillQuestion.svelte's .skip) but
 	   reads better with a touch of glass than fully flat — not the
@@ -74,7 +78,11 @@
 	   and lighter than --color-background-hover, which is tuned for a bigger
 	   target than this thin outline button. */
 	--color-secondary: transparent;
-	--color-secondary-hover: color-mix(in srgb, var(--color-background) 96%, var(--color-neutral-900) 4%);
+	--color-secondary-hover: color-mix(
+		in srgb,
+		var(--color-background) 96%,
+		var(--color-neutral-900) 4%
+	);
 	--color-on-secondary: var(--color-text-primary);
 
 	/* Color — info toast. A solid fill (unlike --color-secondary above, which

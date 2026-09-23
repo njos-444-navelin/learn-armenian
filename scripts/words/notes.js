@@ -88,7 +88,10 @@ function sectionsById(source) {
 
 /** @param {string} text */
 function quote(text) {
-	return `'${text.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\s*\n\s*/g, ' ')}'`;
+	return `'${text
+		.replace(/\\/g, '\\\\')
+		.replace(/'/g, "\\'")
+		.replace(/\s*\n\s*/g, ' ')}'`;
 }
 
 /**
@@ -132,14 +135,16 @@ const TRANSLATION = new RegExp(`translation: \\{ en: ${STRING}, ru: ${STRING} \\
 function applyEdit(source, id, fields) {
 	const marker = `id: '${id}'`;
 	const at = source.indexOf(marker);
-	if (at === -1 || at !== source.lastIndexOf(marker)) throw new Error(`word "${id}" not found once in entries.ts`);
+	if (at === -1 || at !== source.lastIndexOf(marker))
+		throw new Error(`word "${id}" not found once in entries.ts`);
 	const start = source.lastIndexOf('{', at);
 	const end = objectEnd(source, start);
 	let object = source.slice(start, end + 1);
 
 	const translationEn = fields.translation.en.trim();
 	const translationRu = fields.translation.ru.trim();
-	if (translationEn === '' || translationRu === '') throw new Error('translation: both languages are required');
+	if (translationEn === '' || translationRu === '')
+		throw new Error('translation: both languages are required');
 	const translation = `translation: { en: ${quote(translationEn)}, ru: ${quote(translationRu)} }`;
 
 	const addsComment = COMMENTS.some(
@@ -177,12 +182,16 @@ function applyEdit(source, id, fields) {
 		const langs = [];
 		if (en !== '') langs.push(`en: ${quote(en)}`);
 		if (ru !== '') langs.push(`ru: ${quote(ru)}`);
-		const wanted = langs.length === 0 ? null : `${field}: {\n\t\t\t${langs.join(',\n\t\t\t')}\n\t\t}`;
+		const wanted =
+			langs.length === 0 ? null : `${field}: {\n\t\t\t${langs.join(',\n\t\t\t')}\n\t\t}`;
 		const existing = blockOf(field);
 
 		if (existing !== null && wanted !== null) {
 			const comments = existing[1] ?? '';
-			object = object.slice(0, existing.index) + `\n${comments}\t\t${wanted}` + object.slice(existing.index + existing[0].length);
+			object =
+				object.slice(0, existing.index) +
+				`\n${comments}\t\t${wanted}` +
+				object.slice(existing.index + existing[0].length);
 		} else if (existing !== null) {
 			// Drop the block and the comma that ended the property before it.
 			const from = object[existing.index - 1] === ',' ? existing.index - 1 : existing.index;

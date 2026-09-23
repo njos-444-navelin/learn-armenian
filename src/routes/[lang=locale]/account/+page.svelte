@@ -58,7 +58,9 @@
 	let dialoguesCompletedCount = $derived(signedIn ? (page.data.dialoguesCompletedCount ?? 0) : 0);
 	let dialoguesTotalCount = $derived(page.data.dialoguesTotalCount ?? 0);
 	let dialoguesPercent = $derived(
-		dialoguesTotalCount === 0 ? 0 : Math.round((dialoguesCompletedCount / dialoguesTotalCount) * 100)
+		dialoguesTotalCount === 0
+			? 0
+			: Math.round((dialoguesCompletedCount / dialoguesTotalCount) * 100)
 	);
 	let authErrorFromLink = $derived(page.url.searchParams.get('authError') !== null);
 	/** A query-only relative `action="?/login"` replaces the whole query string
@@ -125,97 +127,101 @@
 				     instead of reflowing into odd 2+1 layouts. -->
 				<div class="progress-scroller" use:scrollEdgeCues>
 					<ul class="progress-row" aria-label={t(progressListAriaLabel)}>
-					<li>
-					<a class="stat-card" href={alphabetHref}>
-						<span class="stat-icon acc">
-							<svg
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2.75"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								aria-hidden="true"
-								width="24"
-								height="24"
-							>
-								<g transform="translate(0, 2)">
-									<path d="M6.5 4V13.5A5 5 0 0 0 16.5 13.5V4" />
-									<path d="M16.3 13.5Q19.7 13.7 19.6 15.9V18.2" />
-								</g>
-							</svg>
-						</span>
-						<span class="stat-copy">
-							<span class="stat-title">{t(alphabetCardLabel)}</span>
-							<span class="stat-sub">{t(alphabetMasteryLabel(alphabetMasteryPercent))}</span>
-						</span>
-						<span class="stat-progress-track">
-							<span class="stat-progress-fill" style:width="{alphabetMasteryPercent}%"></span>
-						</span>
-					</a>
-					</li>
+						<li>
+							<a class="stat-card" href={alphabetHref}>
+								<span class="stat-icon acc">
+									<svg
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.75"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										aria-hidden="true"
+										width="24"
+										height="24"
+									>
+										<g transform="translate(0, 2)">
+											<path d="M6.5 4V13.5A5 5 0 0 0 16.5 13.5V4" />
+											<path d="M16.3 13.5Q19.7 13.7 19.6 15.9V18.2" />
+										</g>
+									</svg>
+								</span>
+								<span class="stat-copy">
+									<span class="stat-title">{t(alphabetCardLabel)}</span>
+									<span class="stat-sub">{t(alphabetMasteryLabel(alphabetMasteryPercent))}</span>
+								</span>
+								<span class="stat-progress-track">
+									<span class="stat-progress-fill" style:width="{alphabetMasteryPercent}%"></span>
+								</span>
+							</a>
+						</li>
 
-					<li>
-					<a class="stat-card" href={vocabularyHref}>
-						<span class="stat-icon acc2">
-							<svg
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2.75"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								aria-hidden="true"
-								width="24"
-								height="24"
-							>
-								<rect x="3" y="5.4" width="12.5" height="15.4" rx="4" />
-								<path d="M6.8 13.2h4.9" />
-								<path d="M7 5.4A4 4 0 0 1 11 1.4h4.5a4 4 0 0 1 4 4V13a4 4 0 0 1-4 4" />
-							</svg>
-						</span>
-						<span class="stat-copy">
-							<span class="stat-title">{t(vocabularyCardLabel)}</span>
-							<span class="stat-sub">{t(collectionCountLabel(vocabularyWordCount))}</span>
-						</span>
-						{#if vocabularyDueCount > 0}
-							<span class="stat-badge due">{t(dueNowLabel(vocabularyDueCount))}</span>
-						{:else}
-							<span class="stat-badge caught-up">{t(allCaughtUpLabel)}</span>
-						{/if}
-					</a>
-					</li>
+						<li>
+							<a class="stat-card" href={vocabularyHref}>
+								<span class="stat-icon acc2">
+									<svg
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.75"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										aria-hidden="true"
+										width="24"
+										height="24"
+									>
+										<rect x="3" y="5.4" width="12.5" height="15.4" rx="4" />
+										<path d="M6.8 13.2h4.9" />
+										<path d="M7 5.4A4 4 0 0 1 11 1.4h4.5a4 4 0 0 1 4 4V13a4 4 0 0 1-4 4" />
+									</svg>
+								</span>
+								<span class="stat-copy">
+									<span class="stat-title">{t(vocabularyCardLabel)}</span>
+									<span class="stat-sub">{t(collectionCountLabel(vocabularyWordCount))}</span>
+								</span>
+								{#if vocabularyDueCount > 0}
+									<span class="stat-badge due">{t(dueNowLabel(vocabularyDueCount))}</span>
+								{:else}
+									<span class="stat-badge caught-up">{t(allCaughtUpLabel)}</span>
+								{/if}
+							</a>
+						</li>
 
-					<li>
-					<a class="stat-card" href={dialoguesHref}>
-						<span class="stat-icon acc">
-							<svg
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2.75"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								aria-hidden="true"
-								width="24"
-								height="24"
-							>
-								<path
-									d="M4 16.5V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v4.5a4 4 0 0 1-4 4H9.5L5.5 20a1 1 0 0 1-1.5-.9z"
-								/>
-								<path d="M8.5 8.3h7M8.5 12.2h4" />
-							</svg>
-						</span>
-						<span class="stat-copy">
-							<span class="stat-title">{t(dialoguesCardLabel)}</span>
-							<span class="stat-sub">{t(dialoguesCompletedLabel(dialoguesCompletedCount, dialoguesTotalCount))}</span>
-						</span>
-						<span class="stat-progress-track">
-							<span class="stat-progress-fill" style:width="{dialoguesPercent}%"></span>
-						</span>
-					</a>
-					</li>
-				</ul>
+						<li>
+							<a class="stat-card" href={dialoguesHref}>
+								<span class="stat-icon acc">
+									<svg
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.75"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										aria-hidden="true"
+										width="24"
+										height="24"
+									>
+										<path
+											d="M4 16.5V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v4.5a4 4 0 0 1-4 4H9.5L5.5 20a1 1 0 0 1-1.5-.9z"
+										/>
+										<path d="M8.5 8.3h7M8.5 12.2h4" />
+									</svg>
+								</span>
+								<span class="stat-copy">
+									<span class="stat-title">{t(dialoguesCardLabel)}</span>
+									<span class="stat-sub"
+										>{t(
+											dialoguesCompletedLabel(dialoguesCompletedCount, dialoguesTotalCount)
+										)}</span
+									>
+								</span>
+								<span class="stat-progress-track">
+									<span class="stat-progress-fill" style:width="{dialoguesPercent}%"></span>
+								</span>
+							</a>
+						</li>
+					</ul>
 				</div>
 			</div>
 
@@ -261,7 +267,8 @@
 				{#if otherLocale !== undefined && switchLanguageHref !== undefined}
 					<a href={switchLanguageHref} onclick={() => persistPreferredLocale(otherLocale)}>
 						{t(switchLanguage)}
-						<span aria-hidden="true">{LOCALE_FLAGS[currentLocale]}/{LOCALE_FLAGS[otherLocale]}</span>
+						<span aria-hidden="true">{LOCALE_FLAGS[currentLocale]}/{LOCALE_FLAGS[otherLocale]}</span
+						>
 					</a>
 				{/if}
 			</div>
@@ -289,7 +296,12 @@
 				autocomplete="email"
 				value={form?.action === 'login' ? (form?.email ?? '') : ''}
 			/>
-			<AuthField label={passwordLabel} type="password" name="password" autocomplete="current-password" />
+			<AuthField
+				label={passwordLabel}
+				type="password"
+				name="password"
+				autocomplete="current-password"
+			/>
 			{#if form?.errorCode && form.action === 'login'}
 				<FormError message={errorMessage(form.errorCode) ?? ''} />
 			{/if}

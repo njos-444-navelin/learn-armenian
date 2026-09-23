@@ -31,7 +31,14 @@
 		todaysCountLabel
 	} from '$lib/i18n/dictionaries/vocabularyTraining';
 	import { pushToast } from '$lib/stores/toasts.svelte';
-	import { gradeCard, isDue, isGrade, minutesUntilDue, previewGrades, type Grade } from '$lib/srs/scheduler';
+	import {
+		gradeCard,
+		isDue,
+		isGrade,
+		minutesUntilDue,
+		previewGrades,
+		type Grade
+	} from '$lib/srs/scheduler';
 	import type { SubmitFunction } from '@sveltejs/kit';
 
 	interface Props {
@@ -46,13 +53,8 @@
 		nextRoundPending: boolean;
 	}
 
-	let {
-		initialQueue,
-		newCardsHeldBack,
-		dueCardsHeldBack,
-		onNextRound,
-		nextRoundPending
-	}: Props = $props();
+	let { initialQueue, newCardsHeldBack, dueCardsHeldBack, onNextRound, nextRoundPending }: Props =
+		$props();
 
 	// Read once at mount; this component owns advancing through it afterwards.
 	let activeQueue = $state<TrainingCard[]>(untrack(() => [...initialQueue]));
@@ -89,7 +91,8 @@
 		return {
 			duration,
 			easing: cubicOut,
-			css: (t: number, u: number) => `transform: translateX(${u * 60}%) rotate(${u * 10}deg); opacity: ${t};`
+			css: (t: number, u: number) =>
+				`transform: translateX(${u * 60}%) rotate(${u * 10}deg); opacity: ${t};`
 		};
 	}
 

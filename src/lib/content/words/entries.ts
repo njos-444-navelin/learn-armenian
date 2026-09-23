@@ -858,19 +858,29 @@ for (const word of WORDS) {
 	] as const) {
 		if (text === undefined) continue;
 		if (SITUATIONAL.some((pattern) => pattern.test(text))) {
-			throw new Error(`word "${word.id}": library ${field} reads as dialogue-specific — move it to the token's \`here\`: ${text}`);
+			throw new Error(
+				`word "${word.id}": library ${field} reads as dialogue-specific — move it to the token's \`here\`: ${text}`
+			);
 		}
 		if (LOWERCASE_OPENING.test(text)) {
-			throw new Error(`word "${word.id}": library ${field} opens with a lowercase Armenian word — a comment is a sentence, capitalize its first word: ${text}`);
+			throw new Error(
+				`word "${word.id}": library ${field} opens with a lowercase Armenian word — a comment is a sentence, capitalize its first word: ${text}`
+			);
 		}
 		if (NOT_BOOK_TYPOGRAPHY.test(text)) {
-			throw new Error(`word "${word.id}": library ${field} uses a symbol a book wouldn't (arrow, plus sign, emoji…) — write it out in words: ${text}`);
+			throw new Error(
+				`word "${word.id}": library ${field} uses a symbol a book wouldn't (arrow, plus sign, emoji…) — write it out in words: ${text}`
+			);
 		}
 		if (MIXED_SCRIPT.test(text)) {
-			throw new Error(`word "${word.id}": library ${field} has a Latin letter inside a Cyrillic word — a look-alike typo: ${text}`);
+			throw new Error(
+				`word "${word.id}": library ${field} has a Latin letter inside a Cyrillic word — a look-alike typo: ${text}`
+			);
 		}
 		if (CALQUE.some((pattern) => pattern.test(text))) {
-			throw new Error(`word "${word.id}": library ${field} is English traced into Russian — say it as a Russian speaker would («в конце слова», not «на слове»): ${text}`);
+			throw new Error(
+				`word "${word.id}": library ${field} is English traced into Russian — say it as a Russian speaker would («в конце слова», not «на слове»): ${text}`
+			);
 		}
 	}
 }

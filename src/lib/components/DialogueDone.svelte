@@ -27,7 +27,17 @@
 
 <div class="done">
 	<span class="check" role="img" aria-label={t(doneHeadingAriaLabel)}>
-		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="30" height="30">
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2.75"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			aria-hidden="true"
+			width="30"
+			height="30"
+		>
 			<path d="M20 6 9 17l-5-5" />
 		</svg>
 	</span>

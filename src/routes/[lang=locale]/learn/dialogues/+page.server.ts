@@ -16,5 +16,8 @@ export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => 
 		return { dialogues: DIALOGUE_CATALOG, completedIds: [] as string[] };
 	}
 
-	return { dialogues: DIALOGUE_CATALOG, completedIds: data.map((row) => row.dialogue_id as string) };
+	return {
+		dialogues: DIALOGUE_CATALOG,
+		completedIds: data.map((row) => row.dialogue_id as string)
+	};
 };

@@ -6,7 +6,11 @@
 	import { page } from '$app/state';
 	import { isAudioMuted } from '$lib/alphabet/audioMute';
 	import { applyAnswer } from '$lib/alphabet/mastery';
-	import { buildDrillQuestion, DRILL_QUESTION_TYPES, type DrillQuestion } from '$lib/alphabet/drillQuestion';
+	import {
+		buildDrillQuestion,
+		DRILL_QUESTION_TYPES,
+		type DrillQuestion
+	} from '$lib/alphabet/drillQuestion';
 	import { buildSession } from '$lib/alphabet/session';
 	import { setCloseAction } from '$lib/stores/topLeftAction.svelte';
 	import type { AlphabetLetter } from '$lib/content/alphabet';
@@ -14,7 +18,13 @@
 	import type { Word } from '$lib/content/words/types';
 	import { getLocale, t } from '$lib/i18n/current';
 	import { withLocaleQuery } from '$lib/i18n/paths';
-	import { heading, practiceLabel, practiceSignInHint, practiceSubtitleNew, practiceSubtitleWeakest } from '$lib/i18n/dictionaries/alphabetTrainer';
+	import {
+		heading,
+		practiceLabel,
+		practiceSignInHint,
+		practiceSubtitleNew,
+		practiceSubtitleWeakest
+	} from '$lib/i18n/dictionaries/alphabetTrainer';
 	import AlphabetDrillQuestion from './AlphabetDrillQuestion.svelte';
 	import AlphabetLearnStep from './AlphabetLearnStep.svelte';
 	import AlphabetLetterGrid from './AlphabetLetterGrid.svelte';
@@ -42,7 +52,8 @@
 	//
 	// Computed once, since a transition's params are read when it's created.
 	// Guarded by `browser` because this runs at init, which also happens in SSR.
-	const screenFadeMs = browser && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 150;
+	const screenFadeMs =
+		browser && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 150;
 
 	type Screen = 'home' | 'learn' | 'drill' | 'summary';
 
@@ -78,7 +89,9 @@
 				: t(practiceSubtitleWeakest(sessionPreview.drillLetters.length))
 	);
 
-	let openLetter = $derived(sheetLetterId === null ? undefined : letters.find((letter) => letter.id === sheetLetterId));
+	let openLetter = $derived(
+		sheetLetterId === null ? undefined : letters.find((letter) => letter.id === sheetLetterId)
+	);
 	function wordsFor(letter: AlphabetLetter | undefined): Word[] {
 		if (letter === undefined) return [];
 		return letter.exampleWordIds.map(getWord).filter((word): word is Word => word !== undefined);
@@ -221,7 +234,13 @@
 	{#if screen === 'home'}
 		<div class="screen" in:fade={{ duration: screenFadeMs }}>
 			<h1>{t(heading)}</h1>
-			<AlphabetLetterGrid {letters} {levels} {caseDisplay} onToggleCase={toggleCase} onOpenLetter={openLetterSheet} />
+			<AlphabetLetterGrid
+				{letters}
+				{levels}
+				{caseDisplay}
+				onToggleCase={toggleCase}
+				onOpenLetter={openLetterSheet}
+			/>
 			<FloatingActionBar bare>
 				<PulseCta label={t(practiceLabel)} subtitle={practiceSubtitle} onclick={clickPractice} />
 			</FloatingActionBar>
@@ -255,7 +274,11 @@
 		</div>
 	{:else if screen === 'summary'}
 		<div class="screen" in:fade={{ duration: screenFadeMs }}>
-			<AlphabetSessionSummary rows={summaryRows} onBackHome={backHome} onPracticeAgain={startPractice} />
+			<AlphabetSessionSummary
+				rows={summaryRows}
+				onBackHome={backHome}
+				onPracticeAgain={startPractice}
+			/>
 		</div>
 	{/if}
 </PageShell>
@@ -277,5 +300,4 @@
 		align-items: center;
 		gap: inherit;
 	}
-
 </style>

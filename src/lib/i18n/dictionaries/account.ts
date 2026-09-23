@@ -108,9 +108,15 @@ export function dialoguesCompletedLabel(completed: number, total: number): Trans
 	return { en: `${completed} of ${total} completed`, ru: `Пройдено ${completed} из ${total}` };
 }
 
-export const progressListAriaLabel: Translated = { en: 'Progress by lesson', ru: 'Прогресс по урокам' };
+export const progressListAriaLabel: Translated = {
+	en: 'Progress by lesson',
+	ru: 'Прогресс по урокам'
+};
 
-export const accountSettingsHeading: Translated = { en: 'Account settings', ru: 'Настройки аккаунта' };
+export const accountSettingsHeading: Translated = {
+	en: 'Account settings',
+	ru: 'Настройки аккаунта'
+};
 
 export const authErrorGeneric: Translated = {
 	en: 'That sign-in link is invalid or has expired. Please try again.',

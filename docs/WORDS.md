@@ -4,7 +4,7 @@ Every word the app shows — vocabulary decks, the alphabet trainer's examples, 
 
 A word can carry two comments, each in English and Russian:
 
-- `global` — what the word *is*. Shown on its card and in every dialogue popover, so it must be true of the word in any sentence and never quotes a phrase.
+- `global` — what the word _is_. Shown on its card and in every dialogue popover, so it must be true of the word in any sentence and never quotes a phrase.
 - `cardOnly` — when it's used, the greeting it makes. Shown on the card and in the trainer only.
 
 Either may be written in one language alone, when the fact is worth stating to one reader and not the other. Writing rules: [DIALOGUES.md, "Word comments"](DIALOGUES.md#word-comments-global-card-only-and-the-here-remark). Anything true of one line only goes on that token's `here` remark instead.
@@ -21,7 +21,7 @@ Also the `word-comments` entry in [`.claude/launch.json`](../.claude/launch.json
 
 - Shows every word, grouped by the file's section comments, with six editable fields: translation, `global` and `cardOnly`, each in both languages. The filter box searches Armenian, translations, ids and comments; "Only words with a comment" is on by default. Dialogue `here` remarks belong to a line and are reviewed with the dialogue, so they aren't on the page.
 - `?deck=<id>` lists one deck's words in the deck's own order, reused words included, with the comment filter off. The ids come from the deck file, so an id the library lacks is named in red rather than silently dropped.
-- *Save* per card, *Save all* or <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>S</kbd> for the page. Only that entry's `translation`, `global` and `cardOnly` are rewritten. A comment emptied in both languages is removed; one added to a word that had none is inserted. Filling in only one language, or emptying a translation, is refused.
+- _Save_ per card, _Save all_ or <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>S</kbd> for the page. Only that entry's `translation`, `global` and `cardOnly` are rewritten. A comment emptied in both languages is removed; one added to a word that had none is inserted. Filling in only one language, or emptying a translation, is refused.
 - Each save re-imports `entries.ts`, so the file's own checks run over the result — situational wording, duplicate ids, a lowercase Armenian opening, arrows or emoji, a Latin letter inside a Cyrillic word. If they throw, the write is rolled back and the message shows on the card.
 - It binds to localhost, reads the library by importing it the way the app does, and ships nothing. Review its diff like any other content change.
 

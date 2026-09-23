@@ -55,7 +55,10 @@ export async function removeDeckFromCollection(
 		.eq('deck_id', deck.id);
 
 	if (progressDeleteError) {
-		console.error('vocabulary collection: failed to clear progress on removal', progressDeleteError);
+		console.error(
+			'vocabulary collection: failed to clear progress on removal',
+			progressDeleteError
+		);
 		return fail(500, { errorCode: 'generic' });
 	}
 

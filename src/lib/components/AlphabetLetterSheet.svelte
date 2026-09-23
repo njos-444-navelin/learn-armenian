@@ -4,7 +4,11 @@
 	import type { Word } from '$lib/content/words/types';
 	import { wordAudioSrc } from '$lib/content/words/audio';
 	import { t } from '$lib/i18n/current';
-	import { closeSheetLabel, inWordLabel, playPronunciationLabel } from '$lib/i18n/dictionaries/alphabetTrainer';
+	import {
+		closeSheetLabel,
+		inWordLabel,
+		playPronunciationLabel
+	} from '$lib/i18n/dictionaries/alphabetTrainer';
 	import SpeakerButton from './SpeakerButton.svelte';
 
 	interface Props {
@@ -54,7 +58,9 @@
 		requestClose();
 	}
 
-	let pair = $derived(letter.uppercase === undefined ? letter.lowercase : `${letter.uppercase} ${letter.lowercase}`);
+	let pair = $derived(
+		letter.uppercase === undefined ? letter.lowercase : `${letter.uppercase} ${letter.lowercase}`
+	);
 </script>
 
 <dialog
@@ -69,7 +75,13 @@
 >
 	<button type="button" class="cross" onclick={requestClose} aria-label={t(closeSheetLabel)}>
 		<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="20" height="20">
-			<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" />
+			<path
+				d="M6 6l12 12M18 6L6 18"
+				stroke="currentColor"
+				stroke-width="2.75"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
 		</svg>
 	</button>
 
@@ -300,5 +312,4 @@
 		font-size: var(--font-size-sm);
 		color: var(--color-text-secondary);
 	}
-
 </style>

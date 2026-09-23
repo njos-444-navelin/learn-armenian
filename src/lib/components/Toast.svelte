@@ -40,9 +40,7 @@
 <style>
 	.stack {
 		position: fixed;
-		top: calc(
-			var(--space-4) + env(safe-area-inset-top) + var(--tap-target-min) + var(--space-2)
-		);
+		top: calc(var(--space-4) + env(safe-area-inset-top) + var(--tap-target-min) + var(--space-2));
 		left: 50%;
 		z-index: var(--z-toast);
 		display: flex;

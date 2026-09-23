@@ -29,7 +29,9 @@
 
 	let { letter, words, index, total, isLast, onPrev, onNext }: Props = $props();
 
-	let pair = $derived(letter.uppercase === undefined ? letter.lowercase : `${letter.uppercase} ${letter.lowercase}`);
+	let pair = $derived(
+		letter.uppercase === undefined ? letter.lowercase : `${letter.uppercase} ${letter.lowercase}`
+	);
 
 	// No "already done" vs "currently on" here, unlike the drill's dots: every
 	// letter up to this one is 'current', which reads as one growing bar.
@@ -69,7 +71,17 @@
 	<FloatingActionBar bare>
 		<div class="actions">
 			<button type="button" class="prev" aria-label={t(learnPreviousLabel)} onclick={onPrev}>
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="20" height="20">
+				<svg
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2.75"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+					width="20"
+					height="20"
+				>
 					<path d="m15 18-6-6 6-6" />
 				</svg>
 			</button>

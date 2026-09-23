@@ -17,15 +17,15 @@ The prompt is the glyph itself — not the traditional letter name (`Այբ`, `�
 
 `Պ`, `Ռ`, `Տ` and `Գ` fail as bare glyphs with a generic "unexpected error processing this generation", in either case, with or without punctuation, on fresh uncontended retries. The same letters generate fine inside a real word, so the trigger is the isolated single character, not the sound.
 
-**Membership isn't fixed**: `Գ` generated fine as a bare glyph until it started failing during a later regeneration. Treat the list as the letters *known* to need it and apply the fix on any bare-glyph failure.
+**Membership isn't fixed**: `Գ` generated fine as a bare glyph until it started failing during a later regeneration. Treat the list as the letters _known_ to need it and apply the fix on any bare-glyph failure.
 
 **Fix: append the schwa `Ը`** — `Պը`, `Ռը`, `Տը`, `Գը` — the same trick English phonics uses to make an isolated stop consonant sayable ("buh" for B). Still save under the plain letter id; the schwa is prompt-only.
 
 ## The "Ո" → "Վ" fix applies to the letter `vo` itself
 
-`vo`'s traditional letter name *is* "vo", so a bare `Ո` hits the same engine bug words do and produces a flat "o" — which is also `o`'s (Օ) sound. Since `o`/`vo` is a listed confusable pair, two identical clips would make the drill's `audio` question unanswerable for it. Generate `vo` from the prompt `Վո`; `o` needs no trick.
+`vo`'s traditional letter name _is_ "vo", so a bare `Ո` hits the same engine bug words do and produces a flat "o" — which is also `o`'s (Օ) sound. Since `o`/`vo` is a listed confusable pair, two identical clips would make the drill's `audio` question unanswerable for it. Generate `vo` from the prompt `Վո`; `o` needs no trick.
 
-The rule applies per *word* as well, checked per word rather than inherited from whichever letter the word illustrates — the "Ու" digraph and the `ով`/`ովքեր` exceptions are unaffected.
+The rule applies per _word_ as well, checked per word rather than inherited from whichever letter the word illustrates — the "Ու" digraph and the `ով`/`ովքեր` exceptions are unaffected.
 
 ## This pipeline needs a human listening pass — every time
 

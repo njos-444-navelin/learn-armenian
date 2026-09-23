@@ -1,0 +1,19 @@
+# Build output and generated code
+.svelte-kit/
+.netlify/
+build/
+dev-dist/
+static/
+src/service-worker.ts
+
+# Vendored: reformatting these would fight the next skills update
+.agents/
+
+# Lockfiles and machine-written JSON
+package-lock.json
+skills-lock.json
+
+# Vendored skills, symlinked from .agents/. The repo's own skills sit beside
+# them and are ordinary prose, so they stay formatted.
+.claude/skills/supabase/
+.claude/skills/supabase-postgres-best-practices/

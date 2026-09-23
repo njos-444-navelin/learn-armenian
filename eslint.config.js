@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import prettier from 'eslint-config-prettier/flat';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -48,12 +49,7 @@ export default tseslint.config(
 					// Root config and tooling files aren't part of tsconfig's `src/`-scoped
 					// project, so the service falls back to a single-file project for
 					// these rather than erroring.
-					allowDefaultProject: [
-						'eslint.config.js',
-						'stylelint.config.js',
-						'tooling/stylelint-rules/*.js',
-						'scripts/words/*.js'
-					]
+					allowDefaultProject: ['eslint.config.js', 'stylelint.config.js', 'scripts/words/*.js']
 				},
 				tsconfigRootDir: import.meta.dirname
 			}
@@ -104,7 +100,7 @@ export default tseslint.config(
 						{
 							group: ['*/content/vocabulary/decks/*', '$lib/content/vocabulary/decks/*'],
 							message:
-								'Import deck words via loadDeckWords() in $lib/content/vocabulary/loadDeck.ts instead — it resolves and validates the deck\'s word ids and keeps the deck lazily loaded (Conventions #10).'
+								"Import deck words via loadDeckWords() in $lib/content/vocabulary/loadDeck.ts instead — it resolves and validates the deck's word ids and keeps the deck lazily loaded (Conventions #10)."
 						},
 						{
 							group: ['*/content/dialogues/dialogues/*', '$lib/content/dialogues/dialogues/*'],
@@ -136,5 +132,9 @@ export default tseslint.config(
 			'no-unused-expressions': 'off',
 			'@typescript-eslint/no-unused-expressions': 'off'
 		}
-	}
+	},
+	// Formatting is Prettier's. Last, so these turn off the stylistic rules the
+	// sets above switch on.
+	prettier,
+	...svelte.configs['flat/prettier']
 );

@@ -4,7 +4,7 @@ Rules that keep the app internationalized, accessible, on-token and strictly typ
 
 ## 1. No string skips i18n
 
-Every string rendered on screen — headings, labels, aria labels, page titles — is a `Translated` (`{ en, ru }`, see [`i18n/types.ts`](../src/lib/i18n/types.ts)) resolved through `t()`. Never a string literal in markup, including things that feel like proper nouns: the language names "English"/"Russian" are translated too.
+Every string rendered on screen — headings, labels, aria labels, page titles — is a `Translated` (`{ en, ru }`, see [`i18n/types.ts`](../src/lib/i18n/types.ts)) resolved through `t()`.
 
 - New copy goes in a dictionary under `src/lib/i18n/dictionaries/`, grouped by page or feature. Don't inline `Translated` literals in components.
 - Interpolated text is a function returning a `Translated`, not a template string built after resolving one language.
@@ -46,7 +46,7 @@ Interactive elements meet `--tap-target-min` (44px). Check new UI at ~375px, ~76
 
 ## 7. Auth/password forms use single-purpose `autocomplete` values
 
-A password input declares exactly one purpose: `new-password` for account creation, `current-password` for signing in. Password managers decide whether to offer to *generate* a password from this attribute alone, so a shared sign-in/sign-up field silently breaks that on sign-up. A page needing both flows gives each its own `<form>` with its own password field.
+A password input declares exactly one purpose: `new-password` for account creation, `current-password` for signing in. Password managers decide whether to offer to _generate_ a password from this attribute alone, so a shared sign-in/sign-up field silently breaks that on sign-up. A page needing both flows gives each its own `<form>` with its own password field.
 
 **A `current-password` + `new-password` pair needs a `username` field too**, even though the app knows the email from the session and never reads the field. Password managers use it to tell which saved credential the new password belongs to; without it, some (confirmed: Proton Pass on iOS) autofill the current password but decline to suggest a generated one. Add a real `<input autocomplete="username">` with the known email, hidden with CSS `display: none` — not `type="hidden"`, which some parsers skip. See [Chromium's password-form guidance](https://www.chromium.org/developers/design-documents/create-amazing-password-forms/) and [`account/change-password/+page.svelte`](../src/routes/[lang=locale]/account/change-password/+page.svelte).
 
@@ -77,7 +77,7 @@ Every Russian string addressing the learner uses **вы**, never **ты**.
 
 - Imperatives take the вы-conjugation: `Выберите`, `Изучайте`, `Проверьте`. This is the commonest mistake — the informal form is shorter and easier to reach for.
 - Pronouns and possessives are вы/ваш and their oblique forms.
-- **`Вы`/`Ваш`/`Вас`/`Вам`/`Вами` are always capitalized**, mid-sentence included. Also when a comment *mentions* the polite form — `тому, с кем на «Вы»` — even though quoted examples in comments are otherwise lowercase (§10). Lowercase `«вы»` stays lowercase where it names the grammatical form covering both, as in `форма «вы»`.
+- **`Вы`/`Ваш`/`Вас`/`Вам`/`Вами` are always capitalized**, mid-sentence included. Also when a comment _mentions_ the polite form — `тому, с кем на «Вы»` — even though quoted examples in comments are otherwise lowercase (§10). Lowercase `«вы»` stays lowercase where it names the grammatical form covering both, as in `форма «вы»`.
 - Infinitives (`Продолжить`, `Начать обучение`) are register-neutral and are the normal convention for button labels.
 
 If unsure of a conjugation, check it against a known-correct example in the dictionaries rather than guessing — the difference is often one syllable.
@@ -102,7 +102,7 @@ The library is one module, not code-split: at low hundreds of entries it's a few
 
 Every `Word` has a clip at `static/audio/words/<wordId>.m4a` — the path [`wordAudioSrc()`](../src/lib/content/words/audio.ts) derives and `SpeakerButton.svelte` plays wherever the word appears. There is no missing-audio state: a word added without its clip fails silently on tap. Follow [VOCABULARY_AUDIO.md](VOCABULARY_AUDIO.md)'s checklist in the same change that adds the word.
 
-Dialogue *lines* are separate recordings at `static/audio/dialogues/<dialogueId>/<nn>.m4a` (see [DIALOGUES.md](DIALOGUES.md)). Until they exist the player treats each as a fixed-length silence, so the flow can be exercised end to end — a stopgap for content in progress, not a fallback.
+Dialogue _lines_ are separate recordings at `static/audio/dialogues/<dialogueId>/<nn>.m4a` (see [DIALOGUES.md](DIALOGUES.md)). Until they exist the player treats each as a fixed-length silence, so the flow can be exercised end to end — a stopgap for content in progress, not a fallback.
 
 ## 12. English UI copy is British English
 
@@ -111,9 +111,3 @@ Colour, -ise, travelling/cancelled, licence (noun) / license (verb), grey, centr
 ## 13. Every alphabet letter ships with a pronunciation audio file
 
 Every `AlphabetLetter` has a clip at `static/audio/alphabet/<letterId>.m4a`, the path [`letterAudioSrc()`](../src/lib/content/alphabetAudio.ts) derives. Same no-fallback rule as §11; the words it references are covered there. [ALPHABET_AUDIO.md](ALPHABET_AUDIO.md) has the checklist and the two alphabet-specific decisions the vocabulary pipeline doesn't cover.
-
-## 14. Focus rings are never animated — no `transition` on `outline`/`outline-color`
-
-[`app.css`](../src/app.css) shows and hides the `:focus-visible` ring instantly. Never add a transition, globally or per component.
-
-An earlier version used an always-present transparent outline plus `transition: outline-color` on `*`. Firefox and Chrome can spuriously re-evaluate a still-focused element's `:focus-visible` as matching for one style-recalc pass during a later, unrelated interaction; with the transition that one frame played out as a ~150ms flash. See [`blurAfterClick`](../src/lib/actions/blurAfterClick.ts) for a narrower mitigation kept alongside this rule.

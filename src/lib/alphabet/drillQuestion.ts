@@ -50,11 +50,17 @@ export function buildDrillQuestion(
 	// A case question's distractors need both forms too, so 'yev' (և) can't
 	// fill in as a wrong option either.
 	const candidateLetters =
-		effectiveType === 'case' ? allLetters.filter((entry) => entry.uppercase !== undefined) : allLetters;
+		effectiveType === 'case'
+			? allLetters.filter((entry) => entry.uppercase !== undefined)
+			: allLetters;
 
-	const partner = shuffle(confusablePartners(letter.id).filter((id) => candidateLetters.some((entry) => entry.id === id))).slice(0, 1);
+	const partner = shuffle(
+		confusablePartners(letter.id).filter((id) => candidateLetters.some((entry) => entry.id === id))
+	).slice(0, 1);
 	const usedIds = new Set([letter.id, ...partner]);
-	const fillers = shuffle(candidateLetters.filter((entry) => !usedIds.has(entry.id))).map((entry) => entry.id);
+	const fillers = shuffle(candidateLetters.filter((entry) => !usedIds.has(entry.id))).map(
+		(entry) => entry.id
+	);
 	const optionIds = shuffle([letter.id, ...partner, ...fillers].slice(0, OPTION_COUNT));
 
 	if (effectiveType !== 'case') {

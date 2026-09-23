@@ -24,14 +24,19 @@
 	/** Punctuation and intonation marks stripped, lowercased, և expanded (the
 	 * library capitalizes it as Եվ). */
 	function bare(text: string): string {
-		return text.replace(/[։,.?!՞՛՜]/g, '').replace(/և/g, 'եվ').toLowerCase();
+		return text
+			.replace(/[։,.?!՞՛՜]/g, '')
+			.replace(/և/g, 'եվ')
+			.toLowerCase();
 	}
 	/** True when the token *is* the dictionary form (Ես, Այս, հաց), so the
 	 * "from …" framing would only restate the word. */
 	let isBaseForm = $derived(bare(token.text) === bare(word.armenian));
 	/** The library translation is worth a second line only when the
 	 * in-context gloss says something different ("the bread" vs "Bread"). */
-	let showTranslation = $derived(!isBaseForm || t(word.translation).toLowerCase() !== t(gloss).toLowerCase());
+	let showTranslation = $derived(
+		!isBaseForm || t(word.translation).toLowerCase() !== t(gloss).toLowerCase()
+	);
 
 	/**
 	 * A Svelte transition rather than the CSS `animation` used elsewhere (see

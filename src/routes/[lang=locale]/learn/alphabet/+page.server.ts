@@ -18,7 +18,9 @@ export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => 
 		return { levels: {}, signedIn: true };
 	}
 
-	const levels = Object.fromEntries(data.map((row) => [row.letter_id as string, row.level as number]));
+	const levels = Object.fromEntries(
+		data.map((row) => [row.letter_id as string, row.level as number])
+	);
 	return { levels, signedIn: true };
 };
 
@@ -56,7 +58,12 @@ export const actions: Actions = {
 		const next = applyAnswer(current, chosenId === letterId);
 
 		const { error: upsertError } = await supabase.from('user_alphabet_progress').upsert(
-			{ user_id: verified.sub, letter_id: letterId, level: next, updated_at: new Date().toISOString() },
+			{
+				user_id: verified.sub,
+				letter_id: letterId,
+				level: next,
+				updated_at: new Date().toISOString()
+			},
 			{ onConflict: 'user_id,letter_id' }
 		);
 

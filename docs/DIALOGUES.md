@@ -17,15 +17,20 @@ Each line is a speaker, a translation and **tokens** — the words as spoken:
 
 ```ts
 // text, library word id, gloss for this line, `here` remark for this line
-tok('հա՞ցը։', 'hats', { en: 'the bread', ru: 'хлеб (этот)' }, {
-	en: 'Definite -ը. The ՞ marks the syllable the voice lifts for a question.',
-	ru: '...'
-})
+tok(
+	'հա՞ցը։',
+	'hats',
+	{ en: 'the bread', ru: 'хлеб (этот)' },
+	{
+		en: 'Definite -ը. The ՞ marks the syllable the voice lifts for a question.',
+		ru: '...'
+	}
+);
 ```
 
-- `text` is the surface form verbatim, in the line's real casing — the one place Armenian isn't capitalized, since this *is* running text.
+- `text` is the surface form verbatim, in the line's real casing — the one place Armenian isn't capitalized, since this _is_ running text.
 - `wordId` points at the library entry the token is a form of. The popover shows the base form and plays the library's one clip for it.
-- `gloss` is optional and contextual: the meaning *in this line*, where it differs from the library translation. Falls back to that translation.
+- `gloss` is optional and contextual: the meaning _in this line_, where it differs from the library translation. Falls back to that translation.
 
 `loadDialogue()` throws on a `wordId` the library lacks and on a `lineCount` mismatch, so a content typo fails on first load rather than shipping as an untappable word.
 
@@ -33,14 +38,14 @@ tok('հա՞ցը։', 'hats', { en: 'the bread', ru: 'хлеб (этот)' }, {
 
 ### Word comments: global, card-only, and the "Here:" remark
 
-| | `Word.global` | `Word.cardOnly` | `DialogueToken.here` |
-|---|---|---|---|
-| **What it is** | What the word *is*: case, mood, an extra sense, a look-alike to keep apart | When and to whom it's said, the greeting it makes | This occurrence: why the -ը, where the ՞ sits |
-| **Shows** | Everywhere: card, trainer, every popover | Card and trainer only, never a dialogue | This token only, under an italic *Here:* |
+|                | `Word.global`                                                              | `Word.cardOnly`                                   | `DialogueToken.here`                          |
+| -------------- | -------------------------------------------------------------------------- | ------------------------------------------------- | --------------------------------------------- |
+| **What it is** | What the word _is_: case, mood, an extra sense, a look-alike to keep apart | When and to whom it's said, the greeting it makes | This occurrence: why the -ը, where the ՞ sits |
+| **Shows**      | Everywhere: card, trainer, every popover                                   | Card and trainer only, never a dialogue           | This token only, under an italic _Here:_      |
 
-Card-only exists because the card is where the learner meets a word with no sentence around it, and a phrase is often the whole reason it's in the deck (Լույս is in greetings for բարի լույս). In a dialogue the line *is* the usage, so a phrase the learner isn't reading right now is noise; when a line *is* that phrase, it's a `here`.
+Card-only exists because the card is where the learner meets a word with no sentence around it, and a phrase is often the whole reason it's in the deck (Լույս is in greetings for բարի լույս). In a dialogue the line _is_ the usage, so a phrase the learner isn't reading right now is noise; when a line _is_ that phrase, it's a `here`.
 
-The popover reads gloss → dictionary entry with its global comment → *Here:*. The play button sits on the entry row, because the clip says the base form.
+The popover reads gloss → dictionary entry with its global comment → _Here:_. The play button sits on the entry row, because the clip says the base form.
 
 There is no per-token override of a global comment. If it would mislead in some line, it's wrong — fix it, or it was card-only all along.
 
@@ -52,35 +57,36 @@ There is no per-token override of a global comment. If it would mislead in some 
    - Neutral register, no slang glosses — the translation carries the meaning.
    - Hedge a frequency claim: "more often specifically a man", not "often".
    - A comparison with the reader's language opens the sentence, and is made once: «Как и в русском, так называют и любого пожилого мужчину».
-   - English and Russian mirror each other's *frame* while staying written for their own reader (rule 12).
+   - English and Russian mirror each other's _frame_ while staying written for their own reader (rule 12).
    - A fact about the language is not a comment on a word. "Armenian has no general word for aunt" is true of the family, not of Մորքուր.
-   - A comment that's only a fun fact goes. Does it say something the translation doesn't *and* that the learner needs?
+   - A comment that's only a fun fact goes. Does it say something the translation doesn't _and_ that the learner needs?
 2. **Don't restate the translation.** Start with what it doesn't say. A card-only comment about a phrase opens straight on it: "E.g. բարի օր — a formal "good day"".
 3. **Name the grammar**: "the dative case of դուք", "imperative mood" — not "what makes բարև ձեզ polite".
 4. **Extra senses read "Also means …"**, the senses in quotes, nothing about how many there are.
-5. **Don't explain a word with another new word, and never name a formal/informal counterpart.** The other word may appear as the *object*, mid-sentence, once the sentence is already about this word: "The ending -իկ makes the word մայր soft and affectionate", never bare մայր as the subject. A cross-reference earns its place only when it *is* the fact — a root, a look-alike, a clipped form. The `register` tag is the whole signal for a counterpart; a *phrase*'s register is stated inline with the article ("an informal "good evening""), and the word carries no `register` when the split belongs to the greeting rather than the word.
+5. **Don't explain a word with another new word, and never name a formal/informal counterpart.** The other word may appear as the _object_, mid-sentence, once the sentence is already about this word: "The ending -իկ makes the word մայր soft and affectionate", never bare մայր as the subject. A cross-reference earns its place only when it _is_ the fact — a root, a look-alike, a clipped form. The `register` tag is the whole signal for a counterpart; a _phrase_'s register is stated inline with the article ("an informal "good evening""), and the word carries no `register` when the split belongs to the greeting rather than the word.
 6. **Examples are lowercase; the sentence still starts with a capital** — an Armenian word included: "Բարի գիշեր — "good night" — is a goodbye". `entries.ts` throws on a comment opening with a lowercase Armenian letter. Russian keeps its own orthography for the polite address («кто Вас обслуживает»), which is not an example.
 7. **No pronunciation.** How Ո reads word-initially is the alphabet trainer's lesson.
 8. **No extra forms.** Don't introduce an inflection the learner hasn't met — an unseen imperative is a second lesson smuggled into a footnote. Forms of the word the learner is actually looking at are fine.
 9. **True of the word in any sentence.** If it's only true here, it's a `here`. `entries.ts` throws on "here", "this time", "the shopkeeper" and the like — a tripwire for the phrasings that slipped through, not a definition of "general". The same check runs over `cardOnly`.
-10. **A global comment never quotes a phrase.** The tapped line is the example, and a quoted phrase either coincides with a line — so the comment reads as a remark about that line — or brings in unmet words. Card-only may quote; that's its job. A comment describing the grammar of the *language* rather than this word belongs on a `here` at the first token that shows it, or on a rule card.
+10. **A global comment never quotes a phrase.** The tapped line is the example, and a quoted phrase either coincides with a line — so the comment reads as a remark about that line — or brings in unmet words. Card-only may quote; that's its job. A comment describing the grammar of the _language_ rather than this word belongs on a `here` at the first token that shows it, or on a rule card.
 11. **Only words the learner has**, and plain English/Russian around them.
 12. **Write each language for its own reader, never translate one into the other.** English has no polite plural "you", so Եք's English spells it out where Russian only needs "как в русском". Russian drops the copula, so «է — есть» needs framing that "is" doesn't.
 
     **The sentence is traced as easily as the content.** «-ի на слове տավար» is English construction in Russian words; Russian says «в конце слова». It survives a read-through and only fails read aloud — so read the Russian aloud, without the English in front of you. `entries.ts` throws on «на слове» as a tripwire for the one calque that got through; it can't catch the next.
 
     **A comment may be written in one language only**, when a fact is worth stating to one reader and not the other — Թթվասեր's «Буквально «кислые сливки»» has no English counterpart worth writing. The other reader sees nothing, which beats a sentence written for somebody else. Half of a comment both readers want is unfinished, not this.
+
 13. **Set like a sentence in a book.** Ordinary punctuation and words for everything else: "տղա and մարդ", not "տղա + մարդ"; "as mother becomes mum", not "mother → mum". `entries.ts` throws on arrows, plus signs and emoji; a slash between alternatives is ordinary typography.
 
 Comments are read and edited on the review page, not in `entries.ts` — see [WORDS.md](WORDS.md).
 
 **Rules for a `here` remark:**
 
-1. It is about *this* occurrence, and would be wrong or odd on another.
+1. It is about _this_ occurrence, and would be wrong or odd on another.
 2. It is the place for phrases and idioms. Any Armenian phrase it quotes gets its translation in brackets right there — the reader may be on their first dialogue. Lowercase, both halves.
 3. It doesn't restate the global comment; it adds the exception, the reason for the form in this line.
 
-**Before adding a dialogue**, go through every token with a remark: *Is this true of the word everywhere?* → global comment. *Does it quote a phrase or use words the learner lacks?* → `here`, or cut. *Does the global comment now read as a remark about this line?* → rewrite it.
+**Before adding a dialogue**, go through every token with a remark: _Is this true of the word everywhere?_ → global comment. _Does it quote a phrase or use words the learner lacks?_ → `here`, or cut. _Does the global comment now read as a remark about this line?_ → rewrite it.
 
 ## The player
 
@@ -116,7 +122,7 @@ A line is a unique recording — a whole sentence, one voice, sentence intonatio
 
 ### Record each speaker's whole part in ONE generation
 
-Never generate a line at a time: every call is an independent draw of timbre and energy, so eleven separately-generated lines are eleven slightly different voices, and the dialogue sounds assembled from different sessions. Put all of one speaker's lines in a single prompt separated by blank lines, generate a couple of takes, and pick a *read*, not a line. Mixing lines from two reads of the same prompt is fine by ear.
+Never generate a line at a time: every call is an independent draw of timbre and energy, so eleven separately-generated lines are eleven slightly different voices, and the dialogue sounds assembled from different sessions. Put all of one speaker's lines in a single prompt separated by blank lines, generate a couple of takes, and pick a _read_, not a line. Mixing lines from two reads of the same prompt is fine by ear.
 
 A whole-part read also lands within ±1 dB of the speaker's shipped mean with a single gain; standalone takes came out ~3 dB hotter and needed per-take gain.
 
@@ -132,7 +138,9 @@ Then cut the read into lines, which is the fiddly part:
   - **Merge two silences separated by a blip under 50 ms**: that's a breath inside a pause, and a cut landing on it puts the breath on the next line.
   - Measure segments **speech-only**, not mid-pause to mid-pause.
 - Detect gaps at `silencedetect=noise=-40dB:d=0.06`; `d=0.10` loses real boundaries in fast reads.
-- **Transcription is a dead end** — it returns no word timestamps.
+- **Transcription is a dead end** — `eleven_scribe_v1` returns the text, its language and one
+  total duration, nothing per word, and the connector exposes no forced-alignment tool.
+  Re-checked 2026-09-23.
 
 Report the **relative per-segment RMS** with each read (~0.15 on accepted reads) and treat it as a gate, with the two-sentence check as the safety net. Cumulative-position RMS is only as good as the expectations: a correct cut once scored worse than a wrong one. Still listen for a clipped first or last word.
 
@@ -140,7 +148,7 @@ Finally, run each cut line through the trailing-breath trim from [VOCABULARY_AUD
 
 ### Questions read as statements when the pitch peak lands on the wrong word
 
-Armenian marks a question *inside* a word with `՞` on the stressed syllable; the sentence still ends in `։`. The natural guess — that the trailing `։` makes the voice fall and kills the question — **is wrong**: the accepted questions all fall at the end, by 0.9 to 5.2 semitones, exactly like the statements.
+Armenian marks a question _inside_ a word with `՞` on the stressed syllable; the sentence still ends in `։`. The natural guess — that the trailing `։` makes the voice fall and kills the question — **is wrong**: the accepted questions all fall at the end, by 0.9 to 5.2 semitones, exactly like the statements.
 
 What separates them is **where the pitch peak sits**. Every accepted question peaks mid-line, on or beside its `՞`-marked word. A line that peaks on the final word carries a listing contour and reads as a statement.
 

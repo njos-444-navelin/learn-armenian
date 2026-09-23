@@ -6,12 +6,12 @@ This doc exists because most of what makes auth work lives in Supabase's dashboa
 
 ## Architecture
 
-1. **`hooks.server.ts`** — `sequence(localeHandle, supabaseHandle, authClaimsHandle)`. `supabaseHandle` builds a request-scoped client from cookies; `authClaimsHandle` puts `getClaims()` on `event.locals.claims` (`null` when signed out), on *every* request.
+1. **`hooks.server.ts`** — `sequence(localeHandle, supabaseHandle, authClaimsHandle)`. `supabaseHandle` builds a request-scoped client from cookies; `authClaimsHandle` puts `getClaims()` on `event.locals.claims` (`null` when signed out), on _every_ request.
 2. **`+layout.server.ts`** passes `claims` and the cookie jar down; **`+layout.ts`** creates the isomorphic client and returns `{ supabase, claims }`, which is what makes `page.data.claims` available everywhere.
 3. **`+layout.svelte`** subscribes to `onAuthStateChange` and calls `invalidate('supabase:auth')`, so `claims` stays current after sign-in or sign-out without a reload.
 4. **`account/+page.server.ts`** has the `login`, `magiclink` and `logout` actions; `signup` lives on `account/register/`, whose `load` redirects away if `claims` is already set.
 5. **`auth/confirm/+server.ts`** is the magic-link and email-change landing route. It verifies the token (`verifyOtp`) and redirects. It sits outside the `[lang=locale]` prefix because the email templates hardcode the path.
-6. **`change-password`, `change-email`, `delete`** each guard with `requireSignedIn()` in *both* `load` and the action. `delete` additionally uses the `service_role` client, since there's no self-service account deletion in the regular SDK.
+6. **`change-password`, `change-email`, `delete`** each guard with `requireSignedIn()` in _both_ `load` and the action. `delete` additionally uses the `service_role` client, since there's no self-service account deletion in the regular SDK.
 
 `routes/account/+page.server.ts` and `routes/auth/error/+page.server.ts` are locale-negotiation stubs, so a locale-less link from an email still lands on the right locale.
 
@@ -23,7 +23,8 @@ This doc exists because most of what makes auth work lives in Supabase's dashboa
 2. `next` is the original path plus `?resume=<action>`, URL-encoded as one query value.
 3. The `login` action redirects there **only if `isSafeInternalPath(next)` passes**. That check is load-bearing, not boilerplate: `next` comes from an editable query string, so an unchecked redirect would be an open redirect. It accepts a single leading `/` followed by a real locale segment, rejecting `//host/…` and absolute URLs.
 
-   **Gotcha:** the login form's `action` can't be a plain `?/login`. A query-only relative reference *replaces* the whole query string, dropping `next` before the POST. `loginActionHref` re-attaches it (`?next=…&/login`); SvelteKit reads any query key starting with `/` as the action name. Any form that both reads a query param and needs it to survive its own submission has to do the same.
+   **Gotcha:** the login form's `action` can't be a plain `?/login`. A query-only relative reference _replaces_ the whole query string, dropping `next` before the POST. `loginActionHref` re-attaches it (`?next=…&/login`); SvelteKit reads any query key starting with `/` as the action name. Any form that both reads a query param and needs it to survive its own submission has to do the same.
+
 4. The page's `$effect` checks `resume` against the action ids it knows, and calls `requestSubmit()` on the same form a real click would have submitted, so the replay reuses the existing submit, pending and toast logic. A `resumeHandled` flag keeps it to one replay, and `replaceState()` strips the param so a refresh doesn't fire it again.
 
 **Password sign-in only.** The magic-link landing page is fixed by the dashboard's email template (`next=/account` is a hardcoded literal required for PKCE verification), so a magic-link sign-in lands on the bare account page. A deliberate gap; closing it means reworking that template to carry a dynamic redirect.
@@ -37,7 +38,11 @@ None of this is set by code, and none of it is reachable through the Supabase MC
 1. **Providers → Email → "Confirm email" OFF.** The sign-up form expects `signUp` to return a live session and redirects straight to the signed-in view. Left on, sign-up silently does nothing from the user's perspective.
 2. **Emails → Templates → Magic Link** — replace the body with:
    ```html
-   <p><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/account">Sign in</a></p>
+   <p>
+   	<a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/account"
+   		>Sign in</a
+   	>
+   </p>
    ```
    The default `{{ .ConfirmationURL }}` only works with the older implicit flow; `@supabase/ssr` needs PKCE's token-hash form. `next=/account` must be that literal — `{{ .RedirectTo }}` resolves to a full URL and breaks `auth/confirm`, which does `redirect(303, next)` on a bare path.
 3. **URL Configuration → Site URL** — the real production origin. Every `{{ .SiteURL }}` in auth emails resolves from it.

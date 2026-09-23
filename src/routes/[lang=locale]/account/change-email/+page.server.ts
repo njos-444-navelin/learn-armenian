@@ -12,7 +12,10 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const email = String(formData.get('email') ?? '');
 
-		if (verified.email !== undefined && email.trim().toLowerCase() === verified.email.toLowerCase()) {
+		if (
+			verified.email !== undefined &&
+			email.trim().toLowerCase() === verified.email.toLowerCase()
+		) {
 			return fail(400, { action: 'changeEmail' as const, email, errorCode: 'same_email' });
 		}
 

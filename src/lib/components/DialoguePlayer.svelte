@@ -59,7 +59,13 @@
 		onCompleted: (tapped: readonly TappedWord[]) => void;
 	}
 
-	let { dialogue, number, completed, completeForm = $bindable(undefined), onCompleted }: Props = $props();
+	let {
+		dialogue,
+		number,
+		completed,
+		completeForm = $bindable(undefined),
+		onCompleted
+	}: Props = $props();
 
 	type Mode = 'listen' | 'read';
 	let mode = $state<Mode>('listen');
@@ -84,8 +90,10 @@
 		playback.preload();
 		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- a local accumulator, not state: built and drained in one synchronous pass inside this effect and never read again, so there is nothing for a mutation to invalidate.
 		const wordIds = new Set<string>();
-		for (const line of dialogue.lines) for (const token of line.tokens) if (token.wordId !== undefined) wordIds.add(token.wordId);
-		for (const wordId of wordIds) void fetch(wordAudioSrc(wordId), { priority: 'low' }).catch(() => undefined);
+		for (const line of dialogue.lines)
+			for (const token of line.tokens) if (token.wordId !== undefined) wordIds.add(token.wordId);
+		for (const wordId of wordIds)
+			void fetch(wordAudioSrc(wordId), { priority: 'low' }).catch(() => undefined);
 		return () => playback.destroy();
 	});
 
@@ -107,7 +115,10 @@
 		const word = token?.wordId === undefined ? undefined : getWord(token.wordId);
 		if (token === undefined || word === undefined) return;
 		if (tapped.some((entry) => entry.wordId === word.id)) return;
-		tapped = [...tapped, { wordId: word.id, armenian: word.armenian, gloss: t(token.gloss ?? word.translation) }];
+		tapped = [
+			...tapped,
+			{ wordId: word.id, armenian: word.armenian, gloss: t(token.gloss ?? word.translation) }
+		];
 	}
 
 	/** Closes the open popover on an outside click or Escape. A click on the
@@ -193,7 +204,8 @@
 				openTokenIndex={openToken?.line === lineIndex ? openToken.token : null}
 				onPlay={() => playback.playLine(lineIndex)}
 				onReveal={() => revealed.add(lineIndex)}
-				onToggleTranslation={() => (translated.has(lineIndex) ? translated.delete(lineIndex) : translated.add(lineIndex))}
+				onToggleTranslation={() =>
+					translated.has(lineIndex) ? translated.delete(lineIndex) : translated.add(lineIndex)}
 				onTapToken={(tokenIndex) => tapToken(lineIndex, tokenIndex)}
 			/>
 		{/each}
@@ -203,7 +215,15 @@
 	     rather than queueing up beside it (see Button.svelte). No width/height:
 	     the icon slot sizes it. -->
 	{#snippet doneIcon()}
-		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2.75"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			aria-hidden="true"
+		>
 			<circle cx="12" cy="12" r="9.5" />
 			<path d="m8 12.3 2.8 2.7L16.5 9" />
 		</svg>
@@ -213,12 +233,24 @@
 	     once done, the solid success state, which offers to undo. -->
 	<div class="complete">
 		{#if completed}
-			<Button type="button" variant="success" icon={doneIcon} onclick={() => (showRemoveModal = true)}>
+			<Button
+				type="button"
+				variant="success"
+				icon={doneIcon}
+				onclick={() => (showRemoveModal = true)}
+			>
 				{t(alreadyDoneLabel)}
 			</Button>
 		{:else}
 			<form method="POST" action="?/complete" use:enhance={submitComplete} bind:this={completeForm}>
-				<Button type="submit" variant="success-soft" lift icon={doneIcon} loading={completing} disabled={completing}>
+				<Button
+					type="submit"
+					variant="success-soft"
+					lift
+					icon={doneIcon}
+					loading={completing}
+					disabled={completing}
+				>
 					{t(markDoneLabel)}
 				</Button>
 			</form>
@@ -233,8 +265,24 @@
 					<!-- onclick, not onchange: a radio's change event doesn't fire when it's
 					     already checked, and Listen has to reset revealed lines even from
 					     inside Listen mode. Keyboard selection dispatches click too. -->
-					<input type="radio" name="dialogue-mode" value="listen" checked={mode === 'listen'} onclick={() => setMode('listen')} />
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14">
+					<input
+						type="radio"
+						name="dialogue-mode"
+						value="listen"
+						checked={mode === 'listen'}
+						onclick={() => setMode('listen')}
+					/>
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.75"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+						width="14"
+						height="14"
+					>
 						<path d="M4 15v-3a8 8 0 0 1 16 0v3" />
 						<path d="M4 15a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2z" />
 						<path d="M20 15a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2z" />
@@ -242,8 +290,24 @@
 					<span class="seg-text">{t(listenModeLabel)}</span>
 				</label>
 				<label class="seg-opt" class:checked={mode === 'read'}>
-					<input type="radio" name="dialogue-mode" value="read" checked={mode === 'read'} onchange={() => setMode('read')} />
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14">
+					<input
+						type="radio"
+						name="dialogue-mode"
+						value="read"
+						checked={mode === 'read'}
+						onchange={() => setMode('read')}
+					/>
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.75"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+						width="14"
+						height="14"
+					>
 						<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
 						<circle cx="12" cy="12" r="2.8" />
 					</svg>
@@ -251,7 +315,13 @@
 				</label>
 			</div>
 			{#if inProgress}
-				<button type="button" class="stop" aria-label={t(stopLabel)} onclick={() => playback.stop()} use:blurAfterClick>
+				<button
+					type="button"
+					class="stop"
+					aria-label={t(stopLabel)}
+					onclick={() => playback.stop()}
+					use:blurAfterClick
+				>
 					<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="14" height="14">
 						<rect x="6" y="6" width="12" height="12" rx="2.5" />
 					</svg>

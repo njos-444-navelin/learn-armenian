@@ -175,7 +175,10 @@ export function linesHeardLabel(count: number): Translated {
 	};
 }
 
-export const tappedWordsHeading: Translated = { en: 'Words you tapped', ru: 'Слова, которые Вы открыли' };
+export const tappedWordsHeading: Translated = {
+	en: 'Words you tapped',
+	ru: 'Слова, которые Вы открыли'
+};
 
 export const noTappedWordsMessage: Translated = {
 	en: 'You went through without opening a single word. Respect.',

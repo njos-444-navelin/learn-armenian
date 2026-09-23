@@ -47,14 +47,17 @@
 
 	// Computed once, not reactive: a transition's params are read when it's
 	// created. Same pattern as AlphabetTrainer.svelte's screen fade.
-	const cardFadeMs = browser && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 150;
+	const cardFadeMs =
+		browser && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 150;
 
 	function letterFor(id: string): AlphabetLetter | undefined {
 		return allLetters.find((entry) => entry.id === id);
 	}
 
 	function pairLabel(letter: AlphabetLetter): string {
-		return letter.uppercase === undefined ? letter.lowercase : `${letter.uppercase} ${letter.lowercase}`;
+		return letter.uppercase === undefined
+			? letter.lowercase
+			: `${letter.uppercase} ${letter.lowercase}`;
 	}
 
 	let promptText = $derived(
@@ -70,7 +73,9 @@
 	// Unlike the learn step's dots, these distinguish "already answered" from
 	// "the question you're on" — drill questions have a right/wrong outcome.
 	let dotStates = $derived<readonly DotState[]>(
-		Array.from({ length: total }, (_, n) => (n < index ? 'filled' : n === index ? 'current' : 'empty'))
+		Array.from({ length: total }, (_, n) =>
+			n < index ? 'filled' : n === index ? 'current' : 'empty'
+		)
 	);
 
 	/** For `case`, the glyph shown in the stage — the *opposite* form of
@@ -143,62 +148,78 @@
 
 	<div class="content-wrap">
 		<div class="stage">
-	<p class="prompt">{t(promptText)}</p>
+			<p class="prompt">{t(promptText)}</p>
 
-	{#if question.type === 'audio'}
-		<button type="button" class="audio-button" onclick={playAudio} use:blurAfterClick>
-			<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="40" height="40">
-				<path
-					d="M4 9.5v5h3.5L12 18V6L7.5 9.5H4Z"
-					fill="currentColor"
-					stroke="currentColor"
-					stroke-width="1.5"
-					stroke-linejoin="round"
-				/>
-				<path d="M16 9a4.5 4.5 0 0 1 0 6" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" />
-				<path d="M18.5 6.5a8 8 0 0 1 0 11" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" />
-			</svg>
-			<span class="audio-hint">{t(audioReplayHint)}</span>
-		</button>
-		<!-- preload="auto", unlike SpeakerButton's "none": this clip is certain
+			{#if question.type === 'audio'}
+				<button type="button" class="audio-button" onclick={playAudio} use:blurAfterClick>
+					<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="40" height="40">
+						<path
+							d="M4 9.5v5h3.5L12 18V6L7.5 9.5H4Z"
+							fill="currentColor"
+							stroke="currentColor"
+							stroke-width="1.5"
+							stroke-linejoin="round"
+						/>
+						<path
+							d="M16 9a4.5 4.5 0 0 1 0 6"
+							stroke="currentColor"
+							stroke-width="2.75"
+							stroke-linecap="round"
+						/>
+						<path
+							d="M18.5 6.5a8 8 0 0 1 0 11"
+							stroke="currentColor"
+							stroke-width="2.75"
+							stroke-linecap="round"
+						/>
+					</svg>
+					<span class="audio-hint">{t(audioReplayHint)}</span>
+				</button>
+				<!-- preload="auto", unlike SpeakerButton's "none": this clip is certain
 		     to be needed, since the question can't be answered without it. -->
-		<audio bind:this={audioEl} src={letterAudioSrc(question.letter.id)} preload="auto"></audio>
-	{:else}
-		<div class="glyph-circle">
-			<span lang="hy" class="glyph">{stageGlyph}</span>
-		</div>
-	{/if}
+				<audio bind:this={audioEl} src={letterAudioSrc(question.letter.id)} preload="auto"></audio>
+			{:else}
+				<div class="glyph-circle">
+					<span lang="hy" class="glyph">{stageGlyph}</span>
+				</div>
+			{/if}
 		</div>
 
-		<form method="POST" action="?/answer" use:enhance={submitAnswer()} class="options" class:glyph-options={question.type !== 'sound'}>
-	<input type="hidden" name="letterId" value={question.letter.id} />
-	{#each question.optionIds as optionId (optionId)}
-		{@const optionLetter = letterFor(optionId)}
-		{@const isCorrect = optionId === question.letter.id}
-		{@const isPicked = optionId === picked}
-		{#if optionLetter !== undefined}
-			<button
-				type="submit"
-				name="chosenId"
-				value={optionId}
-				disabled={picked !== null}
-				class="option"
-				class:reveal-correct={picked !== null && isCorrect}
-				class:reveal-incorrect={picked !== null && isPicked && !isCorrect}
-			>
-				{#if question.type === 'sound'}
-					<span class="option-text">{t(optionLetter.voicingLabel)}</span>
-				{:else}
-					<span lang="hy" class="option-glyph">{optionGlyph(optionLetter)}</span>
+		<form
+			method="POST"
+			action="?/answer"
+			use:enhance={submitAnswer()}
+			class="options"
+			class:glyph-options={question.type !== 'sound'}
+		>
+			<input type="hidden" name="letterId" value={question.letter.id} />
+			{#each question.optionIds as optionId (optionId)}
+				{@const optionLetter = letterFor(optionId)}
+				{@const isCorrect = optionId === question.letter.id}
+				{@const isPicked = optionId === picked}
+				{#if optionLetter !== undefined}
+					<button
+						type="submit"
+						name="chosenId"
+						value={optionId}
+						disabled={picked !== null}
+						class="option"
+						class:reveal-correct={picked !== null && isCorrect}
+						class:reveal-incorrect={picked !== null && isPicked && !isCorrect}
+					>
+						{#if question.type === 'sound'}
+							<span class="option-text">{t(optionLetter.voicingLabel)}</span>
+						{:else}
+							<span lang="hy" class="option-glyph">{optionGlyph(optionLetter)}</span>
+						{/if}
+						{#if picked !== null && isCorrect}
+							<span class="sr-only">{t(correctAnswerHint)}</span>
+						{:else if picked !== null && isPicked && !isCorrect}
+							<span class="sr-only">{t(incorrectAnswerHint)}</span>
+						{/if}
+					</button>
 				{/if}
-				{#if picked !== null && isCorrect}
-					<span class="sr-only">{t(correctAnswerHint)}</span>
-				{:else if picked !== null && isPicked && !isCorrect}
-					<span class="sr-only">{t(incorrectAnswerHint)}</span>
-				{/if}
-			</button>
-		{/if}
-	{/each}
+			{/each}
 		</form>
 	</div>
 
@@ -208,7 +229,9 @@
 				<div class="footer-card" in:fade={{ duration: cardFadeMs }}>
 					<p class="feedback" aria-live="polite">{t(skippedFeedbackLabel)}</p>
 					<div class="skip-actions">
-						<button type="button" class="mute" onclick={muteAndContinue}>{t(muteAudioLabel(AUDIO_MUTE_MINUTES))}</button>
+						<button type="button" class="mute" onclick={muteAndContinue}
+							>{t(muteAudioLabel(AUDIO_MUTE_MINUTES))}</button
+						>
 						<Button type="button" variant="primary" onclick={onNext}>{t(nextLabel)}</Button>
 					</div>
 				</div>

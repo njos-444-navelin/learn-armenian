@@ -52,7 +52,14 @@
 	<CharacterAvatar {character} />
 	<div class="stack">
 		<div class="bubble" class:playing class:own={side === 'end'}>
-			<button type="button" class="play" class:active={playing} aria-label={t(playLineLabel)} onclick={onPlay} use:blurAfterClick>
+			<button
+				type="button"
+				class="play"
+				class:active={playing}
+				aria-label={t(playLineLabel)}
+				onclick={onPlay}
+				use:blurAfterClick
+			>
 				{#if playing}
 					<span class="wave" aria-hidden="true">
 						<span></span><span></span><span></span><span></span>
@@ -66,8 +73,18 @@
 							stroke-width="1.5"
 							stroke-linejoin="round"
 						/>
-						<path d="M16 9a4.5 4.5 0 0 1 0 6" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" />
-						<path d="M18.5 6.5a8 8 0 0 1 0 11" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" />
+						<path
+							d="M16 9a4.5 4.5 0 0 1 0 6"
+							stroke="currentColor"
+							stroke-width="2.75"
+							stroke-linecap="round"
+						/>
+						<path
+							d="M18.5 6.5a8 8 0 0 1 0 11"
+							stroke="currentColor"
+							stroke-width="2.75"
+							stroke-linecap="round"
+						/>
 					</svg>
 				{/if}
 			</button>
@@ -110,8 +127,24 @@
 
 			<div class="side-actions">
 				{#if !shown}
-					<button type="button" class="mini" aria-label={t(revealLineLabel)} onclick={onReveal} use:blurAfterClick>
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="16" height="16">
+					<button
+						type="button"
+						class="mini"
+						aria-label={t(revealLineLabel)}
+						onclick={onReveal}
+						use:blurAfterClick
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.75"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+							width="16"
+							height="16"
+						>
 							<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
 							<circle cx="12" cy="12" r="3" />
 						</svg>
@@ -126,7 +159,17 @@
 						onclick={onToggleTranslation}
 						use:blurAfterClick
 					>
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="16" height="16">
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.75"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+							width="16"
+							height="16"
+						>
 							<path d="m5 8 6 6" />
 							<path d="m4 14 6-6 2-3" />
 							<path d="M2 5h12" />

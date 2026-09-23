@@ -51,7 +51,14 @@
 		{:else if icon !== undefined}
 			{@render icon()}
 		{:else}
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">
+			<svg
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2.75"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
 				<path d="M5 12h14" />
 				<path d="m12 5 7 7-7 7" />
 			</svg>
@@ -93,7 +100,9 @@
 		font: inherit;
 		text-decoration: none;
 		cursor: pointer;
-		box-shadow: var(--shadow-md), 0 0 0 0 color-mix(in srgb, var(--color-primary) 35%, transparent);
+		box-shadow:
+			var(--shadow-md),
+			0 0 0 0 color-mix(in srgb, var(--color-primary) 35%, transparent);
 		transition: background-color var(--transition-fast);
 		animation: cta-pulse 2.6s ease-out infinite;
 	}
@@ -114,11 +123,15 @@
 	   one attention pulse per cycle, not a continuous breath. */
 	@keyframes cta-pulse {
 		0% {
-			box-shadow: var(--shadow-md), 0 0 0 0 color-mix(in srgb, var(--color-primary) 35%, transparent);
+			box-shadow:
+				var(--shadow-md),
+				0 0 0 0 color-mix(in srgb, var(--color-primary) 35%, transparent);
 		}
 		40%,
 		100% {
-			box-shadow: var(--shadow-md), 0 0 0 14px color-mix(in srgb, var(--color-primary) 0%, transparent);
+			box-shadow:
+				var(--shadow-md),
+				0 0 0 14px color-mix(in srgb, var(--color-primary) 0%, transparent);
 		}
 	}
 

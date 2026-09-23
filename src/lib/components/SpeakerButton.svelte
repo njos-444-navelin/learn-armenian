@@ -25,7 +25,13 @@
 	}
 </script>
 
-<button type="button" class="speaker" onclick={play} aria-label={t(playPronunciationLabel)} use:blurAfterClick>
+<button
+	type="button"
+	class="speaker"
+	onclick={play}
+	aria-label={t(playPronunciationLabel)}
+	use:blurAfterClick
+>
 	<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="20" height="20">
 		<path
 			d="M4 9.5v5h3.5L12 18V6L7.5 9.5H4Z"
@@ -34,8 +40,18 @@
 			stroke-width="1.5"
 			stroke-linejoin="round"
 		/>
-		<path d="M16 9a4.5 4.5 0 0 1 0 6" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" />
-		<path d="M18.5 6.5a8 8 0 0 1 0 11" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" />
+		<path
+			d="M16 9a4.5 4.5 0 0 1 0 6"
+			stroke="currentColor"
+			stroke-width="2.75"
+			stroke-linecap="round"
+		/>
+		<path
+			d="M18.5 6.5a8 8 0 0 1 0 11"
+			stroke="currentColor"
+			stroke-width="2.75"
+			stroke-linecap="round"
+		/>
 	</svg>
 </button>
 <audio bind:this={audio} {src} preload="none"></audio>

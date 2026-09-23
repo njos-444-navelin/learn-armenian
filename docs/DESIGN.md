@@ -20,13 +20,13 @@ A `--color-surface` element darkens that same colour on hover (`--color-surface-
 
 ### The neutral ramp reads cool — reserve it for neutral meaning
 
-Same fact, generalized: don't use `--color-neutral-*` as a default fill just because nothing else was specified. It's right where the *meaning* is neutral or informational and a warm tone would misrepresent it (`--color-toast-info`). It's wrong as a resting state — the letter grid's unmet tiles read as a cool grey wash among sage tiles until they became `--color-neutral-100`, close enough to the page's own ground to read as blank. **A "nothing yet" state wants the page's ground, not a step off the neutral ramp.**
+Same fact, generalized: don't use `--color-neutral-*` as a default fill just because nothing else was specified. It's right where the _meaning_ is neutral or informational and a warm tone would misrepresent it (`--color-toast-info`). It's wrong as a resting state — the letter grid's unmet tiles read as a cool grey wash among sage tiles until they became `--color-neutral-100`, close enough to the page's own ground to read as blank. **A "nothing yet" state wants the page's ground, not a step off the neutral ramp.**
 
 ### Icon-badge circles inside a card: `--color-background`
 
 A round badge inside a `--color-surface` card fills with the page's own cream — the lighter-than-surface contrast that makes a badge read as a layer on top. `--color-neutral-200` sits close in hex but reads as a faint grey mismatch once two badge styles are seen in sequence. A badge needing its own treatment starts from `--color-background` and varies something other than the base token.
 
-Exception: [`VocabularyDeckIcon.svelte`](../src/lib/components/VocabularyDeckIcon.svelte)'s fill *is* the meaning — solid terracotta with a cream glyph for a deck in the collection, warm sand for one not added. That's the small-element tint allowance below, applied to a badge that carries state.
+Exception: [`VocabularyDeckIcon.svelte`](../src/lib/components/VocabularyDeckIcon.svelte)'s fill _is_ the meaning — solid terracotta with a cream glyph for a deck in the collection, warm sand for one not added. That's the small-element tint allowance below, applied to a badge that carries state.
 
 ### A `--color-primary` border means "selected", not "hovered"
 
@@ -65,7 +65,7 @@ Controls use `--radius-pill`; cards use `--radius-lg`; small circular badges use
 A large radius carves a real bite out of each corner: content padded less than the radius sits inside the curve. It's easy to miss, because a short centred line looks fine at a padding that visibly pinches left-aligned text or a badge.
 
 - **A rounded rectangle** wants padding at or near the radius itself, not a fraction of it — `--space-5` (26.4px) for `--radius-lg` (28px).
-- **A pill**'s horizontal padding must clear the cap radius, which is half the element's *height*, not a function of its font size. A two-line pill ~70px tall needs `--space-6`, where a single-line one gets away with `--space-4`. Vertical padding isn't constrained — the edges between the caps are flat.
+- **A pill**'s horizontal padding must clear the cap radius, which is half the element's _height_, not a function of its font size. A two-line pill ~70px tall needs `--space-6`, where a single-line one gets away with `--space-4`. Vertical padding isn't constrained — the edges between the caps are flat.
 - Check against the radius value, not against whatever token a neighbour uses.
 
 ## Icons
@@ -76,7 +76,7 @@ Inline SVGs, stroke-based, `stroke-width="2.75"`, round caps and joins. Where a 
 
 **Icon buttons are flat:** a `--color-surface` fill, no border, no shadow. Surface-vs-background is already enough tonal difference. If one looks like it's floating unclearly, strengthen the fill rather than adding an edge back.
 
-**The `/learn` hub icons are a matched set** — same 24×24 viewBox, stroke width, caps and joins, no fill — because they sit side by side, where any mismatch reads immediately. Icon identity follows the *feature*, not the menu slot: when dialogues took the speech bubble, vocabulary got a new deck-of-cards icon rather than the two swapping meanings.
+**The `/learn` hub icons are a matched set** — same 24×24 viewBox, stroke width, caps and joins, no fill — because they sit side by side, where any mismatch reads immediately. Icon identity follows the _feature_, not the menu slot: when dialogues took the speech bubble, vocabulary got a new deck-of-cards icon rather than the two swapping meanings.
 
 The `Ա` glyph is hand-traced from the printed letter. If it's ever redrawn: reference a **sans** face (Noto Sans Armenian), since the serif's flourish shaping isn't structural to the letter; and **measure rather than eyeball** — rendering the glyph to a canvas and scanning rows put the hook's branch point at ~67% of the letter's height, where eyeballing had put it at ~52%, which gave it a long droopy tail.
 
@@ -96,13 +96,13 @@ The `Ա` glyph is hand-traced from the printed letter. If it's ever redrawn: ref
 
 Every `z-index` comes from one scale in `tokens.css`, never a bare number:
 
-| token | value | what sits there |
-|---|---|---|
-| `--z-floating-bar` | 10 | the fixed action bar |
-| `--z-popover` | 15 | transient UI the user just opened |
-| `--z-bubble-link` | 20 | the corner bubble links |
-| `--z-toast` | 50 | toasts |
-| `--z-page-top` | 100 | skip link, navigation progress |
+| token              | value | what sits there                   |
+| ------------------ | ----- | --------------------------------- |
+| `--z-floating-bar` | 10    | the fixed action bar              |
+| `--z-popover`      | 15    | transient UI the user just opened |
+| `--z-bubble-link`  | 20    | the corner bubble links           |
+| `--z-toast`        | 50    | toasts                            |
+| `--z-page-top`     | 100   | skip link, navigation progress    |
 
 Native `<dialog>` modals sit in the browser's top layer and need no entry. The order encodes one decision: something just opened outranks persistent chrome, and both sit under notifications. The scale exists because the popover (8) and the bar (10) were numbered independently in different files, so a popover on a dialogue's last lines drew underneath the bar.
 
@@ -111,13 +111,13 @@ Native `<dialog>` modals sit in the browser's top layer and need no entry. The o
 - **Hover transitions** use `--transition-fast` (150ms) on whatever property changes. Every custom interactive element needs its own explicit `transition`; it isn't inherited, and a hover colour change without one reads as a flicker.
 - **Focus rings are never animated** — [Conventions §14](CONVENTIONS.md#14-focus-rings-are-never-animated--no-transition-on-outlineoutline-color).
 - **Every modal fades and pops, in and out**, enforced inside [`Modal.svelte`](../src/lib/components/Modal.svelte) so a caller can't opt out. Reduced motion keeps the fade and drops the movement.
-- **Primary button physicality**: `--shadow-sm` at rest, `--shadow-md` plus a 2px lift on hover, back to rest on press. Another variant opts in with `lift` when it *is* the screen's commit action. Disabled drops both; reduced motion keeps the shadow, drops the transform. The lift needs its invisible `::after` strip below the button: without it a cursor approaching from below triggers hover, watches the button rise away, loses hover, and flickers. Any future hover-triggered `transform` needs the same buffer.
+- **Primary button physicality**: `--shadow-sm` at rest, `--shadow-md` plus a 2px lift on hover, back to rest on press. Another variant opts in with `lift` when it _is_ the screen's commit action. Disabled drops both; reduced motion keeps the shadow, drops the transform. The lift needs its invisible `::after` strip below the button: without it a cursor approaching from below triggers hover, watches the button rise away, loses hover, and flickers. Any future hover-triggered `transform` needs the same buffer.
 - **One call to action per screen pulses, through one component** — [`PulseCta.svelte`](../src/lib/components/PulseCta.svelte), a full-width primary pill in a `<FloatingActionBar bare>`, whose own pill and shadow are the container (a second visible box around it read as a button in a tray). It pings once rather than throbbing, and stops under reduced motion and while busy, where the spinner is the signal and a pulse on an untappable control is a lie.
 - **Page-to-page transitions** are a native View Transition wired through `onNavigate`, cross-fading at 185ms. Feature-detected, and skipped under reduced motion by an explicit JS check — `::view-transition-*` pseudo-elements sit outside the DOM tree, so `app.css`'s blanket reduced-motion rule can't reach them.
 - **The navigation loading bar waits before showing anything**, because most navigations here resolve inside that delay and a bar that flashes on every click reads as noise. The timings and the trickle are in [`NavigationProgress.svelte`](../src/lib/components/NavigationProgress.svelte).
 - **The bar is a pixel ornament in the flag's colours**, a 12px band of 4px cells drawn as a repeating SVG pattern anchored at the left edge, so the tip advances over a fixed design. The grid is drawn in a comment in [`NavigationProgress.svelte`](../src/lib/components/NavigationProgress.svelte) and the rects are generated from it — edit the grid first. Two load-bearing parts: the **field is `--color-primary` because that's the PWA's `theme_color`**, so on an Android install the band reads as the status bar continuing into the page — any other field colour draws a clashing seam right under it; and the **flag's red and blue are fixed tokens**, muted for the warm palette, deliberately not ramp steps, shared with [`Flagmark.svelte`](../src/lib/components/Flagmark.svelte). 12px is what makes a pattern legible at all; 3px can't hold one.
 - **A two-way crossfade inside a centred flex column shifts the page.** Both screens are briefly in the DOM, doubling the column's height. Use `in:` only, so the outgoing screen is removed instantly. A genuine crossfade has to happen out of normal flow.
-- **A clip box for a slide-in must reveal the distance travelled**, and the *page*, not a tight local clip, should be what prevents overflow. The flashcard's entrance was invisible for most of its 380ms because `.card-clip` was sized for the resting shadow. PageShell's `<main>` now clips at the viewport edge, so a local clip can be sized generously for the animation. Verify this kind of thing with a real mid-transition screenshot: JS frame sampling of the transform repeatedly misreported it as stuck.
+- **A clip box for a slide-in must reveal the distance travelled**, and the _page_, not a tight local clip, should be what prevents overflow. The flashcard's entrance was invisible for most of its 380ms because `.card-clip` was sized for the resting shadow. PageShell's `<main>` now clips at the viewport edge, so a local clip can be sized generously for the animation. Verify this kind of thing with a real mid-transition screenshot: JS frame sampling of the transform repeatedly misreported it as stuck.
 - **An absolutely positioned child resolves `inset` against its nearest positioned ancestor**, which may not be the box it conceptually fills — so a clip box and the element inside it have to mirror each other's insets on every side, not just the one being changed.
 - **Reserve a fixed footer's height for its tallest state.** Sizing `AlphabetDrillQuestion`'s footer to its shortest state meant revealing the feedback card changed the footer's height, which moved the centred content above it too. The reserved height lives on `.footer`, not on the card that changes size, so the card can skip rendering entirely for a state with nothing to show.
 - **A fixed element's empty box still blocks clicks.** [`FloatingActionBar`](../src/lib/components/FloatingActionBar.svelte)'s `.bar` is `pointer-events: none`, with real `button`/`a`/`form` descendants getting it back. Fixed once, generally: any future child just needs to be a real interactive element.
@@ -128,13 +128,13 @@ Native `<dialog>` modals sit in the browser's top layer and need no entry. The o
 
 ## Where things live
 
-| What | File |
-| --- | --- |
-| Every design token | [`tokens.css`](../src/lib/styles/tokens.css) |
-| Global element defaults, view-transition timing, reduced motion | [`app.css`](../src/app.css) |
-| Buttons | [`Button.svelte`](../src/lib/components/Button.svelte) |
-| The pulsing call-to-action pill | [`PulseCta.svelte`](../src/lib/components/PulseCta.svelte) |
-| Top-of-screen icon buttons | [`TopBubbleLink.svelte`](../src/lib/components/TopBubbleLink.svelte) |
-| Brand mark | [`Flagmark.svelte`](../src/lib/components/Flagmark.svelte) |
-| Page transition wiring | [`+layout.svelte`](../src/routes/+layout.svelte) |
-| Navigation loading bar | [`NavigationProgress.svelte`](../src/lib/components/NavigationProgress.svelte) |
+| What                                                            | File                                                                           |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Every design token                                              | [`tokens.css`](../src/lib/styles/tokens.css)                                   |
+| Global element defaults, view-transition timing, reduced motion | [`app.css`](../src/app.css)                                                    |
+| Buttons                                                         | [`Button.svelte`](../src/lib/components/Button.svelte)                         |
+| The pulsing call-to-action pill                                 | [`PulseCta.svelte`](../src/lib/components/PulseCta.svelte)                     |
+| Top-of-screen icon buttons                                      | [`TopBubbleLink.svelte`](../src/lib/components/TopBubbleLink.svelte)           |
+| Brand mark                                                      | [`Flagmark.svelte`](../src/lib/components/Flagmark.svelte)                     |
+| Page transition wiring                                          | [`+layout.svelte`](../src/routes/+layout.svelte)                               |
+| Navigation loading bar                                          | [`NavigationProgress.svelte`](../src/lib/components/NavigationProgress.svelte) |

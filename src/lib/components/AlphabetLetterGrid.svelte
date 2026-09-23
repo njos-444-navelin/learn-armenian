@@ -25,7 +25,9 @@
 	}
 
 	function pairLabel(letter: AlphabetLetter): string {
-		return letter.uppercase === undefined ? letter.lowercase : `${letter.uppercase} ${letter.lowercase}`;
+		return letter.uppercase === undefined
+			? letter.lowercase
+			: `${letter.uppercase} ${letter.lowercase}`;
 	}
 
 	function glyphFor(letter: AlphabetLetter): string {

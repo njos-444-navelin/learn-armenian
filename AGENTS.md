@@ -6,7 +6,7 @@ There is no test suite and no CI. `npm run check` and `npm run lint` are the onl
 
 ## Comments
 
-A comment explains a decision about *this code* that the code itself can't show: a non-obvious constraint, a subtle invariant, why an odd-looking line is deliberate. Nothing else.
+A comment explains a decision about _this code_ that the code itself can't show: a non-obvious constraint, a subtle invariant, why an odd-looking line is deliberate. Nothing else.
 
 - Don't restate what the code does.
 - Don't document product decisions, alternatives considered, or history. Code isn't product documentation — that belongs in `docs/` or the commit message.

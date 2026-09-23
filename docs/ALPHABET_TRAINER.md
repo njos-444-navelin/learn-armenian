@@ -37,7 +37,7 @@ A letter with no row is level 0, so **level 0 is overloaded**: never seen and se
 [`session.ts`](../src/lib/alphabet/session.ts)'s `buildSession()` runs client-side from levels already in `page.data`, and is **not pure** — it shuffles. Calling it for the Practice button's preview and again on press picks different letters, which is fine because the preview only shows counts.
 
 - **Unmet letters** (level 0), up to 5, become the learn queue, each with its own intro step. Which 5 is random: every level-0 letter is equally unknown.
-- **Weakest met letters** fill the rest — 3 alongside unmet ones, or 8 when nothing is left to introduce. Weaker always comes before stronger, but *within a tie* the choice rotates, so ten letters stuck at level 1 don't produce the same 3 forever. The mechanism: shuffle once up front, then sort by level — `.sort()` is stable, so same-level letters keep their shuffled order instead of snapping back to alphabet order.
+- **Weakest met letters** fill the rest — 3 alongside unmet ones, or 8 when nothing is left to introduce. Weaker always comes before stronger, but _within a tie_ the choice rotates, so ten letters stuck at level 1 don't produce the same 3 forever. The mechanism: shuffle once up front, then sort by level — `.sort()` is stable, so same-level letters keep their shuffled order instead of snapping back to alphabet order.
 - The drill queue is `[...unmet, ...weakest]`, each letter once, no requeuing a missed letter within a session. A wrong answer just ends the session at a lower level and comes back first next time.
 
 ## Drill questions: three types, confusable-aware
@@ -52,7 +52,7 @@ Wrong options aren't random: [`alphabetConfusables.ts`](../src/lib/content/alpha
 
 A `sound` option shows `voicingLabel` alone; the learn step and sheet show both halves through `fullVoicing()`. The split exists so a tight option button never has to fit the full explanation.
 
-**A confusable pair needs two genuinely different `voicingLabel`s, and two different `transliteration`s.** Both fields are short, glance-able tags, and both had the same bug independently: `vo` (Ո) and `yech` (Ե) are position-dependent and were labelled with their *mid-word* sound, identical to their own listed confusables' labels — unguessable once a question shows the label alone. Relabelled to their distinguishing sound (`"vo"`, `"ye"`). The same held for `transliteration`: `vo`/`o` shared a tag in both languages. When adding a pair to `CONFUSABLE_PAIRS`, check both fields. Two *unrelated* letters sharing a tag is a coincidence worth living with — `xeh`/`ho` both read `х` in Russian, which has no separate letter for either sound — but two letters listed as each other's confusable sharing one defeats the point.
+**A confusable pair needs two genuinely different `voicingLabel`s, and two different `transliteration`s.** Both fields are short, glance-able tags, and both had the same bug independently: `vo` (Ո) and `yech` (Ե) are position-dependent and were labelled with their _mid-word_ sound, identical to their own listed confusables' labels — unguessable once a question shows the label alone. Relabelled to their distinguishing sound (`"vo"`, `"ye"`). The same held for `transliteration`: `vo`/`o` shared a tag in both languages. When adding a pair to `CONFUSABLE_PAIRS`, check both fields. Two _unrelated_ letters sharing a tag is a coincidence worth living with — `xeh`/`ho` both read `х` in Russian, which has no separate letter for either sound — but two letters listed as each other's confusable sharing one defeats the point.
 
 An `audio` question's clip uses `preload="auto"` (not `SpeakerButton`'s `none`) and autoplays on mount. Both are safe because the question can't be answered without hearing it, and the component always remounts in response to a click, which keeps it inside the autoplay-permission window; `playAudio()`'s `.catch()` covers a block anyway.
 
@@ -60,7 +60,7 @@ An `audio` question's clip uses `preload="auto"` (not `SpeakerButton`'s `none`) 
 
 "I can't listen right now" advances without touching the level — nothing is logged, and the summary omits that letter entirely, since the summary is framed as "which letters moved".
 
-Skipping *suggests* muting audio questions for 15 minutes; only the explicit button starts it. While muted, `buildQuestionFor()` substitutes `sound` for any `audio` slot, so a muted learner never sees one rather than skipping again. [`audioMute.ts`](../src/lib/alphabet/audioMute.ts) uses `localStorage`, since the duration outlives the tab, and clears its own key on expiry — the round-robin's second question is always `audio`, so that happens at least once per session.
+Skipping _suggests_ muting audio questions for 15 minutes; only the explicit button starts it. While muted, `buildQuestionFor()` substitutes `sound` for any `audio` slot, so a muted learner never sees one rather than skipping again. [`audioMute.ts`](../src/lib/alphabet/audioMute.ts) uses `localStorage`, since the duration outlives the tab, and clears its own key on expiry — the round-robin's second question is always `audio`, so that happens at least once per session.
 
 ## The word library
 
@@ -74,11 +74,11 @@ Three entries were swapped after audio review — see [ALPHABET_AUDIO.md](ALPHAB
 
 Grading is optimistic, the same documented exception as the vocabulary trainer (Conventions §8): picking an option updates the UI and in-memory levels at once — right/wrong is a pure client-side comparison — while a hidden form submits in the background. A failed save toasts and doesn't roll back; the next review of that letter self-corrects the stored value.
 
-The `answer` action recomputes correctness from `letterId` + `chosenId` rather than trusting a client verdict. A forged request can still move *a* letter's level, but only by naming a real option.
+The `answer` action recomputes correctness from `letterId` + `chosenId` rather than trusting a client verdict. A forged request can still move _a_ letter's level, but only by naming a real option.
 
 **Two bugs worth keeping in mind**, from when the save-failed toast first appeared:
 
-- **The migration was never applied.** Distinguish this by *error code*, not status: a table that exists but denies anon access returns `401`/`42501`; one that was never created returns `404`/`PGRST205`. That's a read-only check needing no `service_role`:
+- **The migration was never applied.** Distinguish this by _error code_, not status: a table that exists but denies anon access returns `401`/`42501`; one that was never created returns `404`/`PGRST205`. That's a read-only check needing no `service_role`:
   ```bash
   curl "$PUBLIC_SUPABASE_URL/rest/v1/<table>?select=*&limit=1" \
     -H "apikey: $PUBLIC_SUPABASE_ANON_KEY" -H "Authorization: Bearer $PUBLIC_SUPABASE_ANON_KEY"
@@ -96,11 +96,11 @@ The shared [`AlphabetProgressHeader.svelte`](../src/lib/components/AlphabetProgr
 
 **Centring that inner wrapper isn't always right.** For a question with less content than the tallest case, centring split the slack above and below, and the lower half read as a gap before the floating footer — the one edge next to something visible. The drill uses `justify-content: flex-end`, moving the slack up under the header where nothing sits beside it.
 
-**Sizing by viewport width alone can overflow a short viewport, and a wide one.** The letter circles clamp against `vw` with no reference to height, so a wide-but-short phone needs a `@media (max-height: 700px)` step. The grid hits the mirror image: `auto-fill` stretched each tile to its track, so a *wider* phone made tiles — and, via `aspect-ratio`, six rows of them — taller than intended. Capping `.tile`'s `max-width` at the same `3rem` floor `auto-fill` uses (plus `justify-items: center`) stops that without changing the column count.
+**Sizing by viewport width alone can overflow a short viewport, and a wide one.** The letter circles clamp against `vw` with no reference to height, so a wide-but-short phone needs a `@media (max-height: 700px)` step. The grid hits the mirror image: `auto-fill` stretched each tile to its track, so a _wider_ phone made tiles — and, via `aspect-ratio`, six rows of them — taller than intended. Capping `.tile`'s `max-width` at the same `3rem` floor `auto-fill` uses (plus `justify-items: center`) stops that without changing the column count.
 
 **A fixed footer needs an opaque-enough background.** Transparent is fine in flow; fixed, it lets scrolled-up content show through. Three tokens, each a different opacity for a different context: `--color-background` (opaque, where the button must read clearly), `--color-background-translucent` (94%, for `.skip`, which benefits from reading less solid), and `--color-background-translucent-soft` (86%, with a softer border, for `.footer-card`, a panel wrapping several pieces).
 
-`.footer-card` exists because wrapping *everything* the footer might show in one background rendered an empty bordered box for the states with nothing to show yet. The card renders only for the states with feedback text; the bare skip button and the "nothing yet" state sit directly in `.footer`, which is what reserves the constant height.
+`.footer-card` exists because wrapping _everything_ the footer might show in one background rendered an empty bordered box for the states with nothing to show yet. The card renders only for the states with feedback text; the bare skip button and the "nothing yet" state sit directly in `.footer`, which is what reserves the constant height.
 
 ## The floating footer buttons: three extracted to `<Button>`, three kept bespoke
 

@@ -34,7 +34,8 @@ const NEW_CARDS_PER_SESSION = 20;
  */
 const DUE_CARDS_PER_ROUND = 60;
 
-const PROGRESS_COLUMNS = 'deck_id, word_id, phase, step, interval_days, ease_factor, due_at, reps, lapses';
+const PROGRESS_COLUMNS =
+	'deck_id, word_id, phase, step, interval_days, ease_factor, due_at, reps, lapses';
 
 /**
  * The most overdue cards, chosen and sorted by the database: `lte('due_at')`

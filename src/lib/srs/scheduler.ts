@@ -139,7 +139,12 @@ function gradeReviewPhase(state: CardState, grade: Grade, now: Date): CardState 
 		};
 	}
 	if (grade === 'good') {
-		return { ...state, intervalDays: goodDays, dueAt: addDays(now, goodDays), reps: state.reps + 1 };
+		return {
+			...state,
+			intervalDays: goodDays,
+			dueAt: addDays(now, goodDays),
+			reps: state.reps + 1
+		};
 	}
 
 	// easy
@@ -148,7 +153,13 @@ function gradeReviewPhase(state: CardState, grade: Grade, now: Date): CardState 
 		MAX_INTERVAL_DAYS,
 		Math.max(goodDays + MIN_GRADE_SEPARATION_DAYS, state.intervalDays * easeFactor * EASY_BONUS)
 	);
-	return { ...state, easeFactor, intervalDays: easyDays, dueAt: addDays(now, easyDays), reps: state.reps + 1 };
+	return {
+		...state,
+		easeFactor,
+		intervalDays: easyDays,
+		dueAt: addDays(now, easyDays),
+		reps: state.reps + 1
+	};
 }
 
 /**

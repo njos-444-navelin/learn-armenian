@@ -214,7 +214,11 @@
 		<p>{t(removeDeckMessage(confirmDeck.title))}</p>
 		<div class="modal-actions">
 			<Button variant="secondary" onclick={() => (confirmDeckId = null)}>{t(cancelLabel)}</Button>
-			<form method="POST" action="?/removeFromCollection" use:enhance={submitRemove(confirmDeck.id)}>
+			<form
+				method="POST"
+				action="?/removeFromCollection"
+				use:enhance={submitRemove(confirmDeck.id)}
+			>
 				<input type="hidden" name="deckId" value={confirmDeck.id} />
 				<Button
 					type="submit"
@@ -278,7 +282,8 @@
 		gap: var(--space-3);
 		/* Clears the absolutely-positioned .action circle so text never renders
 		   underneath it — see docs/DESIGN.md's padding-vs-radius note. */
-		padding: var(--space-3) calc(var(--tap-target-min) + var(--space-4)) var(--space-3) var(--space-4);
+		padding: var(--space-3) calc(var(--tap-target-min) + var(--space-4)) var(--space-3)
+			var(--space-4);
 		border: 1.5px solid var(--color-border-soft);
 		border-radius: var(--radius-lg);
 		background: transparent;

@@ -1,6 +1,6 @@
 # Word pronunciation audio
 
-Every word in the library is voiced, and the same clip plays wherever the word appears. Most of what makes this work happens outside the codebase — an ElevenLabs generation plus an `ffmpeg` transcode — before a file reaches git. **Adding a word means following the checklist at the bottom; there is no missing-audio fallback.** Dialogue *lines* have their own checklist in [DIALOGUES.md](DIALOGUES.md).
+Every word in the library is voiced, and the same clip plays wherever the word appears. Most of what makes this work happens outside the codebase — an ElevenLabs generation plus an `ffmpeg` transcode — before a file reaches git. **Adding a word means following the checklist at the bottom; there is no missing-audio fallback.** Dialogue _lines_ have their own checklist in [DIALOGUES.md](DIALOGUES.md).
 
 ## Where the files live
 
@@ -37,7 +37,7 @@ Generated with the ElevenLabs connector's `creative_generate_speech`.
 
 The engine reads the literal spelling and gets this rule wrong, silently dropping the /v/. **Respell for the prompt only:** send `Վոնց`, keep `Ոնց` in the data and everywhere the learner sees it.
 
-Three cases where the rule does *not* apply — leave them alone:
+Three cases where the rule does _not_ apply — leave them alone:
 
 - **A "Ո" that isn't first.** `Չորս` is "chors". The trap is pattern-matching on the letter rather than its position.
 - **The digraph "Ու"** is /u/: `Ուշ` is "ush", already correct as spelled.
@@ -49,8 +49,8 @@ Always listen to any word starting with "Ո" — this is an engine bug, not some
 
 Armenian stress is regularly on the last syllable, and the engine gets it wrong often enough to matter.
 
-- **Always end an Armenian prompt with the Armenian full stop `։` (U+0589), never a Latin `.`** A Latin period weakens the engine's commitment to an Armenian reading — a loanword then comes back with its *source* language's stress. That fix alone settled a native word that had failed a dozen times.
-- **Add the shesht `՛` only for a loanword** whose source stresses a different syllable. It is not a general energy lever: seven words re-rolled with and without it split five plain to two shesht, and it lost on a monosyllable too, where the shesht arm was more *consistent* in duration and still lost the listen. Duration consistency is not audible quality.
+- **Always end an Armenian prompt with the Armenian full stop `։` (U+0589), never a Latin `.`** A Latin period weakens the engine's commitment to an Armenian reading — a loanword then comes back with its _source_ language's stress. That fix alone settled a native word that had failed a dozen times.
+- **Add the shesht `՛` only for a loanword** whose source stresses a different syllable. It is not a general energy lever: seven words re-rolled with and without it split five plain to two shesht, and it lost on a monosyllable too, where the shesht arm was more _consistent_ in duration and still lost the listen. Duration consistency is not audible quality.
 - **Keep the word capitalized.** Lowercasing the prompt roughly doubled the duration and read as a drawl.
 - **Don't reach for a delivery-direction tag.** `[speaking clearly, stressing the final syllable]` produced over-articulated 1–2 s takes at ~55 credits against ~7. Punctuation and the stress mark are free.
 
@@ -67,11 +67,11 @@ Find the loud segments (`silencedetect=noise=-40dB:d=0.08`); if the last is shor
 
 [`breath_trim.py`](../scripts/audio/breath_trim.py) runs this over a directory and writes the trimmed takes in the app's encoding, re-applying while a trailing blip remains. Run it **before** building the picker page, so the human hears what ships.
 
-Counter-intuitively, lowering the noise floor finds *fewer* breaths: a quiet inhale merges into the word's decay and stops being a separate segment. `-40dB` is the operating point.
+Counter-intuitively, lowering the noise floor finds _fewer_ breaths: a quiet inhale merges into the word's decay and stops being a separate segment. `-40dB` is the operating point.
 
 ### The glued breath: fixable by hand, NOT safe to automate
 
-Some inhales never rise above the gate — the clip just ends in a faint hiss, with no `[gap][blip]` to find. Cutting one by hand is right; automating it is not. The obvious rule (trim after the last frame above a −38 dB voiced floor) is **a sibilant detector, not a breath detector**: it fired on 4 of 6 words ending in a fricative or affricate and 0 of 6 ending in a vowel or nasal. Armenian word-final /s/ measures −41 to −44 dB here, *below* the floor, with exactly the high-frequency signature the rule looks for — left to run it would have cut the /s/ off every take of `Միս`.
+Some inhales never rise above the gate — the clip just ends in a faint hiss, with no `[gap][blip]` to find. Cutting one by hand is right; automating it is not. The obvious rule (trim after the last frame above a −38 dB voiced floor) is **a sibilant detector, not a breath detector**: it fired on 4 of 6 words ending in a fricative or affricate and 0 of 6 ending in a vowel or nasal. Armenian word-final /s/ measures −41 to −44 dB here, _below_ the floor, with exactly the high-frequency signature the rule looks for — left to run it would have cut the /s/ off every take of `Միս`.
 
 So:
 
@@ -105,9 +105,9 @@ Cost isn't the constraint — a four-take word is a fraction of a cent. **Take v
 
 ## Known fixes for specific symptoms
 
-- **An ending that stops dead.** Some takes end within hundredths of a second of the last consonant and read as cut off even though nothing was cut. Add `apad=pad_dur=0.15`; it's harmless on a take that already has room, so pad every candidate rather than re-rolling. If there *is* something in the tail (a tick above the floor, an inhale beginning), cut before it with a 30–50 ms fade, then pad.
+- **An ending that stops dead.** Some takes end within hundredths of a second of the last consonant and read as cut off even though nothing was cut. Add `apad=pad_dur=0.15`; it's harmless on a take that already has room, so pad every candidate rather than re-rolling. If there _is_ something in the tail (a tick above the floor, an inhale beginning), cut before it with a 30–50 ms fade, then pad.
 - **A one-syllable word that drawls.** Drop the `։`. The full stop exists to fix stress, and a one-vowel word has none to fix — `Է` with it stretched into an aimless filler, and `Աղ` came out breathy until the bare letter was prompted.
-- **A word the model has no reading for.** `Հոպար` came out wrong in 21 readings across five arms. The shesht and the full stop fix a *loanword's* stress; they don't help here. **Stop after two arms** and ask a native speaker for a recording, or ship the least bad and note it. Candidates for the same trouble: colloquial kin terms and anything not in a dictionary.
+- **A word the model has no reading for.** `Հոպար` came out wrong in 21 readings across five arms. The shesht and the full stop fix a _loanword's_ stress; they don't help here. **Stop after two arms** and ask a native speaker for a recording, or ship the least bad and note it. Candidates for the same trouble: colloquial kin terms and anything not in a dictionary.
 - **A dropped affricate.** `Ձու` read as "zu" in every plain take; a shesht take fixed it. Respelling as `Դձու։` restored the d but as a separate letter. Worth remembering: a word that is another word's first syllable can be borrowed — three `Ձուկ` takes cut before the final release would have given a clean "dzu".
 
 ## Adding audio for a new word
