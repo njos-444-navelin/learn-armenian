@@ -7,22 +7,17 @@ interface DeckModule {
 }
 
 /**
- * One lazy import per deck file, keyed by deck id. A deck file is only a
- * list of ids into the shared word library, so what's split per deck here
- * is the *selection*, not word data — the library itself is one shared
- * module (see the comment atop `words/entries.ts`). The glob still earns its
- * keep as the single place a deck id turns into a file, so a deck the
- * catalog names but no file backs surfaces as `undefined` here, not as an
- * import error somewhere else.
+ * One lazy import per deck file. A deck file is only a list of ids into the
+ * shared word library, so what's split per deck is the selection, not the word
+ * data. The glob is also the single place a deck id turns into a file, so a
+ * deck the catalog names but no file backs surfaces as `undefined` here.
  */
 const deckModules = import.meta.glob<DeckModule>('./decks/*.ts');
 
 /**
- * The deck's words, in the deck's own order — or `undefined` for a deck id
- * with no file. Throws for a deck that references a word id the library
- * doesn't have: that's a content bug (a typo in `decks/<id>.ts`, or a word
- * removed from `entries.ts` while still listed), and it should fail loudly
- * on the first page that loads the deck, not render a silently shorter list.
+ * The deck's words in its own order, or `undefined` for a deck id with no
+ * file. Throws for an id the library doesn't have: that's a content bug, and
+ * it should fail loudly rather than render a silently shorter list.
  */
 export async function loadDeckWords(deckId: string): Promise<readonly Word[] | undefined> {
 	const wordIds = await loadDeckWordIds(deckId);
@@ -39,18 +34,13 @@ export async function loadDeckWords(deckId: string): Promise<readonly Word[] | u
 }
 
 /**
- * The deck's word ids, in the deck's own order — what `loadDeckWords()`
- * resolves, before the resolving. For the callers that need to know *how
- * many* words a deck holds, or *which ids*, without paying for a `Word`
- * object per id (see `server/vocabularyCounts.ts`, where a deck's size is
- * one half of every new-word count).
+ * The ids `loadDeckWords()` resolves, for callers that need how many or which
+ * without paying for a `Word` per id (see `server/vocabularyCounts.ts`).
  *
- * Throws when the catalog's `wordCount` disagrees with the file, the same
- * way `loadDialogue()` checks its `lineCount` — Conventions §10 says that
- * number is maintained by hand, and those counts now do arithmetic with it
- * rather than only printing it on a card. A drifted number would promise
- * new words that don't exist, which surfaces as an empty round rather than
- * as anything a learner could make sense of.
+ * Throws when the catalog's `wordCount` disagrees with the file, like
+ * `loadDialogue()`'s `lineCount` check: that number is maintained by hand
+ * (Conventions §10) and the counts now do arithmetic with it, so a drifted
+ * one promises new words that don't exist.
  */
 export async function loadDeckWordIds(deckId: string): Promise<readonly string[] | undefined> {
 	const importModule = deckModules[`./decks/${deckId}.ts`];
@@ -67,8 +57,7 @@ export async function loadDeckWordIds(deckId: string): Promise<readonly string[]
 	return module.WORD_IDS;
 }
 
-/** Total words across the given decks. Free of the database entirely — a
- * sum over the deck files' own id lists, which are code. */
+/** Summed from the deck files' own id lists; touches no database. */
 export async function countDeckWords(deckIds: readonly string[]): Promise<number> {
 	const sizes = await Promise.all(
 		deckIds.map(async (deckId) => (await loadDeckWordIds(deckId))?.length ?? 0)

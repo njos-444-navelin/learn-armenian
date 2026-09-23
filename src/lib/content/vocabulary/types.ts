@@ -1,19 +1,15 @@
 import type { Translated } from '$lib/i18n/types';
 
-// A deck's words are `Word`s from the app-wide library (`words/types.ts`) —
-// there is no separate vocabulary word type. Re-exported so vocabulary code
-// can keep importing its word-related types from one place.
+// A deck's words are `Word`s from the app-wide library; re-exported so
+// vocabulary code imports its word types from one place.
 export type { Word, WordRegister } from '$lib/content/words/types';
 
-/** A deck's difficulty tier — shown alongside its word count (see
- * `deckMetaLabel` in `dictionaries/vocabulary.ts`). Only one tier exists so
- * far, but every deck already carries it explicitly so a future
- * intermediate/advanced deck doesn't require retrofitting the catalog. */
+/** Only one tier exists so far, but every deck carries it explicitly so a
+ * later one doesn't require retrofitting the catalog. */
 export type VocabularyLevel = 'beginner';
 
-/** One glyph per deck, rendered by `VocabularyDeckIcon.svelte` — see
- * docs/DESIGN.md's Icons section. Extend this union (and that component's
- * icon lookup) when a new deck needs a shape that doesn't exist yet. */
+/** Extend this union, and `VocabularyDeckIcon.svelte`'s lookup, when a deck
+ * needs a shape that doesn't exist yet. */
 export type VocabularyDeckIconId = 'hand' | 'zap' | 'people' | 'person' | 'basket';
 
 export interface VocabularyDeck {
@@ -23,9 +19,8 @@ export interface VocabularyDeck {
 	 * deck's own page. */
 	description: Translated;
 	level: VocabularyLevel;
-	/** Must match the length of this deck's `WORD_IDS` in `decks/<id>.ts` —
-	 * kept as a plain number here (not derived from the list) so the catalog
-	 * stays free of word data; see Conventions §10. */
+	/** Must match the length of this deck's `WORD_IDS`. Kept as a plain number so
+	 * the catalog stays free of word data; see Conventions §10. */
 	wordCount: number;
 	icon: VocabularyDeckIconId;
 }

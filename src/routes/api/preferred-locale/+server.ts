@@ -3,10 +3,9 @@ import { isLocale } from '$lib/i18n/locale';
 import type { RequestHandler } from './$types';
 
 /**
- * Persists the signed-in user's chosen UI language, called fire-and-forget
- * from the client right after it navigates to the picked locale (see
- * [lang=locale]/+page.svelte and UserMenu.svelte) — this endpoint never
- * drives navigation itself, it only records the choice for next time.
+ * Records the signed-in user's chosen UI language for next time. Called
+ * fire-and-forget after the client has already navigated; it never drives
+ * navigation itself.
  */
 export const POST: RequestHandler = async ({ request, locals: { supabase, claims } }) => {
 	if (claims === null) {

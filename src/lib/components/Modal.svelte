@@ -17,22 +17,17 @@
 	let dialogEl: HTMLDialogElement | undefined = $state();
 
 	// `<dialog>` gives us a focus trap, Escape-to-close (as a native `cancel`
-	// event, handled below), and the top layer for free — cheaper and more
-	// robust than hand-rolling those for a truly modal (blocking) dialog.
+	// event, handled below) and the top layer for free.
 	$effect(() => {
 		dialogEl?.showModal();
 	});
 
 	/**
-	 * Every modal fades in and pops in, and plays the same backwards on
-	 * close — enforced here so a caller can't opt out. Two transitions
-	 * because they animate different things: the whole `<dialog>` (which
-	 * *is* the tinted backdrop, see the styles) fades, and the panel inside
-	 * it additionally rises and grows in from slightly small. They're Svelte
-	 * transitions rather than CSS animations for the reason the word popover
-	 * documents: callers mount a Modal in an `{#if}`, and only a transition
-	 * directive keeps the outgoing node in the DOM long enough to animate
-	 * out. Reduced motion drops the movement and keeps a short fade.
+	 * Enforced here so a caller can't opt out. Two transitions because they
+	 * animate different things: the `<dialog>` itself is the tinted backdrop and
+	 * fades, while the panel inside it also rises and grows. Svelte transitions
+	 * rather than CSS animations, since callers mount a Modal in an `{#if}` and
+	 * only a directive keeps the outgoing node around to animate out.
 	 */
 	const reducedMotion = browser && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 	const FADE_IN_MS = 170;
@@ -47,13 +42,9 @@
 	}
 
 	/**
-	 * Escape fires `cancel` and would then close the dialog natively —
-	 * which drops its `open` attribute and hides it before the outro can
-	 * play. Prevent that and route through `onClose` like every other path,
-	 * so the caller's `{#if}` unmounts it through the transition instead.
-	 * Chrome lets a page cancel this event only once per user activation,
-	 * so a second bare Escape would close natively anyway — moot here, since
-	 * the first one already starts the close.
+	 * Escape fires `cancel`, which would close the dialog natively and hide it
+	 * before the outro can play. Routed through `onClose` instead, so the
+	 * caller's `{#if}` unmounts it through the transition.
 	 */
 	function onCancel(event: Event): void {
 		event.preventDefault();
@@ -94,11 +85,10 @@
 </dialog>
 
 <style>
-	/* The <dialog> is stretched over the whole viewport and carries the
-	   backdrop tint itself, instead of using ::backdrop: a pseudo-element
-	   can't be driven by the Svelte transitions above, and this way the
-	   tint and the panel fade as one. `[open]` keeps the UA's display:none
-	   for the instant between mount and showModal(). */
+	/* The <dialog> carries the backdrop tint itself rather than using
+	   ::backdrop, which a Svelte transition can't drive — this way the tint and
+	   the panel fade as one. `[open]` keeps the UA's display:none for the
+	   instant between mount and showModal(). */
 	dialog[open] {
 		display: grid;
 		place-items: center;

@@ -1,27 +1,13 @@
 /**
  * Line-by-line playback for the dialogue player: one `<audio>` element per
- * line, one line playing at a time, with an optional "play all" mode that
- * walks the dialogue from the cursor to the end. Reactive (`$state`) so the
- * player component renders straight from it; owns nothing about the DOM
- * beyond the audio elements it creates.
+ * line, plus a "play all" mode that walks from the cursor to the end.
  *
- * Every line's clip is fetched up front (`preload()`, called from the
- * player once it's on the client — `Audio` doesn't exist during SSR): a
- * learner who opens a dialogue is going to play most of it, the clips are
- * ~10 KB each, and a tap on a line should start the sound at once rather
- * than after a network round trip. One element per line, rather than one
- * element with a swapped `src`, is what makes that work — a swapped src
- * discards the buffered data.
+ * `preload()` fetches every clip up front (client only — `Audio` doesn't exist
+ * in SSR) so a tap starts the sound at once. One element per line rather than
+ * a swapped `src`, which would discard the buffered data.
  *
- * Until a dialogue's line clips are generated (see docs/DIALOGUES.md), a
- * line's file 404s. Rather than stall "play all" on the first missing file,
- * a load error is treated as a silent line of fixed length — the flow still
- * walks every line, highlighting each in turn, so the whole player can be
- * exercised end to end before audio exists. This is the same "no missing
- * audio state, fail silently" rule as `SpeakerButton.svelte`, just with the
- * auto-advance kept working. Nothing in the UI reports the difference, so
- * a missing clip is caught by listening (or by checking `static/`), not by
- * the app.
+ * A line whose clip isn't generated yet 404s and plays as a silent line of
+ * fixed length, so play-all still walks the dialogue.
  */
 
 /** How long a line with no clip "plays" for — long enough to read it. */
@@ -34,13 +20,10 @@ export class DialoguePlayback {
 	playing = $state<number | null>(null);
 	/** True while play-all is walking the dialogue (including between lines). */
 	auto = $state(false);
-	/** The line play-all is on, or would resume from. Stays where playback
-	 * last stopped so pause/resume picks up in place; `stop()` rewinds it. */
+	/** The line play-all is on, or would resume from. `stop()` rewinds it. */
 	cursor = $state(0);
-	/** True from the first line played (alone or via play-all) until
-	 * `stop()` or the end of the dialogue. `cursor > 0` can't stand in for
-	 * this: playing line 1 on its own leaves the cursor at 0, and the bar
-	 * would stay in its resting layout for that one line only. */
+	/** True from the first line played until `stop()` or the end. `cursor > 0`
+	 * can't stand in for it: playing line 1 alone leaves the cursor at 0. */
 	started = $state(false);
 
 	private readonly lineCount: number;
@@ -111,9 +94,8 @@ export class DialoguePlayback {
 			this.onLineEnded();
 		};
 		audio.onended = finish;
-		// A missing/undecodable file: pretend the line lasted MISSING_CLIP_MS
-		// (see the module comment). `onerror` covers a 404; the play() catch
-		// below covers a rejected play() for the same reason.
+		// A missing or undecodable file: pretend the line lasted MISSING_CLIP_MS.
+		// `onerror` covers a 404, the play() catch below a rejected play().
 		audio.onerror = () => {
 			if (generation !== this.generation) return;
 			this.timer = setTimeout(finish, MISSING_CLIP_MS);

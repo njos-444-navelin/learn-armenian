@@ -12,11 +12,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, claims 
 	const number = DIALOGUE_CATALOG.findIndex((candidate) => candidate.id === dialogue.id) + 1;
 	const next = getNextDialogueSummary(dialogue.id);
 
-	// Whether this learner has already marked the dialogue done — flips the
-	// player's commit button into its "Already done" state. Signed-out
-	// learners never have a row, and a failed lookup degrades to "not
-	// done" (the worst case is the button offering to mark it done again,
-	// which the `complete` action tolerates) rather than a 500.
+	// A failed lookup degrades to "not done" rather than a 500: the worst case
+	// is the button offering to mark it done again, which `complete` tolerates.
 	if (claims === null) {
 		return { dialogue, number, next, completed: false };
 	}
@@ -37,11 +34,9 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, claims 
 
 export const actions: Actions = {
 	/**
-	 * Marks the dialogue completed for the signed-in learner. Signed-out
-	 * learners can play a dialogue freely; only saving the completion is
-	 * gated, and it resumes itself after sign-in (see the page's `resume`
-	 * effect and requireSignedIn()'s doc comment). A repeat completion
-	 * bumps the counter rather than failing on the primary key.
+	 * Signed-out learners can play a dialogue freely; only saving the completion
+	 * is gated, and it resumes itself after sign-in. A repeat completion bumps
+	 * the counter rather than failing on the primary key.
 	 */
 	complete: async ({ params, url, locals: { supabase, claims } }) => {
 		const verified = requireSignedIn(claims, params.lang, { url, action: 'complete' });
@@ -81,11 +76,9 @@ export const actions: Actions = {
 	},
 
 	/**
-	 * Takes the dialogue back out of the learner's "done" list, from the
-	 * confirm behind the player's "Already done" button. Deletes the row
-	 * rather than zeroing anything: "no row = not completed" is the table's
-	 * convention, and `completions` has a `>= 1` check. Not `resume`-gated —
-	 * only a signed-in learner can see the button that posts this.
+	 * Deletes the row rather than zeroing anything: "no row = not completed" is
+	 * the table's convention, and `completions` has a `>= 1` check. Not
+	 * `resume`-gated — only a signed-in learner can see the button.
 	 */
 	uncomplete: async ({ params, locals: { supabase, claims } }) => {
 		const verified = requireSignedIn(claims, params.lang);

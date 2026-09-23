@@ -3,12 +3,9 @@ import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
-// Hand-built locale-prefixed path literal ("/en/...", "/ru/..."), the exact
-// anti-pattern Conventions #5 bans — withLocale()/withoutLocale() in
-// $lib/i18n/paths.ts are the only place that's allowed to know the locale
-// list. Matches a literal/template segment that is exactly "en" or "ru"
-// (bounded by a following "/" or the end of the string), not just any string
-// that happens to start with those letters (e.g. "/entry", "/rustic").
+// Hand-built locale-prefixed path literal, the anti-pattern Conventions #5
+// bans. Matches a segment that is exactly "en" or "ru", not any string
+// starting with those letters ("/entry", "/rustic").
 const LOCALE_PATH_LITERAL = /^\/(en|ru)(\/|$)/;
 const localePathRestriction = {
 	selector: `Literal[value=/${LOCALE_PATH_LITERAL.source}/]`,
@@ -42,21 +39,15 @@ export default tseslint.config(
 				...globals.browser,
 				...globals.node
 			},
-			// Type-aware linting: needed for svelte/no-navigation-without-resolve
-			// to recognize a value as safe by its *type* (ResolvedPathname), not
-			// just by literally being a `resolve(...)` call — which is what lets
-			// $lib/i18n/paths.ts's own withLocale()/resolveRuntimePath()/etc.
-			// wrappers count, instead of forcing every call site to call
-			// resolve() directly. svelte-check remains the source of truth for
-			// type *correctness*; this is only turned on for the rules that need
-			// type info to do their job.
+			// Type-aware linting, so svelte/no-navigation-without-resolve can
+			// recognize a value as safe by its type rather than only as a literal
+			// `resolve(...)` call — which is what lets paths.ts's wrappers count.
+			// svelte-check remains the source of truth for type correctness.
 			parserOptions: {
 				projectService: {
-					// Config/tooling files at the repo root aren't part of
-					// tsconfig.json's `src/`-scoped project (nor should they
-					// be — they're plain Node scripts, not app code), so the
-					// project service falls back to a default single-file
-					// project for exactly these instead of erroring.
+					// Root config and tooling files aren't part of tsconfig's `src/`-scoped
+					// project, so the service falls back to a single-file project for
+					// these rather than erroring.
 					allowDefaultProject: [
 						'eslint.config.js',
 						'stylelint.config.js',
@@ -78,14 +69,10 @@ export default tseslint.config(
 		}
 	},
 	{
-		// recommendedTypeChecked's rules are tuned for plain TS — several fire
-		// constantly on idiomatic Svelte 5/SvelteKit patterns this codebase uses
-		// throughout (e.g. an async server `load`/action returning a plain
-		// object literal reads as a "misused promise" to a rule that doesn't
-		// know SvelteKit awaits it). svelte-check already provides the real
-		// type-correctness guarantee for this codebase; type-checked ESLint
-		// rules are only enabled here where they catch something svelte-check
-		// doesn't (see the rest of this file).
+		// recommendedTypeChecked is tuned for plain TS and fires constantly on
+		// idiomatic SvelteKit patterns (an async `load` returning an object literal
+		// reads as a misused promise). svelte-check gives the real guarantee; the
+		// type-checked rules kept below are the ones that catch what it doesn't.
 		rules: {
 			'@typescript-eslint/no-unsafe-assignment': 'off',
 			'@typescript-eslint/no-unsafe-member-access': 'off',
@@ -96,27 +83,19 @@ export default tseslint.config(
 			'@typescript-eslint/no-floating-promises': 'off',
 			'@typescript-eslint/require-await': 'off',
 			'@typescript-eslint/restrict-template-expressions': 'off',
-			// Flags even an explicit `String(formData.get('x') ?? '')` — the
-			// codebase's actual, already-correct pattern for a FormData field
-			// that's typed `FormDataEntryValue | null` (i.e. could technically
-			// be a File) — because it still inspects the *inner* expression
-			// for base-to-string risk instead of recognizing the outer
-			// String() call as the deliberate, sufficient guard it is.
+			// Flags even an explicit `String(formData.get('x') ?? '')`, the codebase's
+			// own correct pattern, because it inspects the inner expression rather
+			// than recognizing the outer String() as the guard.
 			'@typescript-eslint/no-base-to-string': 'off',
-			// Conventions #4: exactOptionalPropertyTypes requires writing
-			// `field?: T | undefined` (not just `field?: T`) so that
-			// explicitly passing `undefined` still type-checks — this rule
-			// calls that same pattern redundant, flagging the codebase's own
-			// mandated convention as a bug.
+			// Conventions #4: exactOptionalPropertyTypes needs `field?: T | undefined`,
+			// which this rule calls redundant.
 			'@typescript-eslint/no-duplicate-type-constituents': 'off'
 		}
 	},
 	{
-		// Conventions #10: a deck's words are only ever loaded through
-		// loadDeckWords(), and a dialogue's lines through loadDialogue() —
-		// the one place each id list is resolved against the word library
-		// and validated, and the lazy import that keeps per-deck/per-dialogue
-		// content out of every other page's bundle.
+		// Conventions #10: deck words load only through loadDeckWords(), dialogue
+		// lines only through loadDialogue() — the one place each id list is
+		// validated, and the lazy import that keeps content out of other bundles.
 		rules: {
 			'no-restricted-imports': [
 				'error',
@@ -139,10 +118,8 @@ export default tseslint.config(
 		}
 	},
 	{
-		// TypeScript's own `noUnusedParameters`-equivalent checking is already
-		// stricter/more accurate than ESLint's here (svelte-check runs full
-		// type info); this rule only exists in this config to flag genuinely
-		// unused imports/locals, which the compiler doesn't catch on its own.
+		// TypeScript's own unused-parameter checking is stricter; this rule is here
+		// only to flag unused imports and locals, which the compiler doesn't.
 		rules: {
 			'@typescript-eslint/no-unused-vars': [
 				'error',
@@ -153,13 +130,9 @@ export default tseslint.config(
 	{
 		files: ['**/*.svelte'],
 		rules: {
-			// Svelte 5's runes model relies on a bare property-access
-			// expression statement inside $effect() to register a reactive
-			// dependency without otherwise using the value (see
-			// [deckId]/+page.svelte's `data.deck.id;`, reset-on-navigation)
-			// — real Svelte, not a mistake, that a generic JS-only rule
-			// can't tell apart from an actually-useless expression. Left on
-			// for plain .ts files, where it has no such false positive.
+			// Svelte 5 registers a reactive dependency with a bare property-access
+			// statement inside $effect(), which a JS-only rule can't tell from a
+			// useless expression. Left on for plain .ts files.
 			'no-unused-expressions': 'off',
 			'@typescript-eslint/no-unused-expressions': 'off'
 		}

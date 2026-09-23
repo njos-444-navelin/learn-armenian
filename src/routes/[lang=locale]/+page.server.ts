@@ -4,11 +4,9 @@ import { withLocale } from '$lib/i18n/paths';
 import type { PageServerLoad } from './$types';
 
 /**
- * A signed-in user who has ever picked a language before shouldn't be asked
- * again — send them straight to their lessons, in their stored locale (not
- * necessarily the `[lang]` this request happened to land on, e.g. via
- * Accept-Language negotiation). Runs server-side before the picker renders,
- * so there's no flash of the picker screen first.
+ * A signed-in user who has picked a language before goes straight to their
+ * lessons, in their stored locale rather than whichever `[lang]` this request
+ * landed on. Server-side, so the picker never flashes first.
  */
 export const load: PageServerLoad = async ({ locals: { supabase, claims } }) => {
 	if (claims !== null) {

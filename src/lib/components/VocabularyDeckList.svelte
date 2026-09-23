@@ -36,11 +36,9 @@
 	let { decks, addedDeckIds }: Props = $props();
 	let locale = $derived(getLocale());
 
-	// A local, mutable mirror of `addedDeckIds` — this component owns
-	// advancing it from here on (add/remove happen inline, without a full
-	// page reload), same pattern as the deck page's own `addedOverride`.
-	// `SvelteSet` (not a plain `Set` in `$state`) so `.add()`/`.delete()`
-	// below are tracked mutations in place, not reassignments.
+	// A local mirror of `addedDeckIds`; this component owns advancing it, since
+	// add/remove happen inline. `SvelteSet` so `.add()`/`.delete()` are tracked
+	// mutations in place rather than reassignments.
 	let added = untrack(() => new SvelteSet(addedDeckIds));
 	let collectionDecks = $derived(decks.filter((deck) => added.has(deck.id)));
 	let otherDecks = $derived(decks.filter((deck) => !added.has(deck.id)));
@@ -50,20 +48,16 @@
 	let confirmDeckId = $state<string | null>(null);
 	let confirmDeck = $derived(decks.find((deck) => deck.id === confirmDeckId));
 
-	// One "add" form per not-yet-added deck, keyed by deck id — bound so the
-	// resume-after-login effect below can replay the right one. Plain object,
-	// not `$state`: it only ever holds DOM refs read imperatively, never
-	// rendered from.
+	// One "add" form per not-yet-added deck, bound so the resume-after-login
+	// effect below can replay the right one. A plain object, not `$state`: it
+	// only holds DOM refs read imperatively.
 	let addForms: Record<string, HTMLFormElement | undefined> = {};
 
 	/**
-	 * Replays "Add to my collection" after a signed-out visitor gets sent to
-	 * sign in and back for a specific deck — see requireSignedIn()'s `resume`
-	 * option, `?/addToCollection`'s `action: 'addToCollection:<deckId>'` in
-	 * the list page's `+page.server.ts`, and the near-identical effect in
-	 * `[deckId]/+page.svelte`. The deck id travels inside the resume action
-	 * id (rather than a second query param) because this page can add any
-	 * deck in the catalog, not just one.
+	 * Replays "Add to my collection" after a signed-out visitor is sent to sign
+	 * in and back — see requireSignedIn()'s `resume` option and the near-identical
+	 * effect in `[deckId]/+page.svelte`. The deck id travels inside the resume
+	 * action id, since this page can add any deck in the catalog.
 	 */
 	let resumeHandled = $state(false);
 	$effect(() => {
@@ -183,9 +177,8 @@
 							disabled={addingId === deck.id}
 							aria-busy={addingId === deck.id ? 'true' : undefined}
 						>
-							<!-- The spinner takes the plus's place while the add is in
-							     flight (Conventions §8): same box, same size, so the
-							     row doesn't shift. -->
+							<!-- The spinner takes the plus's place while the add is in flight
+							     (Conventions §8): same box, same size, so the row doesn't shift. -->
 							{#if addingId === deck.id}
 								<span class="icon-slot"><Spinner /></span>
 							{:else}
@@ -269,17 +262,11 @@
 		list-style: none;
 	}
 
-	/* Positioned (not flex) — `.action` below is an absolutely-positioned
-	   sibling overlaid on top of `.deck`, not a flex item beside it. Keeping
-	   the button and the link as siblings rather than nesting a <button>
-	   inside an <a> (invalid — interactive elements can't nest) while still
-	   making the button read as "part of the card" visually. This also
-	   decouples the row's height entirely from the button's fixed 44px size:
-	   flexing them side by side previously left the row's height following
-	   whichever centered box happened to be tallest, which on a narrow
-	   phone (more text wrapping, so a genuinely taller card) still visually
-	   read as "the checkmark is squashing this" once the two were compared
-	   side by side — overlaying removes that comparison entirely. */
+	/* Positioned, not flex: `.action` is absolutely positioned over `.deck`
+	   rather than a flex item beside it. That keeps the button and link as
+	   siblings (a <button> can't nest inside an <a>) and decouples the row's
+	   height from the button's fixed 44px, which otherwise read as the
+	   checkmark squashing a taller wrapped card. */
 	.row {
 		position: relative;
 	}
@@ -289,10 +276,8 @@
 		min-height: var(--tap-target-min);
 		align-items: center;
 		gap: var(--space-3);
-		/* Right padding clears the absolutely-positioned .action circle
-		   below (its own width plus a comfortable gap) so title/description
-		   text never renders underneath it — see docs/DESIGN.md's
-		   padding-vs-radius note. */
+		/* Clears the absolutely-positioned .action circle so text never renders
+		   underneath it — see docs/DESIGN.md's padding-vs-radius note. */
 		padding: var(--space-3) calc(var(--tap-target-min) + var(--space-4)) var(--space-3) var(--space-4);
 		border: 1.5px solid var(--color-border-soft);
 		border-radius: var(--radius-lg);

@@ -1,9 +1,5 @@
--- Tracks which vocabulary decks (see src/lib/content/vocabulary/catalog.ts)
--- a signed-in user has voluntarily added to their personal practice
--- collection. Deck content itself (words, translations) lives in code, not
--- here — this table only records the user's choice, keyed by the deck's
--- static string id. Adding is a one-way, explicit action (an "Add to my
--- collection" button); there is no automatic add.
+-- Which vocabulary decks a user has added to their collection. Deck content
+-- lives in code; this records only the choice, keyed by the deck's string id.
 create table public.user_vocabulary_decks (
   user_id uuid not null references auth.users (id) on delete cascade,
   deck_id text not null,
@@ -13,8 +9,7 @@ create table public.user_vocabulary_decks (
 
 alter table public.user_vocabulary_decks enable row level security;
 
--- (user_id, deck_id) is the primary key, so its index already supports
--- lookups filtered by user_id alone — no separate index needed.
+-- The primary key's index already covers lookups by user_id alone.
 
 create policy "Users can view their own added decks"
   on public.user_vocabulary_decks

@@ -16,14 +16,10 @@ export default defineConfig({
 		}),
 		SvelteKitPWA({
 			registerType: 'autoUpdate',
-			// SvelteKit defaults Vite's `base` to a relative './' so the build is
-			// portable across subpaths — but vite-plugin-pwa reuses that same
-			// value verbatim for the service worker's own registration URL and
-			// scope, which isn't page-depth-aware like SvelteKit's asset links
-			// are. That made the SW register as './sw.js' with scope './', which
-			// resolves relative to the *current page*, so it 404s from any route
-			// nested more than one segment deep (e.g. /en/learn). Force an
-			// absolute base here so the SW always registers at the site root.
+			// SvelteKit defaults Vite's `base` to './', but vite-plugin-pwa reuses that
+			// verbatim for the service worker's registration URL and scope, which then
+			// resolve against the current page and 404 from any nested route. Force an
+			// absolute base so the SW always registers at the site root.
 			base: '/',
 			manifest: {
 				name: 'Learn Armenian',
@@ -56,13 +52,9 @@ export default defineConfig({
 			},
 			workbox: {
 				globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest}'],
-				// @vite-pwa/sveltekit defaults this to '/' when unset, registering an
-				// offline navigation fallback bound to that URL. This app is fully
-				// SSR (no prerendered HTML, so nothing ever gets precached under
-				// '/'), which made that fallback handler throw "non-precached-url"
-				// on every navigation. There's no static shell to fall back to, so
-				// disable it explicitly rather than point it at a URL that can never
-				// actually be precached.
+				// Defaults to '/', registering an offline navigation fallback bound to it.
+				// This app is fully SSR, so nothing is ever precached under '/' and the
+				// handler threw "non-precached-url" on every navigation.
 				navigateFallback: null
 			}
 		})

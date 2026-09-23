@@ -34,11 +34,9 @@ export const actions: Actions = {
 			return fail(400, { action: 'deleteAccount' as const, errorCode: error.code });
 		}
 
-		// Clears this response's session cookies. Verified from source
-		// (GoTrueClient._signOut): removeCurrentSession() runs unconditionally
-		// on every path — ignored-404/401/403, real error, or success — so
-		// it's safe to await without branching on the result. Never let this
-		// block the redirect: the account is already deleted at this point.
+		// Clears this response's session cookies. GoTrueClient runs
+		// removeCurrentSession() on every path, so there's no result to branch on.
+		// Never let it block the redirect: the account is already deleted.
 		try {
 			await supabase.auth.signOut();
 		} catch (err) {

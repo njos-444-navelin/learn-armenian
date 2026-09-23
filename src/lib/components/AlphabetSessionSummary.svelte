@@ -132,11 +132,9 @@
 		color: var(--color-text-secondary);
 	}
 
-	/* No align-items set — the default `stretch` is what makes each
-	   <Button> below span the row's full width; unlike a row-direction
-	   flex parent, `flex: 1` (from FloatingActionBar's `.bar
-	   :global(.button)` rule) grows main-axis (vertical) size here, not
-	   width, so stretch is doing the actual work. */
+	/* No align-items, so the default `stretch` is what makes each <Button> span
+	   the row: in a column, FloatingActionBar's `flex: 1` grows height, not
+	   width. */
 	.actions {
 		display: flex;
 		width: 100%;

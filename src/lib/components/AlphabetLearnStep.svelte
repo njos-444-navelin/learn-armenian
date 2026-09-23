@@ -31,9 +31,8 @@
 
 	let pair = $derived(letter.uppercase === undefined ? letter.lowercase : `${letter.uppercase} ${letter.lowercase}`);
 
-	// No "already done" vs. "currently on" distinction here (unlike the
-	// drill's own dots) — every letter up to and including this one is
-	// just 'current', which reads as one steadily-growing filled bar.
+	// No "already done" vs "currently on" here, unlike the drill's dots: every
+	// letter up to this one is 'current', which reads as one growing bar.
 	let dotStates = $derived<readonly DotState[]>(
 		Array.from({ length: total }, (_, n) => (n <= index ? 'current' : 'empty'))
 	);
@@ -82,21 +81,12 @@
 </div>
 
 <style>
-	/* PageShell centers its content as a single block, height and all — so
-	   with just a header + stage stacked in normal flow, this step's total
-	   height (which varies letter to letter: the voicing text and word
-	   count both do) changed where that whole block started, and the
-	   header moved right along with it. Forcing this wrapper to always
-	   claim the full height PageShell would otherwise center it within
-	   gives the header a fixed starting position regardless of what's
-	   below it — see PageShell.svelte's `--page-content-min-height` for
-	   where this number comes from. `<FloatingActionBar>` moved inside
-	   this wrapper (rather than sitting alongside it) so its own
-	   dynamically-measured bottom spacer (see FloatingActionBar.svelte) is
-	   one of *this* flex column's children too — `.stage-wrap`'s `flex: 1`
-	   then absorbs whatever's actually left after it, instead of this
-	   component trying to predict that spacer's height itself, which —
-	   unlike every other number here — isn't a static token to begin with. */
+	/* Claims the full height PageShell would otherwise centre it within, so the
+	   header keeps a fixed starting position however tall this step's content
+	   runs — see PageShell.svelte's `--page-content-min-height`.
+	   `<FloatingActionBar>` sits inside this wrapper so its measured bottom
+	   spacer is one of this column's children and `.stage-wrap`'s `flex: 1`
+	   absorbs what's actually left. */
 	.learn-step {
 		display: flex;
 		width: 100%;
@@ -125,13 +115,9 @@
 
 	.glyph-row {
 		display: grid;
-		/* Two equal 1fr tracks flank the circle — the left one stays empty,
-		   the right one holds the speaker button left-aligned against the
-		   circle. Since both flanks get the same share of the leftover
-		   width regardless of the speaker's own size, the circle itself
-		   ends up centered on the row rather than the row's *content*
-		   (circle + speaker together) being centered, which would push the
-		   circle off-center to make room for the speaker beside it. */
+		/* Two equal 1fr flanks around the circle — the left empty, the right holding
+		   the speaker button — so the circle is centred on the row rather than the
+		   row's content, which would push it off-centre. */
 		width: 100%;
 		grid-template-columns: 1fr auto 1fr;
 		align-items: center;
@@ -159,10 +145,8 @@
 		background: var(--color-surface);
 	}
 
-	/* On a short viewport, this circle (plus the header, voicing text, word
-	   card, and fixed footer around it) can outgrow the space available —
-	   same mechanism as the letter grid's tiles growing unbounded with
-	   width (see AlphabetLetterGrid.svelte), just the height axis here. */
+	/* On a short viewport the circle plus the chrome around it outgrows the space
+	   available — the height-axis version of the letter grid's tiles. */
 	@media (max-height: 700px) {
 		.glyph-circle {
 			width: clamp(7rem, 34vw, 9rem);
@@ -178,9 +162,8 @@
 	}
 
 	.voicing {
-		/* A little extra on top of .stage's own flex `gap` — enough that this
-		   text reads as its own paragraph next to the glyph/word-card either
-		   side of it, not squeezed flush against both. */
+		/* A little more than .stage's own gap, so the text reads as its own
+		   paragraph rather than squeezed between the glyph and the word card. */
 		margin: var(--space-1) 0;
 		max-width: 26rem;
 		text-align: center;
@@ -233,16 +216,10 @@
 		gap: var(--space-2);
 	}
 
-	/* Not <Button>: a circular icon-only control, structurally unlike
-	   Button.svelte's pill shape, and used in exactly this one place — not
-	   worth a shared abstraction (see CONVENTIONS.md #3). Opaque, not
-	   transparent — this bar is fixed-position and sits on top of whatever
-	   content is behind it, which stopped being purely theoretical once a
-	   screen with more than usual content (two word cards) genuinely could
-	   still overflow a short viewport despite .learn-step's own sizing (see
-	   that class's comment). A transparent button let that overflowing
-	   content show straight through it; this background matches the page's
-	   own so it just blends in normally everywhere else. */
+	/* Not <Button>: a circular icon-only control used in one place (Conventions
+	   #3). Opaque because this bar is fixed-position and a screen with two word
+	   cards genuinely can overflow a short viewport, which a transparent button
+	   let show straight through. */
 	.prev {
 		display: flex;
 		width: var(--tap-target-min);

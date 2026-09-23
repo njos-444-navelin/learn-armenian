@@ -11,12 +11,9 @@
 	let trainVocabularyHref = $derived(withLocale(currentLocale, '/learn/vocabulary/train'));
 	let signedIn = $derived(page.data.claims !== null);
 	/**
-	 * Suppressed on the training page itself — the badge exists to point
-	 * someone toward that page, so it has nothing left to say once they're
-	 * already there. Scoped to this one signal rather than "hide the badge
-	 * on this page" in general: a future notification reason unrelated to
-	 * training (see `page.data.hasWordsToPractice`'s doc comment) should
-	 * still show here.
+	 * The badge points toward the training page, so it has nothing to say once
+	 * the learner is there. Scoped to this one signal, so a future notification
+	 * reason unrelated to training would still show.
 	 */
 	let onTrainPage = $derived(page.url.pathname === trainVocabularyHref);
 	let onAccountPage = $derived(page.url.pathname === accountHref);

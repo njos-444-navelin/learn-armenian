@@ -33,17 +33,14 @@
 		return letter.uppercase ?? letter.lowercase;
 	}
 
-	// Levels 1-10 walk the sage ramp; level 2 and 3 share a step deliberately,
-	// so the jump off level 0 (a flat neutral) into "you've started" reads as
-	// a smaller, gentler step than every later level-up.
+	// Levels 2 and 3 share a step, so the jump off level 0 into "you've started"
+	// reads as gentler than every later level-up.
 	const RAMP = [100, 200, 200, 300, 400, 500, 600, 700, 800, 900] as const;
 
 	function tileBackground(level: number): string {
-		// Deliberately not --color-neutral-200 — see DESIGN.md's Color section:
-		// that ramp reads cool/"blueish" against this app's warm palette, kept
-		// only for a real neutral/informational meaning (e.g. a toast), not as
-		// a default fill. --color-neutral-100 is close enough to the page's
-		// own background to read as "blank," not as a competing hue.
+		// Not --color-neutral-200 — see DESIGN.md's Color section: that ramp
+		// reads cool against this warm palette and is kept for real
+		// neutral/informational meaning. -100 reads as blank, not as a hue.
 		if (level === LEVEL_MIN) return 'var(--color-neutral-100)';
 		return `var(--color-accent-2-${RAMP[level - 1]})`;
 	}
@@ -143,10 +140,8 @@
 		display: grid;
 		width: 100%;
 		grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr));
-		/* Grid items stretch to fill their track by default — `.tile`'s own
-		   `max-width` below caps how big a tile can get, and this centers
-		   it within whatever track width auto-fill/1fr actually produced,
-		   instead of leaving it stuck flush against the track's start edge. */
+		/* Grid items stretch to fill their track by default; `.tile`'s `max-width`
+		   caps the tile, and this centres it in whatever width the track got. */
 		justify-items: center;
 		gap: var(--space-1);
 	}
@@ -155,30 +150,23 @@
 		display: flex;
 		width: 100%;
 		aspect-ratio: 1;
-		/* A column can stretch wider than this on a wide phone (auto-fill's
-		   column count is still driven only by the 3rem minimum above), and
-		   since a wider phone isn't necessarily a taller one, letting the
-		   tile itself (and, via aspect-ratio, its height) grow unbounded
-		   with it could make 6 rows of tiles taller than the viewport. This
-		   caps that growth without changing how many columns fit at any
-		   breakpoint. */
+		/* A column can stretch wider than this, and a wider phone isn't a taller one,
+		   so unbounded tile growth (and, via aspect-ratio, height) could push 6 rows
+		   past the viewport. Caps that without changing the column count. */
 		max-width: 3rem;
 		min-width: var(--tap-target-min);
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		/* A few lowercase glyphs (ք, ց, ղ, ջ, ...) carry a descender that
-		   dips close to the transliteration line right below at the
-		   smallest gap — a little more breathing room keeps the two from
-		   visually touching regardless of which glyph is showing. */
+		/* A few lowercase glyphs (ք, ց, ղ, ջ) have descenders that would otherwise
+		   visually touch the transliteration line below. */
 		gap: 3px;
 		padding: 0;
 		border: none;
 		border-radius: var(--radius-md);
 		cursor: pointer;
-		/* A per-ramp-step hover token for 10 dynamic background colors isn't
-		   worth precomputing — brightness() darkens whichever tone is already
-		   set, matching the "darken the element's own color" rule uniformly. */
+		/* brightness() darkens whichever of the 10 ramp tones is set, so no per-step
+		   hover token has to be precomputed. */
 		transition: filter var(--transition-fast);
 	}
 

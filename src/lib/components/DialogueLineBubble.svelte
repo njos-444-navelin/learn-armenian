@@ -15,9 +15,9 @@
 
 	interface Props {
 		line: DialogueLine;
-		/** `end` puts the bubble on the right with its avatar outside it, like
-		 * the learner's own side of a chat; `start` mirrors that. Which
-		 * character gets which side is the player's call, not the line's. */
+		/** `end` puts the bubble on the right with its avatar outside it, like the
+		 * learner's own side of a chat. Which character gets which side is the
+		 * player's call, not the line's. */
 		side: 'start' | 'end';
 		/** Whether the Armenian text is readable (read mode, or revealed). */
 		shown: boolean;
@@ -73,10 +73,9 @@
 			</button>
 
 			<div class="text-column">
-				<!-- Blurred, not removed, while hidden: the bubble keeps its real
-				     size so revealing a line never reflows the ones around it.
-				     aria-hidden + disabled tokens keep it genuinely hidden from
-				     assistive tech and the keyboard, not just visually. -->
+				<!-- Blurred, not removed, so the bubble keeps its size and revealing a
+				     line never reflows the ones around it. aria-hidden and disabled
+				     tokens keep it hidden from assistive tech and the keyboard too. -->
 				<div class="text" class:hidden={!shown} lang="hy" aria-hidden={!shown}>
 					{#each line.tokens as token, tokenIndex (tokenIndex)}
 						{@const word = token.wordId === undefined ? undefined : getWord(token.wordId)}
@@ -102,9 +101,8 @@
 						</span>
 					{/each}
 				</div>
-				<!-- Always rendered so its height can transition both ways, same
-				     pattern as DialogueRuleCard's body; `inert` keeps the hidden
-				     translation out of the accessibility tree. -->
+				<!-- Always rendered so its height can transition both ways, like
+				     DialogueRuleCard's body; `inert` keeps it out of the a11y tree. -->
 				<div class="translation" class:open={translationOpen} inert={!translationOpen}>
 					<span class="translation-text">{t(line.translation)}</span>
 				</div>
@@ -159,9 +157,8 @@
 		margin-bottom: 3px;
 	}
 
-	/* No visible speaker name above the bubble — the avatar and the two
-	   bubble fills already tell the speakers apart, and the avatar's
-	   aria-label names the speaker for assistive tech. */
+	/* No speaker name above the bubble: the avatar and the two fills tell the
+	   speakers apart, and the avatar's aria-label names them. */
 	.stack {
 		display: flex;
 		max-width: 86%;
@@ -174,11 +171,8 @@
 		align-items: flex-end;
 	}
 
-	/* The two speakers get two fills — the plain surface for Tereza, the
-	   lightest accent tint for Dmitrii's "own side" bubbles — the way a
-	   chat tells the two parties apart. A tint on a bubble-sized element,
-	   never a hero-sized one, so it stays within DESIGN.md's "tinted
-	   backgrounds for small elements" allowance. */
+	/* Two fills the way a chat tells two parties apart. A tint on a bubble-sized
+	   element, never a hero-sized one, per DESIGN.md. */
 	.bubble {
 		display: flex;
 		align-items: center;
@@ -270,9 +264,8 @@
 		}
 	}
 
-	/* app.css's reduced-motion rule already collapses the animation to a
-	   single frame; this just makes the resting shape deliberate rather
-	   than whatever frame it happened to stop on. */
+	/* app.css already collapses the animation to a single frame under reduced
+	   motion; this just makes the resting shape deliberate. */
 	@media (prefers-reduced-motion: reduce) {
 		.wave span {
 			animation: none;
@@ -306,13 +299,10 @@
 		display: inline-block;
 	}
 
-	/* No resting mark on a tappable word — the text reads as plain prose.
-	   (A dotted underline was tried and dropped: it added noise without
-	   telling the learner anything they don't learn from the first tap, and
-	   as a border-bottom it also curved around the corner radius in
-	   Chromium.) Hover gets the ink wash; the open word gets the wash plus
-	   a primary underline as its "selected" marker — text-decoration, not
-	   border-bottom, so it follows the glyphs and stays straight. */
+	/* No resting mark on a tappable word, so the text reads as plain prose. (A
+	   dotted underline was tried and dropped: noise, and as a border-bottom it
+	   curved around the corner radius in Chromium.) The open word gets a
+	   text-decoration underline, which follows the glyphs and stays straight. */
 	.token {
 		padding: 0 4px;
 		margin: 0 -3px;
@@ -332,9 +322,7 @@
 		cursor: default;
 	}
 
-	/* Ink washes, not tints — see the --color-word-* tokens. The open word
-	   goes one step deeper and keeps its primary underline as the real
-	   "selected" marker. */
+	/* Ink washes, not tints — see the --color-word-* tokens. */
 	.token:not(.plain):hover:not(:disabled) {
 		background: var(--color-word-hover);
 	}
@@ -344,14 +332,12 @@
 		background: var(--color-word-open);
 	}
 
-	/* Native 0 -> auto height transition, with the text fading in a beat
-	   behind the growth — see DialogueRuleCard.svelte's .body for the full
-	   note on `interpolate-size` and its fallback. */
+	/* Native 0 -> auto height transition, text fading a beat behind the growth —
+	   see DialogueRuleCard.svelte's .body for the `interpolate-size` note. */
 	.translation {
 		height: 0;
-		/* A column flex item's min-height defaults to `auto` (its content
-		   size), which would silently win over the `height: 0` above and
-		   leave the collapsed box its full height. */
+		/* A column flex item's min-height defaults to its content size, which would
+		   win over the `height: 0` above. */
 		min-height: 0;
 		overflow: hidden;
 		interpolate-size: allow-keywords;
@@ -384,10 +370,9 @@
 		gap: 2px;
 	}
 
-	/* Below --tap-target-min on purpose: two of these stack inside a bubble
-	   whose own height a single line of text sets, and the bubble's edges
-	   around them are inert. The 44px floor (Conventions §6) applies to the
-	   line's main affordances — the play button and the words themselves. */
+	/* Below --tap-target-min on purpose: two stack inside a bubble sized by one
+	   line of text. The 44px floor (Conventions §6) applies to the line's main
+	   affordances, the play button and the words. */
 	.mini {
 		width: 2rem;
 		height: 2rem;

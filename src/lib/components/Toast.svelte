@@ -50,15 +50,9 @@
 		align-items: center;
 		gap: var(--space-2);
 		transform: translateX(-50%);
-		/* An explicit width, not just max-width — `left: 50%` with no `right`
-		   makes a shrink-to-fit box's available-space reference only "50% to
-		   the containing block's edge" (half the viewport), not the full
-		   width this max-width implies. That silently produced a toast about
-		   half as wide as intended, wrapping long messages far narrower than
-		   the room actually available, worst on narrow (mobile) viewports
-		   where half the width is a real constraint rather than a rounding
-		   error. An explicit `width` sidesteps that shrink-to-fit resolution
-		   entirely. */
+		/* An explicit width, not just max-width: with `left: 50%` and no `right`, a
+		   shrink-to-fit box resolves against half the viewport, which silently made
+		   the toast half as wide as intended. */
 		width: calc(100vw - 2 * var(--space-4));
 		max-width: var(--measure);
 	}
@@ -74,16 +68,9 @@
 		font-family: inherit;
 		font-weight: 600;
 		text-align: center;
-		/* Plain CSS keyframes, not a Svelte `in:`/`out:` transition — this
-		   list previously used svelte/transition's `fly`, which never
-		   actually played (confirmed by inspecting computed style/inline
-		   style/Animation objects directly: no animation ever ran, on this
-		   or a completely fresh dev server, keyed or unkeyed, fade or fly —
-		   the cause wasn't pinned down, so rather than keep guessing this
-		   sidesteps Svelte's transition engine entirely for something
-		   directly verifiable). A CSS animation plays automatically the
-		   instant an element with one is inserted — no JS orchestration
-		   needed for the entrance at all. */
+		/* Plain CSS keyframes rather than a Svelte transition, which never actually
+		   played here (no animation ever ran, keyed or unkeyed, cause unpinned). A
+		   CSS animation plays the instant the element is inserted. */
 		animation: toast-in 200ms ease-out both;
 	}
 

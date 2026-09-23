@@ -1,440 +1,68 @@
 # Learn Armenian
 
-A PWA for learning Armenian. Learners pick the language they already know —
-English or Russian — and learn Armenian from there.
+A web app for learning the amazing Armenian language. Learners pick the language they already know — English or Russian — and learn Armenian from there.
 
-## Tech stack
+Lessons come in three forms: an alphabet trainer, vocabulary decks drilled with spaced repetition, and two-person dialogues. Lesson content lives in code; the database only ever stores a learner's own choices and progress.
 
-- **[SvelteKit](https://svelte.dev/docs/kit) 2** on **Svelte 5** (runes mode), built with **Vite 8**
-- **TypeScript**, run in strict mode with several additional strictness flags on
-  top of `strict: true` — see [`tsconfig.json`](tsconfig.json)
-- **[Supabase](https://supabase.com)** for backend services (data persistence and auth) —
-  Claude manages the schema directly via the Supabase MCP server, see
-  [Database schema and Supabase management](#database-schema-and-supabase-management)
-- A custom, fully-typed **i18n system** (English/Russian) — no UI string is ever
-  rendered without going through it
-- A small **design-token-based design system** — no component ever hardcodes a color;
-  see [`docs/DESIGN.md`](docs/DESIGN.md) for the palette/type/motion rationale
-- **[`@vite-pwa/sveltekit`](https://github.com/vite-pwa/sveltekit)**, so the app installs and works offline as a PWA
-- Deployed on **Netlify** via `@sveltejs/adapter-netlify` — Claude manages the
-  site (env vars, deploys) directly via the Netlify MCP connector, see
-  [Deployment and Netlify management](#deployment-and-netlify-management)
+## Stack
 
-See [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) for the rules that keep the above
-true as the app grows.
+- [SvelteKit](https://svelte.dev/docs/kit) 2 on Svelte 5 (runes), Vite 8
+- [Supabase](https://supabase.com) for auth and progress
+- [`@vite-pwa/sveltekit`](https://github.com/vite-pwa/sveltekit) — installable, works offline
+- Netlify via `@sveltejs/adapter-netlify`
+- A typed i18n system (en/ru) and a design-token system
 
-## Developing
-
-Install dependencies, then start a dev server:
+## Develop
 
 ```sh
 npm install
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-PWA features (manifest link, service worker) only activate in the production
-build/preview — `vite dev` intentionally skips them so HMR isn't disrupted.
+PWA features activate only in the production build — `vite dev` skips them so HMR isn't disrupted.
 
-### Git workflow
+## Environment
 
-One branch per piece of work, named for that work (`loading-bar-ornament`,
-`word-notes-tidy`), one pull request per branch, merged into `main` and
-then deleted. GitHub deletes the branch on origin itself when the PR is
-merged (the repo's "automatically delete head branches" setting is on);
-locally, `git fetch --prune` drops the stale tracking ref and `git branch
--d <branch>` the branch. Two rules that follow, both learned the hard way
-in one afternoon:
+Copy [`.env.example`](.env.example) to `.env`:
 
-- **A merged branch is finished.** Never commit or push to it again, even
-  if it's still checked out; PRs get merged mid-session, and the working
-  tree gives no sign. Before committing, check `gh pr list --head
-  <branch> --state all` — if it says `MERGED`, start a new branch off
-  `origin/main` and carry the uncommitted change over.
-- **A branch's name is a promise about its contents.** Work that doesn't
-  match the name goes on a new branch, not on whatever happens to be
-  checked out. Renaming an unpushed branch is fine; pushing unrelated
-  work onto a pushed one isn't.
+| Variable | |
+| --- | --- |
+| `PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Secret.** Used only by delete-account ([`supabaseAdmin.ts`](src/lib/server/supabaseAdmin.ts)). No `PUBLIC_` prefix — never expose it client-side. |
 
-### Environment variables
+The two `PUBLIC_` vars build without being set but are required at runtime: every request builds a server-side Supabase client, so a deploy without them fails on every route, not just auth ones. Set them in Netlify too, for both Production and Deploy Previews.
 
-Copy [`.env.example`](.env.example) to `.env` and fill in your Supabase project's
-values:
+`SUPABASE_SERVICE_ROLE_KEY` is optional. Unset, only delete-account fails, and it fails with an error message rather than crashing.
 
-| Variable                     | Description                          |
-| ---------------------------- | ------------------------------------- |
-| `PUBLIC_SUPABASE_URL`        | Your Supabase project URL             |
-| `PUBLIC_SUPABASE_ANON_KEY`   | Your Supabase project's anon/public key |
-| `SUPABASE_SERVICE_ROLE_KEY`  | **Secret** — used only by the delete-account feature ([`src/lib/server/supabaseAdmin.ts`](src/lib/server/supabaseAdmin.ts)) to remove a user server-side. Deliberately has no `PUBLIC_` prefix — never expose it client-side, never paste it anywhere but your own `.env`/deploy config. |
-
-The two `PUBLIC_SUPABASE_*` vars build without being set, but are required
-at runtime — every request creates a server-side Supabase client (see
-[`src/hooks.server.ts`](src/hooks.server.ts)) for the sign-in/sign-up flow
-under `/account`, so a deploy with these unset will fail on every route, not
-just auth ones. Set them in your deploy platform's environment variables too
-(e.g. Netlify's Site configuration → Environment variables), for both
-Production and Deploy Previews — or ask Claude to set them, since the
-Netlify MCP connector can read/write a site's env vars directly (see
-[Deployment and Netlify management](#deployment-and-netlify-management)).
-
-`SUPABASE_SERVICE_ROLE_KEY` is different: it's optional for the app to
-*run*. If it's unset, every route except delete-account works normally —
-delete-account fails gracefully with an error message instead of crashing
-(see `getSupabaseAdmin()`'s error handling).
-
-## Building
+## Build and check
 
 ```sh
-npm run build
+npm run build     # npm run preview to serve it
+npm run check     # svelte-check
+npm run lint      # eslint + stylelint
 ```
 
-Preview the production build with `npm run preview`. Type-check the whole project
-with `npm run check`.
+This is a YOLO project, so nothing gates the deploy: there is no CI pipeline and no test suite. Run `npm run check` and `npm run build` before pushing.
 
-## Project structure
+## Deploy
 
-```
-src/
-  hooks.server.ts          # resolves the current locale, sets <html lang>,
-                            # and wires up the request-scoped Supabase client
-  params/locale.ts         # route param matcher for /en, /ru
-  routes/
-    +layout.server.ts      # exposes the signed-in user's claims to every page
-    +layout.ts             # isomorphic Supabase client (browser + SSR)
-    +page.server.ts        # "/" -> redirects to /en or /ru by Accept-Language
-    account/+page.server.ts # "/account" -> redirects to /en/account or /ru/account
-    api/preferred-locale/+server.ts # persists a signed-in user's chosen UI
-                            # language; fire-and-forget, see Conventions §8
-    auth/
-      confirm/+server.ts   # verifies magic-link emails, then redirects
-      error/+page.server.ts # failed-verification landing, redirects to /account
-    [lang=locale]/          # everything the learner sees lives under a locale
-      +page.svelte          # language picker / entry point
-      learn/+page.svelte    # "start learning" destination
-      account/               # sign in (default) — email/password + magic link
-      account/register/      # sign up, linked from the sign-in page
-      account/change-password/ # requires a session
-      account/change-email/    # requires a session, sends confirmation email(s)
-      account/delete/          # requires a session, uses the service-role key
-      account/contact/         # static support info, no session required
-  lib/
-    i18n/                  # locale, dictionaries, and the t()/getLocale() helpers
-    styles/tokens.css      # design tokens (the only place colors are defined)
-    components/            # shared, reusable UI (Button, Seo, PageShell, UserMenu, ...)
-    content/words/         # the word library: every word, defined once, shared by every
-                            # feature (Conventions §10); audio.ts derives each word's
-                            # pronunciation clip path — see docs/VOCABULARY_AUDIO.md
-    content/vocabulary/    # deck catalog + per-deck word-id lists (code, not DB)
-    content/dialogues/     # dialogue catalog, the two characters, and per-dialogue
-                            # lines whose tokens link into the word library — see
-                            # docs/DIALOGUES.md
-    dialogues/             # the dialogue player's playback state machine
-    srs/scheduler.ts       # pure spaced-repetition algorithm, shared client + server
-    actions/               # Svelte actions (e.g. fitText — shrink text to fit one line)
-    forms/                 # shared form-submission helpers (e.g. the pending-state
-                            # wrapper used by the account/ pages, see Conventions §8)
-    stores/                # cross-component reactive state (e.g. toasts.svelte.ts)
-    server/                # server-only helpers (SvelteKit enforces this boundary at
-                            # build time) — auth guard, service-role admin client
-static/
-  audio/words/             # pre-generated pronunciation clips, one per library word —
-                            # see docs/VOCABULARY_AUDIO.md
-  audio/dialogues/         # per-dialogue line recordings, one file per line — see docs/DIALOGUES.md
-scripts/                   # local tooling, never shipped
-  audio/                   # splitting, pitch-checking and auditioning generated clips —
-                            # see docs/DIALOGUES.md, "Tooling"
-  words/notes.js           # the word-comments review page — see "Reviewing the word comments"
-```
+Netlify serves [learn-armenian.com](https://learn-armenian.com) and auto-deploys on push to `main`. A config change that needs no commit can be picked up with a one-off deploy from the dashboard.
 
-## Authentication
+## Docs
 
-Sign-in/sign-up (`/account`) runs on Supabase Auth via `@supabase/ssr` —
-email+password plus a magic-link fallback. Most of what makes it actually
-work is Supabase dashboard configuration that lives outside this repo (email
-confirmation settings, the magic-link email template, Site URL/Redirect
-URLs), not just code. See [`docs/AUTH.md`](docs/AUTH.md) for the full
-architecture, the exact dashboard checklist, and gotchas already hit once
-(and fixed) — read it before touching anything under `src/hooks.server.ts`,
-`src/routes/auth/`, or `src/routes/[lang=locale]/account/`.
+| | |
+| --- | --- |
+| [AGENTS.md](AGENTS.md) | Working in this repo: conventions index, structure, git, backend access |
+| [docs/CONVENTIONS.md](docs/CONVENTIONS.md) | The rules code review treats as load-bearing |
+| [docs/DESIGN.md](docs/DESIGN.md) | Palette, type, motion, icons |
+| [docs/AUTH.md](docs/AUTH.md) | Auth architecture and the Supabase dashboard checklist |
+| [docs/ALPHABET_TRAINER.md](docs/ALPHABET_TRAINER.md) | Alphabet lesson model |
+| [docs/DIALOGUES.md](docs/DIALOGUES.md) | Dialogue content model and word comments |
+| [docs/WORDS.md](docs/WORDS.md) | Adding vocabulary, and the word-comments review page |
+| [docs/VOCABULARY_AUDIO.md](docs/VOCABULARY_AUDIO.md) | Generating word clips |
+| [docs/ALPHABET_AUDIO.md](docs/ALPHABET_AUDIO.md) | Generating letter clips |
 
-## Vocabulary trainer
+## Packaging
 
-Signed-in learners build a personal vocabulary collection
-(`/learn/vocabulary`) by adding topic decks, then drill them with spaced
-repetition (`/learn/vocabulary/train`) — flip a card, grade it
-Again/Hard/Good/Easy, Anki-style.
-
-- **Deck content lives in code, not the database.** Each deck is an
-  ordered list of word ids under
-  [`src/lib/content/vocabulary/decks/`](src/lib/content/vocabulary/decks/),
-  resolved against the shared word library
-  ([`src/lib/content/words/entries.ts`](src/lib/content/words/entries.ts))
-  and lazily loaded per deck (see [Conventions §10](docs/CONVENTIONS.md#10-words-live-in-one-shared-library-decks-and-dialogues-reference-it-by-id)).
-  The database only ever stores a user's *choices*: which decks they've
-  added (`user_vocabulary_decks`) and their per-word spaced-repetition
-  state (`user_vocabulary_progress`) — never the words/translations
-  themselves.
-- **The scheduling algorithm is a single pure module,**
-  [`src/lib/srs/scheduler.ts`](src/lib/srs/scheduler.ts) — no framework
-  dependency, no I/O. It runs identically on the client (to preview each
-  grade button's resulting wait before the learner picks one) and on the
-  server (to compute the value that actually gets persisted); the two are
-  never allowed to drift into separate implementations of the same logic.
-- **A word with no `user_vocabulary_progress` row is "new."** A row is
-  only written once that word is actually graded, so the table stays
-  sized to what a learner has studied, not the full catalog — and
-  removing a deck deletes its progress rows too, so re-adding it later
-  starts clean rather than resurrecting old due dates.
-- **Grading is optimistic**, deliberately breaking the app's usual
-  pending-state rule — see
-  [Conventions §8's exception note](docs/CONVENTIONS.md#8-async-actions-always-show-their-pending-state)
-  for why.
-- **Every word has a pre-generated pronunciation clip**, played by the
-  "loudspeaker" button next to its Armenian text
-  ([`SpeakerButton.svelte`](src/lib/components/SpeakerButton.svelte)). Files
-  are static assets, not Supabase-hosted — see
-  [`docs/VOCABULARY_AUDIO.md`](docs/VOCABULARY_AUDIO.md) for the storage/
-  encoding rationale and, importantly, **the checklist for voicing a newly
-  added word** — there's no fallback for a missing clip.
-- **New words are drafted in code and reviewed on the word-comments
-  page**, not written to completion in the editor — see
-  [Adding words](#adding-words) below.
-
-## Dialogues
-
-Short two-person conversations (`/learn/dialogues`) between the app's two
-characters, Tereza and Dmitrii — the same two people as its two ElevenLabs
-voices. A dialogue opens with one short grammar rule, then plays line by
-line: in *Listen* mode the Armenian text is blurred until revealed, in
-*Read* mode every word is tappable and opens a popover with its meaning in
-context, its base form, and the shared pronunciation clip. Finishing one
-records it in `user_dialogue_progress` and shows on the account dashboard.
-See [`docs/DIALOGUES.md`](docs/DIALOGUES.md) for the content model — every
-tapped word is an id into the same word library the vocabulary decks use,
-so nothing is defined or recorded twice — and the audio checklist.
-
-## Reviewing the word comments
-
-Every library word can carry two short comments, each in English and
-Russian, named for where they show: `global` (what the word *is* — shown
-on its card and in every dialogue popover, so it must be true anywhere
-and never quotes a phrase) and `cardOnly` (when it's used, the greeting
-it makes — shown on the card and in the trainer only). Their rules are in
-[`docs/DIALOGUES.md`, "Word comments"](docs/DIALOGUES.md#word-comments-global-card-only-and-the-here-remark).
-Inside [`entries.ts`](src/lib/content/words/entries.ts) each sits in its
-own entry, which makes them hard to read as a set — so there's a local
-page that shows them all at once and edits them in place:
-
-```sh
-node scripts/words/notes.js
-# then open http://localhost:4747   (PORT=… to change it)
-```
-
-(It's also the `word-comments` entry in [`.claude/launch.json`](.claude/launch.json),
-so Claude can start it as a preview server.)
-
-- **What it shows:** every word, grouped by the file's section comments,
-  with its Armenian, the *fml.*/*inf.* register tag, and six editable
-  fields: the translation, the global comment and the card-only comment,
-  each in English and Russian. A filter box searches Armenian,
-  translations, ids and the comments; "Only words with a comment" (on by
-  default) hides the bare alphabet examples until you want to add
-  something to one. Dialogue *Here:* remarks aren't on the page — they
-  belong to a line and are reviewed with the dialogue.
-- **`?deck=<id>` shows one deck only** — `http://localhost:4747/?deck=family`
-  lists exactly that deck's words, in the deck's own order, reused words
-  included, and with the "only words with a comment" filter off so the
-  bare ones show too. The ids come from the deck file itself
-  (`src/lib/content/vocabulary/decks/<id>.ts`), imported the way the app
-  imports it; an id the library lacks is named in red at the top instead
-  of silently dropped. This is the view for a deck in progress — see
-  [Adding words](#adding-words).
-- **Saving writes straight into `entries.ts`.** A changed card gets a
-  *Save* button; *Save all* at the bottom of the page, or
-  <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>S</kbd>, saves every changed card.
-  Only that entry's `translation`, `global` and `cardOnly` are rewritten —
-  comments, ordering and the other entries are untouched. A comment
-  emptied in both languages is removed; one filled in on a word that had
-  none is inserted (a one-line entry is expanded to the multi-line form
-  first). Filling in only one language, or emptying a translation, is
-  refused.
-- **Every save runs the file's own checks.** After writing, `entries.ts`
-  is re-imported, so its load-time checks — the tripwire for
-  dialogue-specific wording ("here", "this time", "the shopkeeper"…),
-  the duplicate-id check, a comment opening with a lowercase Armenian
-  word, arrows, plus signs or emoji in a comment, and a Latin letter
-  inside a Cyrillic word — run on the result. If they throw, the write is rolled back and the message shows
-  on the card instead of landing in the file.
-- **It's a plain Node script, not part of the app.** It lives under
-  [`scripts/words/`](scripts/words/), binds to localhost only, and reads
-  the library the same way the app does — by importing the module — so
-  what it shows is exactly what the app shows. Nothing of it ships.
-  Review the resulting diff and commit it like any other content change.
-
-### Adding words
-
-New vocabulary — a deck from a lesson, a batch of nouns a dialogue needs
-— goes in as a **draft in code first, then gets edited on the review
-page**, never polished in the editor. The reason is the same one the page
-exists for: a comment can only be judged next to the other comments it
-sits between, and a deck's twenty entries are unreadable as twenty object
-literals. So, on a branch named for the deck (`family-deck`):
-
-1. **Draft every entry** in [`entries.ts`](src/lib/content/words/entries.ts)
-   under its own `// --- Section ---` header, with a first pass at the
-   translation, `register`, `global` and `cardOnly` — written to the
-   rules in [`docs/DIALOGUES.md`, "Word comments"](docs/DIALOGUES.md#word-comments-global-card-only-and-the-here-remark)
-   but not agonised over. Read the existing decks' comments first and
-   match their feel: short plain statements about this word ("Also means
-   “wife”."), one fact per sentence, no opening with a different word
-   (another word may come in mid-sentence as "the word մայր", never as the
-   subject), neutral register, no slang glosses.
-   The family deck's first draft got this wrong in every way at once
-   ("Մայր — “mother” — with the affectionate -իկ, as in մայրիկ") and every
-   comment had to be rewritten. Check first whether a word already exists
-   (Conventions §10: one flat namespace; the alphabet examples cover a
-   lot of everyday nouns — Քույր, Աղջիկ, Ընկեր were all there before the
-   family deck), and reuse that id rather than adding a near-duplicate;
-   a comment the new deck wants on it goes on the existing entry.
-2. **Add the deck file** (`decks/<id>.ts`, the ordered id list) and the
-   catalog entry (`vocabulary/catalog.ts`, with its `wordCount`; a deck
-   with no fitting icon adds one to `VocabularyDeckIconId` and
-   `VocabularyDeckIcon.svelte`). Importing `entries.ts` — which the review
-   page does on every load — already runs the tripwire and duplicate-id
-   checks over the draft.
-3. **Read and edit the draft at `http://localhost:4747/?deck=<id>`**,
-   saving from the page; that is the editing step, and the diff it
-   produces is the review. Anything the page can't change — the `armenian`
-   spelling, the `register` tag, the id, the order — is edited in the file.
-4. **Voice the new words** per the checklist in
-   [`docs/VOCABULARY_AUDIO.md`](docs/VOCABULARY_AUDIO.md), in the same
-   branch — the clip says the Armenian word only, so it doesn't wait on the
-   comments being final, but the deck can't merge without it (Conventions
-   §11).
-
-## Database schema and Supabase management
-
-Claude has direct access to this project's Supabase backend via the
-Supabase MCP server (configured in [`.mcp.json`](.mcp.json), not committed
-with any secret — it authenticates through an OAuth session, not an API
-key). This repo has no local Supabase stack and no Supabase CLI project
-linked, so Claude works straight against the one live project (local dev
-and production point at the same project — see
-[`docs/AUTH.md`](docs/AUTH.md#testing-against-the-live-project)).
-
-**Claude owns Postgres/Supabase for this project** — the human maintainer
-doesn't need Postgres or Supabase knowledge to work on this app. In
-practice that means Claude should, via MCP rather than by asking the human
-to click through the dashboard or paste SQL:
-
-- Write and apply schema changes (new tables, columns, RLS policies)
-- Track every change as a migration file under
-  [`supabase/migrations/`](supabase/migrations/), one file per change, in
-  the order they were applied — applying a migration through MCP
-  (`apply_migration`) both runs it and records it, so this directory stays
-  a true history of the live schema
-- Run queries, inspect tables, and read logs/advisors to debug issues
-- Consult [`docs/AUTH.md`](docs/AUTH.md) before touching anything
-  auth-related — some auth configuration lives in the Supabase dashboard
-  and isn't reachable through MCP (see the checklist there), so that part
-  still needs a human with dashboard access
-
-**Every `create policy` needs a matching `grant`, in the same migration.**
-Postgres checks table-level privileges *before* RLS is ever evaluated — a
-table with a correct policy but no `grant select/insert/update/delete on
-<table> to authenticated` fails every request with "permission denied for
-table", which looks identical to an RLS block from the outside and is easy
-to mistake for one while debugging. This caused a real bug: the vocabulary
-feature's first two tables had correct policies but no grants, so the "Add
-to my collection" button silently did nothing until a follow-up migration
-added them (see `supabase/migrations/20260816121000_grant_authenticated_access_to_vocabulary_tables.sql`).
-For every operation a policy allows, grant it too — don't rely on RLS alone.
-
-If Claude's Supabase MCP session isn't connected in a given environment,
-fall back to the old manual path: open the new migration file and run its
-contents in the Supabase dashboard's SQL Editor by hand, for every
-environment that needs the change.
-
-## Deployment and Netlify management
-
-Claude also has direct access to this project's Netlify site (`learn-armenian`,
-serving [learn-armenian.com](https://learn-armenian.com)) via a Netlify MCP
-connector. Unlike Supabase's server, this isn't declared in this repo's
-[`.mcp.json`](.mcp.json) — it's connected at the account level, so it's only
-available in sessions where the maintainer has authorized it there.
-
-The site **auto-deploys from this repo's GitLab remote**
-(`git@gitlab.com:njosnavelin/learn-armenian.git`, see `git remote -v`) —
-Netlify picks up every push the normal way, so merging/pushing to the
-production branch is enough on its own; nothing needs to be manually
-triggered for an ordinary change to go live.
-
-**There is no CI pipeline gating that deploy** — no `.gitlab-ci.yml` in this
-repo, and no automated test suite to run one against (see
-[Building](#building); `npm run check` is the only automated check that
-exists, and nothing runs it on push). A push straight to the production
-branch goes live on the next Netlify build with nothing in between catching
-a type error, a broken build, or a regression — run `npm run check` (and
-ideally `npm run build`) locally before pushing.
-
-Through the MCP connector, Claude can — instead of asking the human to click
-through the Netlify dashboard:
-
-- Read the site's config, deploy status, and deploy history
-- Read and write environment variables directly (the MCP-backed alternative
-  to the manual step in [Environment variables](#environment-variables)
-  above), scoped to Production, Deploy Previews, or both
-- Trigger a one-off deploy outside the normal push-to-deploy flow (e.g. to
-  pick up a Netlify-side config change without a new commit)
-- Read/manage forms and form submissions, and look up team/user info
-
-As with Supabase, if this connector isn't available in a given session, fall
-back to the Netlify dashboard (Site configuration) by hand.
-
-## Internationalization
-
-Every locale is a real, crawlable route (`/en`, `/ru`) rather than client-only
-state, so each language is independently indexable and linked via
-`hreflang` alternates (see [`src/lib/components/Seo.svelte`](src/lib/components/Seo.svelte)).
-`/` server-redirects to the best-matching locale based on the request's
-`Accept-Language` header.
-
-## Accessibility
-
-Locale pages include a skip-to-content link, use a single `<main>` landmark,
-and rely on real `<a>`/`<button>` elements (via the shared `Button` component)
-rather than click handlers on generic elements, so navigation stays keyboard-
-and screen-reader-operable. Focus is always visible (`:focus-visible`, see
-[`src/app.css`](src/app.css)) and respects `prefers-reduced-motion`.
-
-## Responsive design
-
-The app targets every screen size from small phones to widescreen desktop
-monitors, not a fixed set of device breakpoints. That's driven by a few tokens
-in [`tokens.css`](src/lib/styles/tokens.css) rather than page-specific CSS:
-
-- `--measure` caps content width so line length and layout stay comfortable
-  from a 320px phone up to an ultrawide monitor, applied once in
-  [`PageShell.svelte`](src/lib/components/PageShell.svelte) rather than per page.
-- `--tap-target-min` (44px) is the minimum size for interactive elements
-  (`Button.svelte`), meeting WCAG 2.5.5/2.5.8 touch-target guidance.
-- Typography (`--font-size-xl`) and layout (`nav` wrapping in the language
-  picker) use `clamp()`/`flex-wrap` instead of fixed pixel breakpoints, so
-  they scale continuously rather than jumping at specific widths.
-- The viewport meta tag includes `viewport-fit=cover`, and `PageShell` pads
-  with `env(safe-area-inset-*)`, so content clears notches/home indicators on
-  mobile.
-
-See [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) for the rule this follows.
-
-## Roadmap: app store packaging
-
-The app is built as a standard installable PWA today. Wrapping it for app
-stores later (e.g. with [Capacitor](https://capacitorjs.com)) is expected to
-work by pointing Capacitor's `server.url` at the deployed Netlify site — the
-existing SSR-based locale redirect and `<html lang>` handling keep working
-unchanged in that mode. A fully offline-bundled native build would instead
-need `adapter-static` and client-side locale resolution; that's a deliberate
-fork in the road, not something this codebase needs to decide now.
+Installable as a PWA today. Wrapping it for app stores (e.g. [Capacitor](https://capacitorjs.com)) should work by pointing `server.url` at the deployed site; the SSR locale redirect and `<html lang>` keep working. A fully offline native build would instead need `adapter-static` and client-side locale resolution.

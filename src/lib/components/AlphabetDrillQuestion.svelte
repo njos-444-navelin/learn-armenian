@@ -45,9 +45,8 @@
 	let picked = $state<string | null>(null);
 	let audioEl: HTMLAudioElement | undefined = $state();
 
-	// Same reduced-motion-aware pattern as AlphabetTrainer.svelte's own
-	// screen fade — computed once (not reactive), since a transition's
-	// params are read when it's created, not on every re-render.
+	// Computed once, not reactive: a transition's params are read when it's
+	// created. Same pattern as AlphabetTrainer.svelte's screen fade.
 	const cardFadeMs = browser && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 150;
 
 	function letterFor(id: string): AlphabetLetter | undefined {
@@ -68,10 +67,8 @@
 					: questionCaseToLowerLabel
 	);
 
-	// Unlike the learn step's own dots, this one does distinguish "already
-	// answered" from "the question you're on" — a real distinction here,
-	// since drill questions (unlike learn steps) have a right/wrong outcome
-	// worth showing at a glance.
+	// Unlike the learn step's dots, these distinguish "already answered" from
+	// "the question you're on" — drill questions have a right/wrong outcome.
 	let dotStates = $derived<readonly DotState[]>(
 		Array.from({ length: total }, (_, n) => (n < index ? 'filled' : n === index ? 'current' : 'empty'))
 	);
@@ -96,17 +93,12 @@
 		void audioEl.play().catch(() => {});
 	}
 
-	// An 'audio' question is unanswerable without hearing the clip — the
-	// learner would have to tap play before they could do anything else
-	// anyway, so play it the instant the question appears instead of
-	// making that the first required action. This component remounts
-	// fresh for every question (see the `{#key drillIndex}` wrapper in
-	// AlphabetTrainer.svelte), so a plain mount-time effect is enough;
-	// nothing here needs to re-fire mid-question. Reaching this screen
-	// always follows a click (Practice, Next, a drill answer), which is
-	// what keeps this within the browsers' autoplay-permission window —
-	// playAudio()'s own `.catch(() => {})` still covers the rare case
-	// where a browser blocks it anyway.
+	// An 'audio' question can't be answered without hearing the clip, so it
+	// plays on sight rather than making that the learner's first action. The
+	// component remounts per question (see the `{#key}` in AlphabetTrainer),
+	// so a mount-time effect is enough. Getting here always follows a click,
+	// which keeps it inside the autoplay-permission window; playAudio()
+	// swallows the rejection if a browser blocks it anyway.
 	$effect(() => {
 		if (question.type === 'audio') playAudio();
 	});
@@ -168,10 +160,8 @@
 			</svg>
 			<span class="audio-hint">{t(audioReplayHint)}</span>
 		</button>
-		<!-- Unlike a word's audio elsewhere in the app (SpeakerButton.svelte,
-		     preload="none"), an 'audio' drill question is guaranteed to need
-		     this clip — the learner can't answer without hearing it — so
-		     there's no "maybe never needed" case to stay lazy for. -->
+		<!-- preload="auto", unlike SpeakerButton's "none": this clip is certain
+		     to be needed, since the question can't be answered without it. -->
 		<audio bind:this={audioEl} src={letterAudioSrc(question.letter.id)} preload="auto"></audio>
 	{:else}
 		<div class="glyph-circle">
@@ -237,25 +227,13 @@
 </div>
 
 <style>
-	/* Same fix, same reason, as AlphabetLearnStep.svelte's .learn-step: left
-	   as plain siblings, this screen's total content height (which varies
-	   question to question — the options grid's text wraps differently
-	   letter to letter) changed where PageShell's own centering put the
-	   whole block, while the footer stayed genuinely fixed-position below
-	   it — the mismatch between those two showed up as a gap of visible
-	   page background between the last option row and the floating footer
-	   whenever this question's content was shorter than the tallest one.
-	   Forcing this wrapper to always claim the full height PageShell would
-	   otherwise center it within fixes both at once: the header gets a
-	   fixed starting position, and .content-wrap's `flex: 1` centers the
-	   actual stage+options content in whatever's left above the footer,
-	   instead of the footer floating wherever the outer centering happened
-	   to land. `<FloatingActionBar>` has to live inside this wrapper too,
-	   for the same reason it does in AlphabetLearnStep.svelte's own
-	   .learn-step: its dynamically-measured bottom spacer needs to be one
-	   of *this* flex column's children for `.content-wrap`'s `flex: 1` to
-	   correctly absorb only what's actually left over, rather than this
-	   component trying to predict that spacer's height itself. */
+	/* Claims the full height PageShell would otherwise centre it within, so the
+	   header gets a fixed starting position and `.content-wrap`'s `flex: 1`
+	   centres the stage in what's left above the footer. Without it, content
+	   height varying question to question moved the block while the fixed footer
+	   stayed put, leaving a gap of page background between them.
+	   `<FloatingActionBar>` must live inside this wrapper so its measured bottom
+	   spacer is one of this column's children — same as AlphabetLearnStep. */
 	.drill-step {
 		display: flex;
 		width: 100%;
@@ -265,23 +243,13 @@
 		gap: var(--space-5);
 	}
 
-	/* flex-end, not center, on a mobile-sized viewport: a question with
-	   less content than the tallest case (an 'audio' question has no
-	   options-text to wrap, a 'sound' question's voicing labels are
-	   short) left slack on both sides of this block when centered — and
-	   the slack *below* it directly read as "too much space before the
-	   floating footer," since that's the one edge sitting right next to
-	   something else visible. Bottom-aligning moves that same slack above
-	   the stage instead, right under the header, where there's nothing
-	   else nearby for a gap to look wrong against. That reasoning flips on
-	   a tall desktop viewport, though: `--page-content-min-height` scales
-	   with the real viewport height, so the *amount* of slack scales with
-	   it too, and bottom-aligning a much bigger pile of slack no longer
-	   reads as "a bit snug near the footer" — it reads as the content
-	   sinking to the bottom of a mostly-empty page. Past the same
-	   min-width breakpoint AlphabetLetterSheet.svelte already uses for
-	   "wide enough to stop treating this like a phone," go back to
-	   ordinary centering. */
+	/* flex-end on a phone: a question with less content than the tallest left
+	   slack on both sides when centred, and the slack below read as a gap before
+	   the floating footer. Bottom-aligning moves it under the header, where
+	   nothing sits next to it. On a tall viewport the slack scales with
+	   `--page-content-min-height` and bottom-aligning instead reads as content
+	   sinking down a mostly-empty page, so centre again past the same breakpoint
+	   AlphabetLetterSheet.svelte uses. */
 	.content-wrap {
 		display: flex;
 		width: 100%;
@@ -322,10 +290,8 @@
 		background: var(--color-surface);
 	}
 
-	/* Same reasoning as AlphabetLearnStep.svelte's own glyph circle: on a
-	   short viewport, this circle plus the header/prompt/options/footer
-	   around it can outgrow the space available before the width alone
-	   would ever look cramped. */
+	/* On a short viewport this circle plus the chrome around it outgrows the
+	   space available well before the width looks cramped. */
 	@media (max-height: 700px) {
 		.glyph-circle,
 		.audio-button {
@@ -412,12 +378,8 @@
 		font-family: var(--font-heading);
 		font-weight: 700;
 		font-size: 1.4rem;
-		/* Tight on purpose, same reasoning as .option-text's own 1.25 — a
-		   glyph pair never wraps, so there's no second line to give
-		   breathing room to, and the inherited body line-height (1.5) was
-		   adding real height to every option for nothing. Together with the
-		   smaller font-size, this keeps the whole grid shorter, leaving
-		   more clearance before the floating skip button below it. */
+		/* A glyph pair never wraps, so the inherited 1.5 was adding height for
+		   nothing; shorter options leave more clearance before the footer. */
 		line-height: 1.1;
 	}
 
@@ -437,15 +399,9 @@
 		opacity: 0.6;
 	}
 
-	/* Always reserves the same height regardless of which of the four
-	   states below is showing (nothing yet, the bare skip button, or the
-	   card) — that's what actually keeps this fixed bar's own height
-	   constant so nothing above it shifts when an answer is picked, not
-	   the card itself (see .footer-card): a card rendered around *nothing*
-	   for the pre-pick states was its own bug — an empty floating box with
-	   no content in it. 8.25rem matches the tallest real state (the
-	   .footer-card case: feedback text at up to 2 lines, its button, and
-	   the card's own padding), measured directly rather than guessed. */
+	/* A constant height across all four footer states, so nothing above shifts
+	   when an answer is picked. 8.25rem is the tallest real state (feedback at
+	   two lines, its button and the card's padding), measured not guessed. */
 	.footer {
 		display: flex;
 		width: 100%;
@@ -456,13 +412,9 @@
 		min-height: 8.25rem;
 	}
 
-	/* The card only wraps a state that actually has feedback text to
-	   frame — the standalone skip button doesn't need one ("just the
-	   button itself more than suffices"), and there's deliberately no
-	   card at all for the pre-pick states with nothing to show yet. Still
-	   doubles as the anti-overlap backing this bar needs in general: it's
-	   fixed-position, sitting on top of the options grid above it, and a
-	   short viewport can genuinely scroll that grid up underneath it. */
+	/* Only the states with feedback text get a card; the bare skip button and
+	   the pre-pick states don't. Doubles as the backing this fixed bar needs,
+	   since a short viewport can scroll the options grid up underneath it. */
 	.footer-card {
 		display: flex;
 		width: 100%;
@@ -483,23 +435,16 @@
 		text-align: center;
 	}
 
-	/* .footer-card centers its children instead of stretching them
-	   (align-items: center, unlike AlphabetSessionSummary.svelte's own
-	   .actions), so the lone Next button here — the only :global(.button)
-	   sitting directly under .footer-card, as opposed to one nested inside
-	   .skip-actions below — needs its width set explicitly. */
+	/* .footer-card centres its children rather than stretching them, so the lone
+	   Next button — the only one directly under it — needs an explicit width. */
 	.footer-card > :global(.button) {
 		width: 100%;
 	}
 
-	/* A real (if secondary-looking) button, not a link — it performs an
-	   action, it doesn't navigate anywhere. Deliberately smaller than the
-	   Next button or .mute: no min-width, no flex stretch, so it stays
-	   sized to its own text instead of spanning the row. min-height stays
-	   at --tap-target-min regardless — "smaller-looking" is a
-	   padding/width choice, not a smaller tap target. Not <Button>: its
-	   translucent background and single-consumer use are both genuinely
-	   its own (see CONVENTIONS.md #3). */
+	/* A button, not a link: it acts rather than navigates. Sized to its own text
+	   rather than the row, but min-height stays at --tap-target-min — looking
+	   smaller is a padding choice, not a smaller tap target. Not <Button>: its
+	   translucent background and single use are its own (Conventions #3). */
 	.skip {
 		min-height: var(--tap-target-min);
 		padding: 0 var(--space-4);
@@ -522,15 +467,10 @@
 		gap: var(--space-2);
 	}
 
-	/* Not <Button variant="secondary" opaque>: this sits beside a
-	   full-size Next in a half-width flex:1 slot, and "Mute for 15 min" /
-	   "Отключить на 15 мин" is real content, not a short label — it needs
-	   the smaller font-size below to keep fitting there. Button.svelte has
-	   no size variant, and one isn't worth adding for this single case.
-	   Opaque, not transparent, for the same reason as .feedback and
-	   AlphabetLearnStep.svelte's .prev: this footer is fixed-position, and
-	   this button sitting on top of scrolled-up content shouldn't let it
-	   show through. */
+	/* Not <Button variant="secondary" opaque>: "Mute for 15 min" is real content
+	   in a half-width slot and needs the smaller font-size below, which Button
+	   has no variant for. Opaque because this footer is fixed-position and
+	   shouldn't let scrolled-up content show through. */
 	.mute {
 		flex: 1;
 		min-height: var(--tap-target-min);

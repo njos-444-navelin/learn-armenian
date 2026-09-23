@@ -1,52 +1,19 @@
 # Dialogues
 
-Short two-person conversations in Armenian, each built around one grammar
-rule. This doc covers the content model — in particular how a dialogue
-shares words and audio with the rest of the app instead of duplicating
-them — the player's behaviour, progress tracking, and the audio checklist
-for a new dialogue.
+Short two-person conversations, each built around one grammar rule. This covers the content model, the player, progress, and the line-audio checklist.
 
 ## The two characters
 
-The app has exactly two characters, defined once in
-[`src/lib/content/dialogues/characters.ts`](../src/lib/content/dialogues/characters.ts):
-**Tereza** and **Dmitrii**. They are the same two people as the app's two
-ElevenLabs voices (see "Voices and model" in
-[`VOCABULARY_AUDIO.md`](VOCABULARY_AUDIO.md)), so a line shown as Tereza's
-is spoken by Tereza's voice. Each has one drawn avatar — the two inline
-SVG faces from the Dialogues design (a dark bob for Tereza, a shaved head
-for Dmitrii), coloured from the token ramps — in
-[`CharacterAvatar.svelte`](../src/lib/components/CharacterAvatar.svelte).
-Deliberately not photos: the app's characters are the illustrated pair,
-even though the voices behind them are real people. Every dialogue is a
-conversation between the two; there is no third speaker and no
-per-dialogue cast.
-
-Their names go through `Translated` like everything else (they're
-transliterated differently per locale — Tereza/Тереза), unlike `brandName`.
+**Tereza** and **Dmitrii**, defined once in [`characters.ts`](../src/lib/content/dialogues/characters.ts). They are the same two people as the app's two ElevenLabs voices, so a line shown as Tereza's is spoken by Tereza's voice. Each has one drawn avatar in [`CharacterAvatar.svelte`](../src/lib/components/CharacterAvatar.svelte) — deliberately not photos. Every dialogue is between the two; there is no third speaker. Their names go through `Translated`, since they transliterate per locale.
 
 ## Content model — one word library, referenced by id
 
-The whole point of the architecture (see
-[Conventions §10](CONVENTIONS.md#10-words-live-in-one-shared-library-decks-and-dialogues-reference-it-by-id)):
-**a dialogue never defines or records a word.** It links to the app-wide
-word library, [`src/lib/content/words/entries.ts`](../src/lib/content/words/entries.ts),
-the same registry the vocabulary decks list their words from and the
-alphabet trainer takes its example words from.
+**A dialogue never defines or records a word** ([Conventions §10](CONVENTIONS.md#10-words-live-in-one-shared-library-decks-and-dialogues-reference-it-by-id)). It is two files:
 
-A dialogue is two files:
+- A catalog entry in [`catalog.ts`](../src/lib/content/dialogues/catalog.ts): id, title and translation, the rule's headline forms, duration, line count. Safe to import anywhere.
+- A content file, `dialogues/<id>.ts`, exporting `RULE` and `LINES`. Loaded lazily through `loadDialogue()`, never imported directly (enforced by eslint).
 
-- A catalog entry in [`catalog.ts`](../src/lib/content/dialogues/catalog.ts)
-  (`DialogueSummary`: id, Armenian title and its translation, the rule's
-  headline forms, rough duration, line count). Safe to import anywhere —
-  the list page and the account dashboard only ever need this.
-- A content file, `dialogues/<id>.ts`, exporting `RULE` (the "one rule
-  first" card) and `LINES`. Loaded lazily through
-  [`loadDialogue()`](../src/lib/content/dialogues/loadDialogue.ts), never
-  imported directly (enforced by eslint).
-
-Each line is a speaker, a translation, and **tokens** — the words as
-actually spoken, punctuation included:
+Each line is a speaker, a translation and **tokens** — the words as spoken:
 
 ```ts
 // text, library word id, gloss for this line, `here` remark for this line
@@ -56,724 +23,147 @@ tok('հա՞ցը։', 'hats', { en: 'the bread', ru: 'хлеб (этот)' }, {
 })
 ```
 
-- `text` is the surface form, verbatim — inflected, with its ՞/՛/։ marks,
-  in the line's real casing (the one place Armenian isn't capitalized, since
-  this *is* running text).
-- `wordId` points at the library entry the token is a form of. Tapping the
-  token opens [`DialogueWordPopover.svelte`](../src/lib/components/DialogueWordPopover.svelte),
-  which shows the base form (`Հաց`) and plays the library's one clip for it
-  via the shared `SpeakerButton`. So `ուզում` links to `uzel` — the verbs
-  deck's "To want", with the clip that deck already had — and `Բարև։` to
-  `barev`, which is also a greetings-deck word and the alphabet's example
-  for Բ. A token with nothing to look up (a name, a bare mark) omits
-  `wordId` and renders as plain text.
-- `gloss` is optional and *contextual*: what the token means in this line
-  when that differs from the library translation ("the bread" vs "Bread";
-  "want" vs "To want"). It falls back to the library `translation`.
-- Notes are a two-layer system with its own rules — see the next section.
+- `text` is the surface form verbatim, in the line's real casing — the one place Armenian isn't capitalized, since this *is* running text.
+- `wordId` points at the library entry the token is a form of. The popover shows the base form and plays the library's one clip for it.
+- `gloss` is optional and contextual: the meaning *in this line*, where it differs from the library translation. Falls back to that translation.
+
+`loadDialogue()` throws on a `wordId` the library lacks and on a `lineCount` mismatch, so a content typo fails on first load rather than shipping as an untappable word.
+
+**Adding a dialogue:** write the content file, add the catalog entry, add any missing library words (with their clips, per [VOCABULARY_AUDIO.md](VOCABULARY_AUDIO.md)), then record the lines.
 
 ### Word comments: global, card-only, and the "Here:" remark
 
-A word can carry three kinds of comment, named for where they show:
-
-| | `Word.global` (library, `words/entries.ts`) | `Word.cardOnly` (library) | `DialogueToken.here` (the token, in the dialogue file) |
+| | `Word.global` | `Word.cardOnly` | `DialogueToken.here` |
 |---|---|---|---|
-| **What it is** | What the word *is*: its case, its mood, an extra sense, a look-alike to keep it apart from | When and to whom it's said, the greeting it makes, where its mark sits | This occurrence: why the -ը, where the ՞ sits, an idiom this line builds |
-| **Shows** | Everywhere: the card, the trainer, every dialogue popover | The card and the trainer only — never a dialogue | On this token only, always under an italic *Here:* label |
-| **Where** | Under the translation on a card; in the popover, with the dictionary entry (base form · translation · ▶), in the entry's grey | Under the global comment on the card | Last, after the global comment, same grey — the label is the marker |
+| **What it is** | What the word *is*: case, mood, an extra sense, a look-alike to keep apart | When and to whom it's said, the greeting it makes | This occurrence: why the -ը, where the ՞ sits |
+| **Shows** | Everywhere: card, trainer, every popover | Card and trainer only, never a dialogue | This token only, under an italic *Here:* |
 
-The card-only comment exists because the card is where the learner meets
-the word with no sentence around it, and a phrase is often the whole
-reason the word is in the deck (Լույս is in the greetings deck for բարի
-լույս). In a dialogue the tapped line *is* the usage: someone tapping Լույս
-in a line about light doesn't need to hear about բարի լույս, and when a
-line *is* բարի լույս, that's a `here` on the token ("here: good morning").
-It came from exactly this case: the greetings explanation was first
-written as a global comment, which would have followed Լույս into every
-dialogue.
+Card-only exists because the card is where the learner meets a word with no sentence around it, and a phrase is often the whole reason it's in the deck (Լույս is in greetings for բարի լույս). In a dialogue the line *is* the usage, so a phrase the learner isn't reading right now is noise; when a line *is* that phrase, it's a `here`.
 
-The popover reads top to bottom: the gloss (what the tapped form means in
-this line) → the dictionary entry with its global comment → *Here:*. The
-play button sits on the entry row, next to the base form, because the clip
-says the base form (`Ուզել`, not `ուզում`); the inflected form is heard
-from the line's own play button. When the tapped form *is* the base form
-the "from" label is dropped, and the library translation is dropped when it
-only repeats the gloss.
+The popover reads gloss → dictionary entry with its global comment → *Here:*. The play button sits on the entry row, because the clip says the base form.
 
-There is no per-token override of the global comment. If it would mislead
-in some line, it is wrong — fix it (or, if what misleads is a phrase it
-quotes, it was card-only all along).
+There is no per-token override of a global comment. If it would mislead in some line, it's wrong — fix it, or it was card-only all along.
 
-**Global or card-only?** Global says what the word *is* and holds in any
-sentence: a case, a mood, an auxiliary, an extra sense, a look-alike
-(Գնալ / Գնել differ by one letter wherever they appear, so that warning is
-global). Card-only says when it's used: Բարև's "to a stranger, say բարև
-ձեզ", Այո's "to a stranger, an official, or in writing", the greeting a
-time-of-day word makes, where the ՞ sits in ի՞նչ. The test is the dialogue
-popover: would this sentence help someone who has just tapped the word in
-a line? Grammar does; advice on when to say it, and phrases it isn't in
-right now, don't.
+**Global or card-only?** Global holds in any sentence: a case, a mood, an auxiliary, an extra sense, a look-alike (Գնալ / Գնել differ by one letter everywhere). Card-only is when it's used. The test is the popover: would this help someone who just tapped the word in a line? Grammar does; advice on when to say it, and phrases it isn't in right now, don't.
 
-**Rules for both library comments** — every one of these was learned by
-getting it wrong in review, several more than once. The 2026-09-16 pass
-over the whole library, which cut most comments to a sentence, set the
-shape the first eight describe:
+**Rules for both library comments:**
 
-1. **One sentence; two is the ceiling.** It's read on a card between the
-   word and the next word, or in a popover over a line. Սովորել's extra
-   senses fit in one line ("Also means “to learn” (words, a language) and
-   “to get used to”"); Աշխատել's in seven words. If a comment wants a
-   paragraph, it's two comments, a `here`, or a rule card.
-   **And one fact per sentence, said plainly.** "Also means “wife”." "Any
-   human being. In everyday speech, often specifically a man." A sentence
-   that strings three facts together with dashes and semicolons ("Related
-   by blood, or as close as if you were; also “native”, of a town or a
-   tongue") is two sentences, or one fact fewer. Dashes and semicolons
-   aren't banned, but they should be sparse — the existing comments use
-   a dash for a gloss ("the formal goodbye — literally “until seeing”"),
-   not for stacking clauses. Before writing a new deck's comments, read
-   the greetings and verbs decks' first; the new ones should feel like
-   they were written by the same hand. What that hand does, from the
-   family deck's edit:
-   - **Neutral register, no slang glosses.** "Also a friendly way to
-     address any man" — not "like “bro”", not «брат», «братан». The
-     translation field already carries the meaning; the comment doesn't
-     add colour.
-   - **Hedge a frequency claim.** "In everyday speech, *more often*
-     specifically a man", «*чаще* именно мужчина» — not "often", which
-     reads as a rule.
-   - **A comparison with the reader's language opens the sentence:**
-     «Как и в русском, так называют и любого пожилого мужчину». And it's
-     made once, structurally — not by quoting the Russian word again
-     («как русское “дядя”» was cut: the translation already says дядя).
-   - **English and Russian mirror each other's frame.** "Also means
-     “wife”" and «Также значит «жена»» (with the verb); "In literary
-     Armenian" and «В литературном языке» (not «в книжном»). The *content*
-     is still written for each reader (rule 12); the *shape* matches.
-   - **A fact about the language is not a comment on a word.** "Armenian
-     has no general word for “aunt”" was cut from Մորքուր: it's true of
-     the family, not of this word (rule 10's last paragraph — a rule card
-     or a `here`, if anywhere).
-   - **A comment that's only a fun fact goes.** Ընկեր's "boyfriend / comrade"
-     was cut; the card says "Friend" and needs nothing else. The test is
-     rule 2 — does it say something the translation doesn't *and* that
-     the learner needs?
-2. **Don't restate the translation.** The card already says "Evening";
-   the comment starts with what the translation doesn't say. A card-only
-   comment about a phrase opens straight on it: "E.g. բարի օր — a formal
-   “good day”", not "The time of day; it also makes the greeting…". The
-   time-of-day set (Առավոտ, Օր, Իրիկուն) all open with "E.g." on
-   purpose, so they read as a set.
-3. **Name the grammar, don't talk around it.** "The dative case of դուք",
-   "imperative mood", "the first-person auxiliary" — not "what makes բարև
-   ձեզ polite".
-4. **Extra senses read "Also means …".** "Also means “to earn” and,
-   colloquially, “to try”." — the senses in quotes, nothing about how
-   many there are or that it's "one verb for all three".
-5. **Don't explain a word with another new word — and a formal/informal
-   counterpart is never named in the text.** A comment is read by someone
-   who has just met *this* word; opening it with a second unfamiliar word
-   ("Մայր — “mother” — with the affectionate -իկ", on Մայրիկ's card;
-   "The spoken shape of եղբայր", on Ախպեր's) doubles what they have to
-   hold. The other word may still appear, but as the *object*, introduced
-   and mid-sentence, once the sentence is already about this word: "The
-   ending -իկ makes the word մայր soft and affectionate", «Суффикс -իկ
-   делает слово մայր ласковым» — "the word մայր", never bare մայր as the
-   subject. A cross-reference earns its place only when it *is* the fact
-   — a root (մայր), a look-alike (Գնալ / Գնել), a clipped form (Հաջող) —
-   never as a decoration ("with the affectionate -իկ, as in մայրիկ": the
-   "as in" adds nothing and was cut). On counterparts: the
-   `register` tag — the italic *fml.* / *inf.* marker on the card and in
-   the popover's entry row — is the whole signal: Այո is tagged formal and
-   its comment says when it's used, not that հա exists; Երեկո is tagged
-   formal and has no comment at all. "The formal one is Ցտեսություն",
-   "among friends it's հա", "its written counterpart is և" doubled every
-   such pair's comments and were all cut in one pass. The register of a
-   *phrase* is stated inline instead, with the article — "an informal
-   “good evening”", "a formal “good morning”" — and the word itself
-   carries no `register` when the split belongs to the greeting rather
-   than the word (Առավոտ is the neutral time-of-day word; Լույս just means
-   light). A word that is a clipped form of another may still name it
-   (Հաջող: "հաջողություն clipped to its first half") — that is what the
-   word *is*, not a counterpart.
-6. **Examples are lowercase; the sentence still starts with a capital.**
-   An Armenian word or phrase quoted inside a comment is written in
-   lowercase, and so is its translation: "e.g. բարի լույս — “good
-   morning”", "not to be confused with գնել (“to buy”)", "the dative case
-   of դուք — “you”". Capitals are for a word standing on its own — the
-   `armenian` and `translation` fields on a card (Conventions §10) — and
-   for whatever opens a sentence, an Armenian word included: "Բարի գիշեր
-   — “good night” — is a goodbye, not a greeting", "Մայր — “mother” —
-   with the affectionate -իկ", "Այս used on its own". A comment follows
-   natural sentence flow; "մայր — “mother” — with…" is a fragment, and
-   the family deck's first draft opened eight comments that way (and
-   Սա's, Դա's and Չեմ's had since the start). `entries.ts` throws at load
-   on a comment that opens with a lowercase Armenian letter. Russian
-   keeps its own orthography for the polite address to the reader («кто
-   Вас обслуживает»), which is not an example.
-7. **No pronunciation.** How Ո reads at the start of a word is the
-   alphabet trainer's lesson, not Ոչ's comment.
-8. **No extra forms.** A comment doesn't introduce an inflection the
-   learner hasn't met — no plural for Սա, no "on its own: նա" for Այն, no
-   «աշխատիր — try to» for Աշխատել's "to try" sense: an imperative the
-   learner has never seen is a second lesson smuggled into a footnote.
-   Name the sense; let a line, or a later dialogue, show the form. (Forms
-   of the word itself are fine when they're the form the learner meets —
-   the tapped token: Այո՛, ի՞նչ.)
-9. **True of the word in any sentence a learner could meet it in.** If it
-   is only true here, it is a `here`. `entries.ts` throws at load on
-   "here", "this time", "the shopkeeper" and the like — a tripwire for the
-   exact phrasings that slipped through, not a definition of "general". A
-   card-only comment never reaches a dialogue, but it's held to the same
-   wording, and the same tripwire runs over it.
-10. **A global comment never quotes a phrase.** The tapped line *is* the
-    example. A quoted phrase either coincides with a line — then a global
-    comment reads as a remark about that line, which is exactly what
-    "ուզում եմ" did on «Ես ուզում եմ հաց» — or brings in words the learner
-    hasn't met. A card-only comment may quote the phrase; that's its job.
-    (Rewritten into general wording — "the participle ուզում plus an
-    auxiliary" — that comment was true, but true of *every* verb, so on
-    Ուզել's card in a deck of twenty verbs it was noise. It's now the
-    `here` on line 1's ուզում, where the learner meets the pattern, and
-    the later ուզում remarks follow on from it. A comment that describes
-    the grammar of the language rather than this word is a `here` on the
-    first token that shows it, or a rule card.)
-11. **Only words the learner has.** No example vocabulary beyond the
-    dialogues so far, and plain English/Russian for the explanation.
-12. **Write the English and the Russian separately, each for its own
-    reader — never translate one into the other.** The two languages don't
-    share what needs explaining. English has no polite plural "you", so
-    Եք's English comment has to spell it out; a Russian reader has вы/Вы
-    and only needs "как в русском" — the translated sentence ("вежливая
-    форма для любого, к кому обращаются на Вы") reads as nonsense to them.
-    The same goes the other way: Russian drops the copula, so «է — есть»
-    needs a word of framing that "is" doesn't. For every comment, ask what
-    *this* reader already knows and what they'd find odd, and write from
-    there. This applies to `here` remarks and translations too.
+1. **One sentence, two at most, one fact each.** Three facts stacked with dashes and semicolons is two comments or one fact fewer. Read the greetings and verbs decks before writing new ones; they should read as one hand.
+   - Neutral register, no slang glosses — the translation carries the meaning.
+   - Hedge a frequency claim: "more often specifically a man", not "often".
+   - A comparison with the reader's language opens the sentence, and is made once: «Как и в русском, так называют и любого пожилого мужчину».
+   - English and Russian mirror each other's *frame* while staying written for their own reader (rule 12).
+   - A fact about the language is not a comment on a word. "Armenian has no general word for aunt" is true of the family, not of Մորքուր.
+   - A comment that's only a fun fact goes. Does it say something the translation doesn't *and* that the learner needs?
+2. **Don't restate the translation.** Start with what it doesn't say. A card-only comment about a phrase opens straight on it: "E.g. բարի օր — a formal "good day"".
+3. **Name the grammar**: "the dative case of դուք", "imperative mood" — not "what makes բարև ձեզ polite".
+4. **Extra senses read "Also means …"**, the senses in quotes, nothing about how many there are.
+5. **Don't explain a word with another new word, and never name a formal/informal counterpart.** The other word may appear as the *object*, mid-sentence, once the sentence is already about this word: "The ending -իկ makes the word մայր soft and affectionate", never bare մայր as the subject. A cross-reference earns its place only when it *is* the fact — a root, a look-alike, a clipped form. The `register` tag is the whole signal for a counterpart; a *phrase*'s register is stated inline with the article ("an informal "good evening""), and the word carries no `register` when the split belongs to the greeting rather than the word.
+6. **Examples are lowercase; the sentence still starts with a capital** — an Armenian word included: "Բարի գիշեր — "good night" — is a goodbye". `entries.ts` throws on a comment opening with a lowercase Armenian letter. Russian keeps its own orthography for the polite address («кто Вас обслуживает»), which is not an example.
+7. **No pronunciation.** How Ո reads word-initially is the alphabet trainer's lesson.
+8. **No extra forms.** Don't introduce an inflection the learner hasn't met — an unseen imperative is a second lesson smuggled into a footnote. Forms of the word the learner is actually looking at are fine.
+9. **True of the word in any sentence.** If it's only true here, it's a `here`. `entries.ts` throws on "here", "this time", "the shopkeeper" and the like — a tripwire for the phrasings that slipped through, not a definition of "general". The same check runs over `cardOnly`.
+10. **A global comment never quotes a phrase.** The tapped line is the example, and a quoted phrase either coincides with a line — so the comment reads as a remark about that line — or brings in unmet words. Card-only may quote; that's its job. A comment describing the grammar of the *language* rather than this word belongs on a `here` at the first token that shows it, or on a rule card.
+11. **Only words the learner has**, and plain English/Russian around them.
+12. **Write each language for its own reader, never translate one into the other.** English has no polite plural "you", so Եք's English spells it out where Russian only needs "как в русском". Russian drops the copula, so «է — есть» needs framing that "is" doesn't.
 
-    **The sentence is traced as easily as the content — watch the
-    phrasing.** Տավարի միս shipped «-ի на слове տավար — окончание
-    родительного падежа», word for word off "the -ի on տավար": every word
-    Russian, the construction English. A Russian speaker says «в конце
-    слова». It passes a read-through because nothing in it is wrong; it
-    only fails when read aloud. So read the Russian aloud, on its own,
-    without the English in front of you — if it sounds like a translation,
-    it is one. `entries.ts` throws on «на слове» specifically, as a
-    tripwire for the one calque that got through; it cannot catch the
-    next one.
+    **The sentence is traced as easily as the content.** «-ի на слове տավար» is English construction in Russian words; Russian says «в конце слова». It survives a read-through and only fails read aloud — so read the Russian aloud, without the English in front of you. `entries.ts` throws on «на слове» as a tripwire for the one calque that got through; it can't catch the next.
 
-    **A comment may be written in one language only.** Sometimes a fact is
-    worth stating to one reader and not the other: Թթվասեր carries
-    «Буквально «кислые сливки»» for a Russian reader and nothing in
-    English, because the English card already says "Sour cream" and the
-    literal reading adds nothing there. Fill in the language that needs it
-    and leave the other empty — the reader of the other language sees no
-    comment at all, which is the point, and beats a sentence written for
-    somebody else or a limp translation of one. (`global` and `cardOnly`
-    are `PartiallyTranslated`; the review page counts one-language
-    comments in its header so an unfinished one stands out. Half of a
-    comment both readers want is unfinished, not this.)
-13. **Set like a sentence in a book.** Ordinary punctuation only — dashes,
-    quotes, brackets, a colon, the hyphen that marks a suffix (-իկ) — and
-    words for everything else: "տղա and մարդ", not "տղա + մարդ"; "as
-    mother becomes mum", not "mother → mum"; "Չ- before եմ", not "չ- +
-    եմ". No arrows, plus signs, asterisks, emoji. A comment sits under a
-    word on a card the way a gloss sits in a textbook, and those are
-    typeset, not diagrammed. `entries.ts` throws at load on an arrow, a
-    plus sign, an emoji and the like; a slash between alternatives
-    («он/она/оно») is ordinary typography and passes.
+    **A comment may be written in one language only**, when a fact is worth stating to one reader and not the other — Թթվասեր's «Буквально «кислые сливки»» has no English counterpart worth writing. The other reader sees nothing, which beats a sentence written for somebody else. Half of a comment both readers want is unfinished, not this.
+13. **Set like a sentence in a book.** Ordinary punctuation and words for everything else: "տղա and մարդ", not "տղա + մարդ"; "as mother becomes mum", not "mother → mum". `entries.ts` throws on arrows, plus signs and emoji; a slash between alternatives is ordinary typography.
 
-To read every comment in one place — the way they can't be read in
-`entries.ts`, where each sits inside its own entry — run `node
-scripts/words/notes.js` and open http://localhost:4747. It lists the
-library grouped by the file's sections, with the translation and both
-comments as editable fields, and saves an edit straight back into the
-entry (removing a comment emptied in both languages, adding one to a word
-that had none). Each save re-imports the file, so the tripwire above runs
-on it and a rejected wording comes back as an error on the card instead
-of landing in the file. `?deck=<id>` narrows it to one deck, in the
-deck's order — the view for writing a new deck's comments, which are
-drafted in the file and then edited there, not the other way round (the
-README's "Adding words"). Dialogue `here` remarks aren't on the page:
-they're about a line, and are reviewed with the dialogue.
+Comments are read and edited on the review page, not in `entries.ts` — see [WORDS.md](WORDS.md).
 
 **Rules for a `here` remark:**
 
-1. It is about *this* occurrence, and it would be wrong or odd on another.
-2. It is the place for phrases and idioms: «խնդրում եմ, literally "I
-   ask"», «ուրիշ բան — the shopkeeper's "anything else?"». Any Armenian
-   phrase a remark quotes gets its translation in brackets right there —
-   the reader may be on their first dialogue and can't translate it
-   themselves (line 14's «էլ ի՞նչ եք ուզում ("what else do you want?")»).
-   Lowercase, both halves, as every quoted example (rule 6 above).
-3. It doesn't restate the global comment; it adds the exception, the
-   specific, the reason for the form in this line.
+1. It is about *this* occurrence, and would be wrong or odd on another.
+2. It is the place for phrases and idioms. Any Armenian phrase it quotes gets its translation in brackets right there — the reader may be on their first dialogue. Lowercase, both halves.
+3. It doesn't restate the global comment; it adds the exception, the reason for the form in this line.
 
-**Before adding a dialogue**, go through every token with a remark and
-ask, in this order: *Is this true of the word everywhere?* — then it's a
-global comment, once, on the entry. *Does it quote a phrase or use words
-the learner lacks?* — then it's a `here`, or it goes. *Does the global
-comment now read as a remark about this line?* — then rewrite it.
-
-`loadDialogue()` throws on a `wordId` the library doesn't have and on a
-`lineCount` that doesn't match the file, so a content typo fails on the
-first load of that dialogue rather than shipping as an untappable word.
-
-**Adding a dialogue:** write the content file, add the catalog entry, then
-for every token whose base word isn't in the library yet, add the library
-entry (Conventions §10's capitalization rules apply to the entry, not the
-token) and generate its clip per `VOCABULARY_AUDIO.md`. Then record the
-lines (below). The bread-shop dialogue needed about two dozen new library
-words — function words and shop nouns — and reused a handful of existing
-ones; every later revision that changed a line's wording added its words
-(Սուրճ, Ուրիշ, Բան, Է, Ու) the same way.
+**Before adding a dialogue**, go through every token with a remark: *Is this true of the word everywhere?* → global comment. *Does it quote a phrase or use words the learner lacks?* → `here`, or cut. *Does the global comment now read as a remark about this line?* → rewrite it.
 
 ## The player
 
-[`DialoguePlayer.svelte`](../src/lib/components/DialoguePlayer.svelte),
-with one [`DialogueLineBubble.svelte`](../src/lib/components/DialogueLineBubble.svelte)
-per line and [`DialogueRuleCard.svelte`](../src/lib/components/DialogueRuleCard.svelte)
-on top:
+[`DialoguePlayer.svelte`](../src/lib/components/DialoguePlayer.svelte), one [`DialogueLineBubble.svelte`](../src/lib/components/DialogueLineBubble.svelte) per line, [`DialogueRuleCard.svelte`](../src/lib/components/DialogueRuleCard.svelte) on top.
 
-- **Listen vs Read.** In Listen mode (the default) each line's Armenian is
-  blurred — present, so revealing it never reflows the page, but
-  `aria-hidden` with its word buttons disabled — with a per-line eye button
-  to reveal it. Read mode shows everything. Once a line is readable, a
-  per-line button toggles its translation, and every word is tappable.
-  Tappable words carry no resting mark, so a one-line hint above the
-  transcript says they're tappable — "reveal a line, then tap any word" in
-  Listen mode with nothing shown, "tap any word" once something is
-  readable. It stays: an earlier version emptied it on the first tap, and
-  that shifted the transcript under the learner's finger while they were
-  reading a popover.
-  Tapping Listen re-blurs every line, the eye-revealed ones included —
-  it's "hide the text again", not merely a mode switch, which is why the
-  Listen radio listens for `click` rather than `change` (a radio that's
-  already checked fires no `change`, and this has to work from inside
-  Listen mode too).
-- **Playback** is [`DialoguePlayback`](../src/lib/dialogues/playback.svelte.ts):
-  one `<audio>` element per line, one line playing at a time. Every line's
-  clip is fetched as soon as the player is on the client (`preload()`), and
-  the clips of the words a learner can tap are warmed into the HTTP cache
-  with a low-priority `fetch` — a learner who opens a dialogue will play
-  most of it, the files are ~10 KB each, and a tap should start the sound
-  at once. One element per line rather than one element with a swapped
-  `src` is what makes the preload stick: swapping `src` drops the buffer.
-  The play button on a line plays just that line; "Play all" in the fixed bottom bar walks from the cursor to the
-  end with a short gap between lines, and the stop button rewinds. The bar
-  switches to its in-progress layout (stop + "n / N") on the *first* line
-  played, alone or via play-all — it keys off `playback.started`, not
-  `cursor > 0`, because playing line 1 by itself leaves the cursor at 0 and
-  the bar used to stay in its resting layout for that one line. A
-  generation counter guards against a stale `ended` event advancing the
-  cursor after the learner has moved on.
-- **Missing line clips are treated as fixed-length silence.** Until a
-  dialogue's line files exist, every line 404s; rather than stall "Play all"
-  on the first line, the player waits ~1.6s and moves on, highlighting each
-  line in turn. That's the same "no missing-audio UI state, fail silently"
-  rule as `SpeakerButton`, extended so the flow keeps working — it means a
-  missing clip is found by listening, not by the app complaining.
-- **The word popover** hangs under its word and shifts itself sideways to
-  stay inside the viewport (a wrapped line can put a token anywhere). It
-  closes on an outside click, on Escape, and when switching to Listen mode.
-  Words the learner opened are collected (once per library word) for the
-  done screen's recap.
-- **Motion** is fade-dominant and low-travel throughout (4px rises, no
-  slides) — the app's reduced-motion rule collapses all of it, and the
-  "playing" waveform is replaced by a static shape under reduced motion.
-  The rule card's body and each line's translation grow open with a native
-  `height: 0 → auto` transition (`interpolate-size: allow-keywords`), text
-  fading in a beat behind; the word popover fades and rises in, and fades
-  and drops out the same way. See "Design decisions" below.
+- **Listen vs Read.** Listen (the default) blurs each line's Armenian — present so revealing never reflows, but `aria-hidden` with its word buttons disabled — with a per-line eye button. Read shows everything. Once a line is readable its translation can be toggled and its words are tappable. Tappable words carry no resting mark, so a hint above the transcript says they're tappable; it never empties, because clearing it on the first tap shifted the transcript under the learner's finger. Tapping Listen re-blurs every line, eye-revealed ones included — hence a `click` listener, since an already-checked radio fires no `change`.
+- **Playback** is [`DialoguePlayback`](../src/lib/dialogues/playback.svelte.ts): one `<audio>` per line, one playing at a time, every clip fetched as soon as the player is on the client and the tappable words' clips warmed into the HTTP cache. One element per line rather than a swapped `src`, which drops the buffer. "Play all" walks from the cursor to the end with a short gap. The bar switches to its in-progress layout on the first line played, keyed off `started` rather than `cursor > 0` — playing line 1 alone leaves the cursor at 0. A generation counter stops a stale `ended` advancing the cursor.
+- **Missing line clips are fixed-length silence**, so the flow can be exercised before a dialogue's clips exist. Same fail-silently rule as `SpeakerButton`: a missing clip is found by listening, not by the app.
+- **The word popover** hangs under its word and shifts to stay in the viewport. It closes on an outside click, on Escape, and on switching to Listen. Opened words are collected once each for the done screen's recap.
+- **Motion** is fade-dominant and low-travel (4px rises, no slides), all of it collapsed under reduced motion.
 
 ## Design decisions
 
-Decisions made while reviewing the first build against the Claude Design
-mockup, recorded so they don't get re-litigated:
-
-- **Avatars are the mockup's drawn faces, not photos.** The design project
-  also held the two people's photos in `uploads/`, and the first build used
-  them; the mockup itself only ever drew the two SVG faces, and that's what
-  ships (`CharacterAvatar.svelte`). Two colour ramps only — skin from
-  `--color-accent-300`, hair/ink/shoulders from the neutral ramp — so the
-  pair reads as part of the palette, not as clip art on top of it.
-- **Dmitrii is on the right with a tinted bubble; Tereza on the left on
-  plain surface.** The one place a tinted fill sits on something bigger
-  than a badge; DESIGN.md's colour section explains why that's allowed
-  here. Which side a character takes is the player's call
-  (`side` on `DialogueLineBubble`), not a property of the line.
-- **Expanding sections animate height natively** instead of a measured
-  pixel height or a `max-height` guess: `interpolate-size: allow-keywords`
-  plus `transition: height`, on an always-rendered element toggled by a
-  class (with `inert` while collapsed) so it animates closed as well as
-  open. Firefox and Safari don't support it yet and simply snap; that's
-  accepted, no JS fallback. Gotcha found on the way: a column flex item's
-  `min-height: auto` silently beats `height: 0` — the translation box sets
-  `min-height: 0` for that reason.
-- **The word popover animates out as well as in.** It sits in an `{#if}`,
-  so a CSS entrance animation left it vanishing instantly on close; it now
-  uses a Svelte `in:`/`out:` transition, the only mechanism that keeps a
-  removed element around long enough to fade. Same 4px fade-and-rise both
-  ways, 170ms in / 140ms out.
-- **"That's a wrap — mark it done" lifts on hover** like a primary button
-  would, via `Button`'s `lift` prop, even though it's a sage variant: it's
-  the screen's one commit action, which is exactly what that physicality
-  signals. The mockup's extra 1.2° tilt on hover was dropped — a straight
-  rise is enough and keeps every lifting button in the app behaving
-  identically.
-- **The commit button has two states, and only one of them commits.** Not
-  done: the tinted `success-soft` variant (it *leads to* the success
-  state, so it doesn't wear the full success color yet) that posts
-  `complete`. Done: the solid `success` variant reading "Already done", no
-  lift — there's nothing left to commit — and tapping it opens a confirm
-  to take the dialogue back off the done list (see Progress) instead of
-  marking it done a second time, which is what the button used to do and
-  read as a stale instruction on a finished dialogue. Both states share
-  one checkmark, passed as `Button`'s `icon` — so while `complete` posts,
-  the spinner takes the checkmark's place rather than lining up beside it,
-  and the label stays put (Conventions §15). It used to render inline in
-  the label, which put spinner *and* checkmark on the busy button.
-- **Under 420px the mode toggle is icons only.** A 360px-wide phone (a
-  Fairphone 6; most Android mid-rangers) can't fit «Слушать», «Читать», the
-  stop button and the play-all counter in one pill — «Читать» was clipped
-  mid-word — so below 420px the two mode options show their icons a little
-  larger with the labels kept for assistive tech (app.css's sr-only
-  pattern, inlined). Checked at 360px in both languages.
-- **The per-line reveal/translate buttons are 2rem, under the 44px tap
-  floor.** Two of them stack inside a bubble whose height a single line of
-  text sets; the play button and the words themselves are the line's real
-  affordances and meet the floor, and the bubble's edges around the small
-  buttons are inert. Noted in the component; don't "fix" it by growing the
-  bubbles.
-- **Missing line audio is a timed silence, not an error state.** So the
-  whole player can be exercised before a dialogue's clips exist — see "The
-  player" above and the audio checklist below.
-- **Signed-out learners can play everything.** Only "mark it done" is
-  gated, and it resumes after sign-in rather than losing the tap.
+- **Avatars are drawn faces, not photos**, in two ramps only — skin from `--color-accent-300`, everything else neutral — so the pair reads as part of the palette rather than clip art on top of it.
+- **Dmitrii is on the right with a tinted bubble, Tereza on the left on plain surface.** Which side a character takes is the player's call, not the line's.
+- **Expanding sections animate height natively** (`interpolate-size: allow-keywords`), on an always-rendered element toggled by a class with `inert` while collapsed, so it animates closed too. Firefox and Safari snap; accepted, no JS fallback. Gotcha: a column flex item's `min-height: auto` silently beats `height: 0`.
+- **The word popover animates out as well as in**, which needs a Svelte transition — a CSS entrance animation left it vanishing on close.
+- **"Mark it done" lifts on hover** via `Button`'s `lift`, though it's a sage variant: it's the screen's one commit action. The mockup's 1.2° tilt was dropped so every lifting button behaves identically.
+- **The commit button has two states, and only one commits.** Not done: the `success-soft` variant that posts `complete`. Done: solid `success`, no lift, and tapping it opens a confirm to take the dialogue back off the list. Both share one checkmark passed as `Button`'s `icon`, so the spinner replaces it rather than lining up beside it (see `Button.svelte`).
+- **Under 420px the mode toggle is icons only** — a 360px phone can't fit two labels, the stop button and the counter, and «Читать» was clipped mid-word. Labels are kept for assistive tech.
+- **The per-line reveal/translate buttons are 2rem, under the 44px floor.** Two stack inside a bubble sized by one line of text; the play button and the words are the line's real affordances and meet the floor. Don't "fix" it by growing the bubbles.
+- **Signed-out learners can play everything.** Only "mark it done" is gated, and it resumes after sign-in rather than losing the tap.
 
 ## Progress
 
-"That's a wrap — mark it done" posts the page's `complete` action, which
-upserts a row in `user_dialogue_progress` (`user_id, dialogue_id,
-completed_at, completions`; migration
-`20260908120000_create_user_dialogue_progress.sql`). A signed-out learner
-can play a dialogue freely; only saving the completion is gated, and it
-resumes itself after sign-in through `requireSignedIn()`'s `resume` option
-exactly like adding a vocabulary deck does. Re-completing bumps
-`completions` rather than adding a row, so "N of M completed" on the account
-dashboard is a row count — filtered to ids still in the catalog, so a
-removed dialogue can't push completed past total. (The player no longer
-offers a second completion in its UI — see the button's two states above —
-but the action still tolerates one, e.g. a stale tab.)
+"Mark it done" upserts a row in `user_dialogue_progress`. Re-completing bumps `completions` rather than adding a row, so "N of M completed" is a row count, filtered to ids still in the catalog so a removed dialogue can't push completed past total. The confirm behind "Already done" posts `uncomplete`, which deletes the row — "no row = not completed" is the table's convention, and `completions` has a `>= 1` check. `uncomplete` isn't `resume`-gated: only a signed-in learner sees the button.
 
-The page's `load` also reports `completed` for the signed-in learner, which
-is what flips the button into "Already done". From there the confirm posts
-`uncomplete`, which deletes the row outright — "no row = not completed" is
-the table's convention, so there's no flag to flip and `completions` never
-has to go to zero (it has a `>= 1` check). That needed its own `delete`
-policy and grant, migration
-`20260911120000_allow_deleting_dialogue_progress.sql`. `uncomplete` isn't
-`resume`-gated: only a signed-in learner ever sees the button that posts it.
-
-The done screen ([`DialogueDone.svelte`](../src/lib/components/DialogueDone.svelte))
-shows the tapped-word recap and a "Next" button for the following catalog
-entry, if any. The list page marks completed dialogues with a check on
-their number.
+The done screen shows the tapped-word recap and a "Next" button for the following catalog entry.
 
 ## Line audio
 
-A line is a unique recording — a whole sentence, in one of two voices, with
-sentence intonation — so unlike words it *is* stored per dialogue:
-`static/audio/dialogues/<dialogueId>/<nn>.m4a`, `nn` being the line's
-1-based position zero-padded to two digits (`01.m4a`), from
-[`lineAudioSrc()`](../src/lib/content/dialogues/audio.ts). The words inside
-a line are never re-recorded; their popovers play the library clips — and
-the play button sits on the popover's *base-form* row ("from Ուզել ▶"), not
-next to the tapped form, because the clip says "uzel", not "uzum". The
-inflected form is heard from the line's own play button. When the tapped
-form is already the dictionary form (Ես, Այս), the "from" label and a
-translation identical to the gloss are dropped rather than restated.
-
-**`bread-shop` has all nineteen line clips**, installed 2026-09-13 for the
-revised text (seven lines changed on 2026-09-13: the eggs/meat exchange
-became `Ձու, խնդրում եմ։` / `Իսկ մի՞ս։`, the coffee exchange lost its `Այն`
-lines in favour of `Էլ ի՞նչ։` / `Սուրճ։ …`, and the goodbye became `Լավ։
-Ձեզ էլ շնորհակալություն։` / `Ցտեսություն։`). Both speakers' whole parts were
-recorded in one generation each, twice, and cut with
-[`scripts/audio/split_read.py`](../scripts/audio/split_read.py); the
-reviewer picked per line between the two reads (mixing lines from two
-reads of the *same* prompt is fine by ear). Exceptions:
-
-- **01 and 02 are "sandwiched" takes.** The first line of every whole-part
-  read came out with `Բարև ձեզ` at full scale, and the peak compressor used
-  to tame it was what the reviewer heard as "very bad sound quality".
-  Re-recording the line *alone* would have sounded like a different session
-  (see the 2026-09-11 notes below), so instead each was generated as the
-  **middle line of a three-line prompt** — a throwaway line before and
-  after, then cut out with the same splitter — which keeps the voice in its
-  warmed-up mode while the reviewer gets eight untouched draws to choose
-  from. That is now the recipe for any single line that needs redoing.
-- **`Բարև` is shouted whatever you do.** Sandwiched or not, uppercase or
-  lowercase, with `։` or a comma, this voice attacks the greeting at −6 to
-  −8 dB RMS with peaks at 0 dBFS (16 of 16 takes across both voices). It is
-  not clipping (no full-scale runs in any source) and not the cold start.
-  Don't try to fix it with a compressor; pick the gentlest draw by ear.
-- **04 has its glued breath cut** by hand (voiced end + 60 ms, 50 ms fade,
-  re-cut from the read) — the line ends in /m/, so the safe case.
-- **14 (`Էլ ի՞նչ։`) is a standalone v3 take**, the one exception to the
-  sandwich rule: every sandwiched take fell at the end and the reviewer
-  wanted a question that rises. The standalone draw that peaks on the last
-  syllable sounded "slightly off" but right — see "Fourth round" below for
-  the lead that may do better next time.
-
-Levels: a whole-part read lands within ±1 dB of the speaker's shipped mean
-(Dmitrii −18.2 dB, Tereza −19.0 dB) with a single gain per read, which is
-the point of the method — standalone takes had come out ~3 dB hotter and
-needed per-take gain.
-
-The earlier (2026-09-11) 19-line version is worth keeping in mind for
-what it taught: lines re-recorded standalone matched the read on paper
-(level, breath, format) but the reviewer still heard them as "slightly
-different quality" — hence the sandwich recipe above; and a word-internal
-`՞` followed by a Latin `?` made the model re-read the word's tail ("uzum
-ek… zum ek?"), so the `՞` is dropped from the prompt in that case while the
-app text keeps it. Generate a dialogue's lines like this:
+A line is a unique recording — a whole sentence, one voice, sentence intonation — so it's stored per dialogue at `static/audio/dialogues/<dialogueId>/<nn>.m4a`, `nn` being the 1-based line number zero-padded. The words inside a line are never re-recorded.
 
 ### Record each speaker's whole part in ONE generation
 
-Do **not** generate a line at a time. Every `creative_generate_speech` call
-is an independent draw of timbre and energy, so eleven separately-generated
-lines are eleven slightly different voices. Individually each can sound fine
-while the dialogue as a whole sounds assembled from different sessions —
-which is exactly how it was first noticed here.
+Never generate a line at a time: every call is an independent draw of timbre and energy, so eleven separately-generated lines are eleven slightly different voices, and the dialogue sounds assembled from different sessions. Put all of one speaker's lines in a single prompt separated by blank lines, generate a couple of takes, and pick a *read*, not a line. Mixing lines from two reads of the same prompt is fine by ear.
 
-Instead, put **all of one speaker's lines in a single prompt**, separated by
-blank lines, and generate four takes of that. Each take is then one
-performance: same voice throughout, and livelier, because the model is
-reading continuous speech rather than cold-starting eleven times. The
-reviewer picks a *read*, not a line.
+A whole-part read also lands within ±1 dB of the speaker's shipped mean with a single gain; standalone takes came out ~3 dB hotter and needed per-take gain.
 
-Then cut the read into lines. This is the fiddly part:
+**Redoing one line: sandwich it.** Generate it as the middle line of a three-line prompt and cut the throwaways out, so the voice stays in its warmed-up mode. A line re-recorded truly standalone matches on paper — level, breath, format — and still reads as "slightly different quality".
 
-- **Silence alone cannot find the line boundaries.** Armenian sentences
-  inside a line produce gaps just as long as the gaps between lines — in one
-  Dmitrii read there were eight gaps for six lines, and the *longest* was the
-  sentence break inside line 01, after `Բարև։`.
-- **`<break time="1.5s" />` does not work.** It is an `eleven_v2` feature;
-  `eleven_v3` silently ignores it. A probe with 1.5 s breaks between all six
-  lines produced no gap longer than 0.42 s. Do not waste a generation on it.
-- **What does work:** pick the (N−1) gaps that best fit the line lengths you
-  already know, taken from per-line takes or a previous read (for a brand-new
-  line, letters × the speaker's seconds-per-letter from the known lines is
-  close enough). Brute-force all combinations, and **reject any combination
-  where a segment is more than 45% off its expected length** — without that
-  constraint the optimiser cheerfully cuts after `Բարև։` and pays for it
-  later in the read. Three refinements from the 19-line cut (2026-09-11),
-  each of which fixed a wrong cut on a real read:
-  - **Score by per-segment *relative* length error, not cumulative position
-    error.** A mis-estimated long line (`Շնորհակալություն` is long on paper,
-    quick in the mouth) drags every later cumulative target and made the
-    optimiser prefer a 90 ms hesitation over the real pause two lines
-    earlier. Relative per-segment error doesn't accumulate.
-  - **A two-sentence line must contain at least one gap that is *not* a
-    boundary** — its sentence break. Cheap to check, and it rules out cuts
-    that would leave `Սրանք ձու են։ Ես ուզում եմ ձու։` with no internal pause.
-  - **Merge two silences separated by a blip under 50 ms into one gap.**
-    That's a breath in the middle of a pause; without the merge the cut can
-    land on the blip and the breath ends up at the head of the next line.
-  - **Measure segments speech-only** (previous pause end → next pause
-    start), not mid-pause to mid-pause: a 0.5 s line between two long
-    pauses otherwise "measures" 1.1 s and fails the 45% rule.
-- Detect candidate gaps at `silencedetect=noise=-40dB:d=0.06`. `d=0.10` is
-  too coarse and loses the real boundaries in fast reads.
-- **Estimate a new line's length as intercept + slope × letters, not
-  letters alone.** A two-word question (`Իսկ մի՞ս?`) takes ~0.9 s where
-  letters × seconds-per-letter predicts 0.5 s, and the 45% rule then rejects
-  every combination. `split_read.py` fits both from the known lines.
-- **Transcription is a dead end for boundaries.** `creative_transcribe_audio`
-  on a generation node returns text only (and, for a generated clip, just
-  echoes the prompt) — no word timestamps. Don't spend a call on it.
+Then cut the read into lines, which is the fiddly part:
 
-Report the **fit** with each read and treat it as a quality gate — but know
-what it measures. The original metric (RMS boundary error against expected
-cumulative positions; under ~0.2 s good, 0.4 s bad) is only as good as the
-expectations: on the 19-line cut a *correct* Dmitrii cut scored 0.60 s
-because two new lines were over-estimated, while a *wrong* one scored 0.69.
-The relative per-segment RMS (≈0.15 on every accepted read) is the better
-gate, and the two-sentence check above is the real safety net. Still listen
-for a clipped first or last word — the fit number is evidence, not proof.
+- **Silence alone can't find the boundaries.** Sentence breaks inside a line are as long as the gaps between lines; in one read the longest gap of all was inside line 01.
+- **`<break time="1.5s" />` does nothing** — it's an `eleven_v2` feature that `eleven_v3` silently ignores. Don't spend a generation on it.
+- **What works:** pick the N−1 gaps that best fit known line lengths (a shipped clip's duration, or intercept + slope × letters fitted from the known lines — letters alone underestimates a short question badly enough to reject every combination), and **reject any combination putting a segment >45% off**. Three refinements, each of which fixed a real wrong cut:
+  - Score by per-segment **relative** error, not cumulative position, which drags every later target once one line is mis-estimated.
+  - **A two-sentence line must contain a gap that isn't a boundary** — its sentence break.
+  - **Merge two silences separated by a blip under 50 ms**: that's a breath inside a pause, and a cut landing on it puts the breath on the next line.
+  - Measure segments **speech-only**, not mid-pause to mid-pause.
+- Detect gaps at `silencedetect=noise=-40dB:d=0.06`; `d=0.10` loses real boundaries in fast reads.
+- **Transcription is a dead end** — it returns no word timestamps.
 
-Finally, run each cut line through the trailing-breath trim from
-`VOCABULARY_AUDIO.md`. Speakers inhale between lines, and that inhale lands
-at the end of the preceding line's clip.
+Report the **relative per-segment RMS** with each read (~0.15 on accepted reads) and treat it as a gate, with the two-sentence check as the safety net. Cumulative-position RMS is only as good as the expectations: a correct cut once scored worse than a wrong one. Still listen for a clipped first or last word.
 
+Finally, run each cut line through the trailing-breath trim from [VOCABULARY_AUDIO.md](VOCABULARY_AUDIO.md) — speakers inhale between lines, and that inhale lands at the end of the preceding clip.
 
 ### Questions read as statements when the pitch peak lands on the wrong word
 
-Armenian has no sentence-final question mark: the interrogative is marked
-*inside* a word by `՞` on the stressed syllable, and the sentence still ends
-with `։`. The natural first guess — that the trailing `։` makes the voice fall
-and so kills the question — **is wrong**, and it is worth recording why, so
-nobody re-derives it.
+Armenian marks a question *inside* a word with `՞` on the stressed syllable; the sentence still ends in `։`. The natural guess — that the trailing `։` makes the voice fall and kills the question — **is wrong**: the accepted questions all fall at the end, by 0.9 to 5.2 semitones, exactly like the statements.
 
-Measuring the terminal pitch of all eleven `bread-shop` lines (median F0 of
-the last 220 ms against the rest) shows the questions the reviewer *accepted*
-all **fall** at the end, by 0.9 to 5.2 semitones — just like the statements.
-The one line heard as flat, `Էլ ի՞նչ եք ուզում։`, is the only line in the
-dialogue whose pitch **rises**. Terminal direction is not the cue.
+What separates them is **where the pitch peak sits**. Every accepted question peaks mid-line, on or beside its `՞`-marked word. A line that peaks on the final word carries a listing contour and reads as a statement.
 
-What separates them is **where the pitch peak sits**:
+The working rule: **a strong peak (+5 st or so) on the `՞` word is sufficient; failing that, a terminal rise is what rescues the line. Don't ship a question with neither.**
 
-| line | | peak position | prominence |
-|------|---|---------------|------------|
-| 02 | Այս հա**՞**ցը։ | 61% | +5.1 st |
-| 06 | Այս կա**՞**թը, թե՞ … | 22% | +6.8 st |
-| 08 | սրանք ի**՞**նչ են։ | 28% | +2.7 st | *(since re-recorded — see the second round below)* |
-| 10 | դրանք մի**՞**ս են։ | 70% | +8.4 st |
-| **04** | **Էլ ի՞նչ եք ուզում։** | **100%** | +6.2 st |
+Steering it, in the order to try:
 
-Every accepted question peaks in the middle of the line, on or beside its
-`՞`-marked word. Line 04 peaks on the **final** word, `ուզում` — the verb, not
-the question word — and a late peak on the verb is a listing or continuation
-contour, which is exactly why it reads as a statement.
+- **A Latin `?` as the terminal** (prompt only — the app text keeps `։`) is the one reliable lever toward a rise, and pulls the peak onto the question word. Caveat: a word-internal `՞` followed by `?` can make the model re-read the word's tail, so drop the `՞` from the prompt in that case. Latin terminal punctuation also weakens the model's commitment to an Armenian reading — re-check the vowels.
+- **Doubling the `՞` onto the last word makes it worse.** Measured, twice.
+- **`eleven_multilingual_v2` rises where v3 won't.** Three of four standalone v2 takes rose (+3.5 to +6 st) on a wh-question that fell in sixteen v3 takes. Untested caveats: v2 generated ~20 dB quiet, and whether its timbre sits beside v3 lines is unknown. Try it sandwiched first.
+- **Wh-questions never rise in context.** Once warmed up, the voice reads `ի՞նչ` as peak-then-fall, which is the textbook Armenian contour; only cold standalone takes rise, and those don't match the read. Yes/no questions rise in most takes with the Latin `?`.
+- **`[curious]`** slows the read down but never produced a rise. Useful for a line that's fast but already peaks correctly.
+- **A tail pitch-bend (`bend.py`) is a last resort.** It's audible past ~4 st and can't add the shape of a question, only lift the tail.
 
-So the rule is: **the `՞` word must carry the pitch peak.** When the peak
-drifts onto the last word, the line stops sounding like a question no matter
-what the punctuation says.
-
-Steering it is unresolved. Three prompt variants of that line, two takes
-each, measured by peak position (`ի՞նչ` sits at roughly 25–40% of the line):
-
-- `Էլ ի՞նչ եք ուզում։` (baseline, standalone) — peak at 0–4%, on `Էլ`. Worse
-  than the in-read version.
-- `Էլ ի՞նչ եք ուզու՞մ։` (`՞` repeated on the last word) — peak at 0–1%. **The
-  doubled mark did not pull the peak to the end; it made things worse.**
-- `Էլ ի՞նչ եք ուզում?` (Latin `?` as terminal) — peak at 28–38%, i.e. **onto
-  `ի՞նչ`, the right word**. The most promising of the three.
-
-Treat that as a lead, not a rule: n=2 per arm, and note that a line generated
-**standalone** behaves differently from the same line inside a continuous read
-— the standalone baseline put the peak on the first word, while the in-read
-version at least had strong prominence, merely in the wrong place. The honest
-test is to regenerate the speaker's whole part with the Latin `?` on that one
-line and compare in context. Also re-check the vowels if you do: the
-`VOCABULARY_AUDIO.md` finding that Latin terminal punctuation weakens the
-model's commitment to an Armenian reading still applies.
-
-#### Second round, line 08 (2026-09-11): the reviewer's ear wanted the rise
-
-*(Line texts in this and the next section are as they were at the time;
-the dialogue was revised on 2026-09-13 and line 08 is now `Էլ ի՞նչ եք
-ուզում։`, line 14 `Էլ ի՞նչ։`. The findings are about question types, not
-these sentences.)*
-
-Line 08, `Իսկ սրանք ի՞նչ են։`, was in the "accepted" rows above but the
-reviewer later heard it as "really fast, and it goes down, not up". It was
-regenerated standalone, 4 takes × 3 prompts, and every take measured with
-a small autocorrelation F0 tracker (peak position, peak prominence over the
-line's median, and the last 220 ms against the rest):
-
-| prompt | takes that **rise** at the end | takes with the peak on `ի՞նչ` |
-|---|---|---|
-| `Իսկ սրանք ի՞նչ են։` (baseline) | 1 of 4 (+2.1 st) | 1 of 4 (+4.4 st) |
-| `Իսկ սրանք ի՞նչ են?` (Latin `?`) | **2 of 4** (+0.7, +0.8 st; peaks +4.6, **+6.9 st**) | 1 of 4 (weak, +1.7 st) |
-| `[curious] Իսկ սրանք ի՞նչ են։` (v3 audio tag) | 0 of 4 | 3 of 4 (+2–4 st), and slower: 1.4–1.9 s |
-
-Two things to take from it:
-
-- **The Latin `?` lead held**: it was the only prompt that reliably produced
-  a terminal rise, and the take that shipped is one of those (B take 3:
-  1.20 s, peak +6.9 st, +0.8 st terminal rise). The reviewer checked the
-  vowels on it before picking; they were fine on this line.
-- **The "peak position, not terminal direction" finding above is not the
-  whole story.** The shipped take peaks at the *end* of the line (on `են`),
-  which the earlier analysis would have called a listing contour — yet the
-  reviewer, choosing by ear among twelve, picked it over the mid-line-peak
-  takes precisely *because* it rises. Terminal direction evidently does
-  matter to a listener when the peak is weak; the earlier table's accepted
-  questions all had a **strong** mid-line peak (+5 to +8 st) that carried
-  the question on its own. So the working rule is now: a strong peak on the
-  `՞` word is sufficient; failing that, a terminal rise is what rescues the
-  line. Don't ship a question with neither.
-- `[curious]` slowed the read down (which was half the complaint) but never
-  produced a rise. Not useless — a candidate for a line that's fast but
-  already peaks correctly.
-
-#### Third round (2026-09-11, the 19-line re-record): `ի՞նչ` questions never rise in context
-
-With the whole dialogue re-recorded, the two `ի՞նչ` questions (08 `Իսկ սրանք
-ի՞նչ են։`, 14 `Այն ի՞նչ է։`) fell at the end in **every** in-context take:
-two whole-part reads, a three-line mini-read × 4, and a two-line mini-read
-× 4 with the `՞` moved onto the *final* syllable (`ինչ ե՞ն?`, `ինչ է՞?`) —
-0 rises in 14. Meanwhile the yes/no questions (10, 12, 16) rose in most
-takes with the Latin `?`. So the pattern is by question *type*: once the
-voice is warmed up it reads a wh-question as peak-on-`ինչ`-then-fall, which
-is the textbook Armenian contour; only cold standalone takes ever rose on
-these (3 of 8 in the second round), and the reviewer heard those as not
-matching the read.
-
-What shipped for 08 and 14 is the final-syllable-`՞` mini-read take that
-came out *nearly flat* (−2.1 / −0.9 st), 08 additionally with its last
-280 ms **pitch-bent up 4 st** by `rubberband` (formant-preserving, driven
-by `asendcmd` stepping `pitch` every 20 ms with an ease-in curve so the rise
-is late and quick, like speech: `asendcmd=c='t0 rubberband pitch 1.0; …'`
-with 15 steps over 280 ms ending 4 st up, then
-`rubberband=pitch=1.0:pitchq=quality:formant=preserved`; the ramp starts
-280 ms before the last 10 ms window above −38 dB). Measured terminal after
-the bend: +0.4 st. The reviewer's verdict was "imperfect" but acceptable in
-context. Treat the bend as a last resort: it is audible if pushed past
-~4 st, and it can't add the *shape* of a real question, only lift the tail.
-
-Also learned here: **a word-internal `՞` followed by a Latin `?` can make
-the model re-read the word's tail** ("uzum ek… zum ek?") — line 16 in both
-whole-part reads. Drop the `՞` from the prompt in that case; the `?` alone
-carried the rise.
-
-#### Fourth round (2026-09-13): `eleven_multilingual_v2` rises where v3 won't
-
-For `Էլ ի՞նչ։`, eight sandwiched v3 takes and eight standalone v3 takes
-all fell or stayed flat (best: peak on the last syllable, terminal −0.9 to
-+1.5 st), and the reviewer rejected the +4 st tail bend outright ("none of
-these work — it's a statement"). Four standalone takes on
-**`eleven_multilingual_v2`** with the same voice rose in three: +3.5,
-+5.0, +6.0 st at the end. That is the first setting that reliably produces
-a question contour on an `ի՞նչ` line. Two caveats before leaning on it: v2
-generated the line ~20 dB quiet (lifted to −19 dB mean, so listen for
-hiss), and the reviewer chose a v3 standalone take over it this time, so
-whether v2's timbre passes next to v3 lines is untested. Next time a
-wh-question has to rise, try v2 *sandwiched* first.
-
-All of this is **prompt-only**. The text shown in the app stays
-orthographically correct, exactly as with the "Ո"→"Վ" respelling.
+All of this is prompt-only; the app's text stays orthographically correct, as with the "Ո"→"Վ" respelling.
 
 ### Tooling
 
-Everything above is scripted in [`scripts/audio/`](../scripts/audio/):
-`split_read.py` (gaps → boundaries → gain-matched line clips, from a JSON
-list of `[lineNumber, spokenText, shippedClipOrNull]`), `pitch.py` (the
-peak/terminal numbers used throughout the questions section),
-`bend.py` (the last-resort tail lift) and `review_page.py` (the
-single-file picker page a human auditions on, from a JSON spec). They need
-`numpy`, `ffmpeg`/`ffprobe`, and `rubberband` compiled into ffmpeg for
-`bend.py`. Until 2026-09-13 these lived in a session scratchpad and had to
-be rewritten when it was wiped — keep them in the repo.
+[`scripts/audio/`](../scripts/audio/): `split_read.py` (gaps → boundaries → gain-matched line clips), `pitch.py` (the peak and terminal numbers), `bend.py` (the tail lift) and `review_page.py` (the single-file audition page). They need `numpy`, `ffmpeg`/`ffprobe`, and `rubberband` compiled into ffmpeg for `bend.py`.
 
 ### Steps
 
-1. One `creative_generate_speech` per speaker, `model_id: "eleven_v3"`,
-   `generations_count: 2`, prompt = that speaker's lines joined by blank
-   lines, exact text with marks included (the ՛ helps; for question
-   sentences end with a Latin `?` instead of `։`, and if a word-internal
-   `՞` is followed by that `?`, drop the `՞` from the prompt — see the
-   questions section), and the speaker's voice: Tereza jan (`B7DEF4tn54LpozCVN7ah`) for
-   `speaker: 'tereza'`, Lazy Dmitrii (`oNYQkBHg8N8sOXiVNvyU`) for
-   `speaker: 'dmitrii'`. The word-initial "Ո"→"Վ" respelling from
-   `VOCABULARY_AUDIO.md` applies inside a line too (`Ոչ` in lines 11 and 17).
-   **Fire the two calls in separate messages** — the subscription allows five
-   concurrent requests, and a batch that exceeds it fails individual
-   generations with "Too many concurrent requests" while still billing them.
-2. Poll, download, split as above, trim, and transcode with the same
-   `ffmpeg` command as words.
+1. One `creative_generate_speech` per speaker, `model_id: "eleven_v3"`, `generations_count: 2`, prompt = that speaker's lines joined by blank lines, with the question handling above. Voices: Tereza jan (`B7DEF4tn54LpozCVN7ah`), Lazy Dmitrii (`oNYQkBHg8N8sOXiVNvyU`). The word-initial "Ո"→"Վ" respelling applies inside a line too. **Fire the two calls in separate messages** — five concurrent requests are allowed, and a batch over the limit fails individual generations while still billing them.
+2. Split, trim, and transcode with the same `ffmpeg` command as words.
 3. Save as `static/audio/dialogues/<dialogueId>/<nn>.m4a` and commit.
-4. Listen to every line before calling the dialogue done — nothing in the
-   app will tell you a clip is missing or wrong.
+4. Listen to every line — nothing in the app reports a missing or wrong clip.

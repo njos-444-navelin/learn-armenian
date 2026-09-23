@@ -93,9 +93,8 @@ export function collectionCountLabel(count: number): Translated {
 	};
 }
 
-/** Dynamic — see Conventions §1. Ru phrasing matches `todaysCountLabel` in
- * `dictionaries/vocabularyTraining.ts`, which sidesteps declining "слово" by
- * count the same way. */
+/** Ru phrasing matches `todaysCountLabel`, which sidesteps declining "слово"
+ * by count the same way. Conventions §1. */
 export function dueNowLabel(count: number): Translated {
 	return { en: `${count} due now`, ru: `${count} на повторение` };
 }
@@ -163,9 +162,8 @@ export const overRequestRateLimitError: Translated = {
 	ru: 'Слишком много попыток — подождите немного и попробуйте снова.'
 };
 
-/** Maps Supabase's stable `AuthError.code` to translated copy; unmapped
- * codes fall back to `genericAuthError`. Extend as new codes are hit in
- * practice (trigger each error once, check `error.code`). */
+/** Maps Supabase's stable `AuthError.code` to translated copy; unmapped codes
+ * fall back to `genericAuthError`. */
 export const authErrorMessages: Record<string, Translated> = {
 	invalid_credentials: invalidCredentialsError,
 	user_already_exists: userAlreadyExistsError,

@@ -1,24 +1,16 @@
 """The gap-based breath trim from docs/VOCABULARY_AUDIO.md, "The breath at the
-end" — as a script, so a batch of new takes gets the same pass the catalog had.
+end", as a batch pass over new takes.
 
     python3 scripts/audio/breath_trim.py <mp3_dir> <m4a_dir>
 
-For every <mp3_dir>/<name>.mp3: find the loud segments (silencedetect,
--40 dB, 0.08 s). If the last one is a short blip (< 0.45 s) after a real gap
-(>= 0.08 s), cut at the end of the previous segment + 60 ms with a 50 ms
-fade-out, and write <m4a_dir>/<name>.m4a in the app's encoding. Applied
-again while a trailing blip remains — a take with two breaths is
-[speech][gap][blip][gap][blip], the same shape twice. Guards, each of which
-keeps the clip whole: what remains is >= 0.25 s, the blip is shorter than
-what remains, and what remains is >= 40% of the total loud time (`Տուն`'s
-soft initial consonant once read as a blip, and the rule would have kept
-the breath and deleted the word). A clip the rule leaves alone is not
-written — transcode those with the plain ffmpeg command. Cuts from the mp3,
-so the m4a is encoded once. Prints one line per file.
+A trailing blip after a real gap is cut and the result written in the app's
+encoding; re-applied while one remains, since a take with two breaths is the
+same shape twice. The guards below each keep the clip whole — `Տուն`'s soft
+initial consonant once read as a blip. A clip the rule leaves alone isn't
+written; transcode those with the plain ffmpeg command.
 
-This is the automatic pass only. A "glued" breath that never drops below
-the gate is fixed by hand, and never on a word ending in a fricative or
-affricate — see the doc.
+The automatic pass only. A "glued" breath that never drops below the gate is
+fixed by hand — see the doc.
 """
 import glob
 import os

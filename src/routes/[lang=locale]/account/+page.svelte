@@ -61,14 +61,10 @@
 		dialoguesTotalCount === 0 ? 0 : Math.round((dialoguesCompletedCount / dialoguesTotalCount) * 100)
 	);
 	let authErrorFromLink = $derived(page.url.searchParams.get('authError') !== null);
-	/** A form's `action="?/login"` resolves relative to the current URL, and
-	 * a query-only relative reference *replaces* the whole query string
-	 * rather than appending to it — so a plain `?/login` would silently
-	 * drop `?next=...` before the POST ever happens, and requireSignedIn()'s
-	 * resume-after-login (see docs/AUTH.md) would never see it server-side.
-	 * SvelteKit recognizes any query key that starts with `/` as the action
-	 * name regardless of what else is in the query string, so re-attaching
-	 * `next` here (when present) is enough to carry it through. */
+	/** A query-only relative `action="?/login"` replaces the whole query string
+	 * rather than appending, which would drop `?next=...` before the POST.
+	 * SvelteKit reads any query key starting with `/` as the action name, so
+	 * re-attaching `next` is enough to carry it through. */
 	let loginActionHref = $derived.by(() => {
 		const next = page.url.searchParams.get('next');
 		return next !== null ? `?next=${encodeURIComponent(next)}&/login` : '?/login';
@@ -85,10 +81,8 @@
 
 	let currentLocale = $derived(getLocale());
 	let otherLocale = $derived(LOCALES.find((candidate) => candidate !== currentLocale));
-	// Always /account, not a generic "current page" — unlike Seo.svelte's
-	// hreflang alternates (which run on every page), this component only
-	// ever renders on the account page itself, so the static route is more
-	// precise than resolveRuntimePath()'s runtime-derived escape hatch.
+	// Always /account: unlike Seo.svelte's hreflang alternates, this only ever
+	// renders here, so the static route beats resolveRuntimePath().
 	let switchLanguageHref = $derived(
 		otherLocale !== undefined ? withLocale(otherLocale, '/account') : undefined
 	);
@@ -96,10 +90,9 @@
 	type FormAction = 'login' | 'logout';
 	let pending = $state<FormAction | null>(null);
 
-	/** Drives the submitting button's spinner and, critically, passes
-	 * `reset: false` — see Conventions #8. Without it, `use:enhance`'s default
-	 * behavior clears the form on any non-redirect response, which reads as
-	 * the app silently discarding what you just typed. */
+	/** Passes `reset: false` — see Conventions #8. Without it `use:enhance`
+	 * clears the form on any non-redirect response, which reads as the app
+	 * discarding what you just typed. */
 	function submitAction(action: FormAction): SubmitFunction {
 		return () => {
 			pending = action;
@@ -127,10 +120,9 @@
 
 			<div class="dash-section">
 				<h2 class="section-heading">{t(myProgressHeading)}</h2>
-				<!-- A horizontal, snapping row rather than a wrapping grid: the
-				     lesson tiles are a set that grows with the app, and a row
-				     you scroll sideways keeps them one uniform size on every
-				     screen instead of reflowing into odd 2+1 layouts. -->
+				<!-- A snapping row rather than a wrapping grid: the tiles are a set that
+				     grows with the app, and a sideways row keeps them one uniform size
+				     instead of reflowing into odd 2+1 layouts. -->
 				<div class="progress-scroller" use:scrollEdgeCues>
 					<ul class="progress-row" aria-label={t(progressListAriaLabel)}>
 					<li>
@@ -232,15 +224,9 @@
 				<div class="settings-list">
 					<Button href={changePasswordHref} variant="secondary">{t(changePasswordButton)}</Button>
 					<Button href={changeEmailHref} variant="secondary">{t(changeEmailButton)}</Button>
-					<!-- The one action in this list that ends the session, so it
-					     gets an icon the others don't: a door with an arrow
-					     leaving it, findable at a glance without reading the
-					     three labels. UserMenu's signed-out door, with the arrow
-					     now starting inside the frame and leaving it, drawn in
-					     the same hand (Lucide-inspired, not Lucide). Passed as
-					     Button's `icon` so the spinner
-					     replaces it while the sign-out posts (Conventions #15);
-					     no width/height, the button's icon slot sizes it. -->
+					<!-- The one action here that ends the session, so it gets an icon the
+					     others don't. Passed as Button's `icon` so the spinner replaces it
+					     while the sign-out posts (see Button.svelte). -->
 					{#snippet signOutIcon()}
 						<svg
 							viewBox="0 0 24 24"
@@ -401,17 +387,14 @@
 		color: var(--color-text-secondary);
 	}
 
-	/* Bleeds to the page's own edges (undoing the dashboard's inline
-	   padding) so a part-visible next tile at the edge is the cue that the
-	   row scrolls, then pads the same amount back inside so the first and
-	   last tiles still line up with the headings above. Snap points land
-	   each tile flush with that inner edge.
+	/* Bleeds to the page's edges so a part-visible tile is the cue that the row
+	   scrolls, then pads the same amount back inside so the first and last tiles
+	   line up with the headings above.
 
-	   No scrollbar: Chrome draws a permanent one under the row, which read
-	   as clutter. In its place the wrapper fades the edge that has hidden
-	   content behind it (scrollEdgeCues sets data-cue-start/-end) — a cue
-	   that also works when the row is only slightly too wide, where a
-	   bare cut-off tile edge would look like the row simply ends there. */
+	   No scrollbar: Chrome draws a permanent one under the row. The wrapper fades
+	   whichever edge has content behind it instead (scrollEdgeCues sets
+	   data-cue-start/-end), which also reads correctly when the row is only
+	   slightly too wide. */
 	.progress-scroller {
 		position: relative;
 		margin: 0 calc(var(--space-4) * -1);
@@ -429,22 +412,12 @@
 		transition: opacity var(--transition-fast);
 	}
 
-	/* Both stops in each gradient below are already var(--color-...) tokens,
-	   but the strict-value plugin still flags them, and not for the reason it
-	   looks like: `background` isn't in the rule's property list at all —
-	   `expandShorthand` expands the shorthand into longhands that include
-	   `background-color` (which does match `/-color$/`), and the expander
-	   hands that longhand the whole `linear-gradient(...)`. So the gradient
-	   gets judged as if it were a color, and it isn't a bare var(). Nothing
-	   to do with the `to right`/`to left` keyword: a gradient with no
-	   direction trips it too, while the same gradient on `background-image`
-	   (a longhand, so never expanded) passes.
-
-	   Not fixable in stylelint.config.js without gutting the rule —
-	   `ignoreFunctions: true` silences this but also stops flagging
-	   `color: rgb(...)` and a gradient with literal stops. So: a deliberate,
-	   narrow exception, same as AlphabetLetterGrid.svelte's .level-gradient
-	   (Conventions #2). */
+	/* Both gradient stops are already tokens, but `expandShorthand` turns
+	   `background` into longhands including `background-color`, hands that the
+	   whole `linear-gradient(...)`, and judges it as a colour. Silencing it in
+	   the config needs `ignoreFunctions: true`, which would also stop flagging
+	   `color: rgb(...)` — so this is a narrow exception, like
+	   AlphabetLetterGrid.svelte's .level-gradient (Conventions #2). */
 	.progress-scroller::before {
 		left: 0;
 		/* stylelint-disable-next-line scale-unlimited/declaration-strict-value -- see above: shorthand expansion judges the gradient as a color. */
@@ -550,12 +523,9 @@
 		background: var(--color-accent-2-500);
 	}
 
-	/* A fully round --radius-pill looks right for a short single-line count
-	   ("7 due now") but crowds the text once a longer translation ("40 на
-	   повторение") wraps to two lines — --radius-md stays comfortably
-	   pill-like on one line and doesn't eat into wrapped text on two,
-	   without needing white-space: nowrap (which would just trade the
-	   wrapping problem for an overflow one on an unusually long count). */
+	/* --radius-pill suits a one-line count but crowds a wrapped two-line one;
+	   --radius-md reads pill-like on one line and survives two, without the
+	   overflow `white-space: nowrap` would trade it for. */
 	.stat-badge {
 		align-self: flex-start;
 		max-width: 100%;
@@ -565,9 +535,8 @@
 		font-weight: 700;
 	}
 
-	/* Due words are framed the same way as "all caught up" — a light,
-	   positive green rather than a warning tone — since having words ready
-	   to review is the app doing its job, not a problem to flag. */
+	/* Framed like "all caught up": words ready to review are the app doing its
+	   job, not a problem to flag. */
 	.stat-badge.due,
 	.stat-badge.caught-up {
 		background: var(--color-accent-2-100);
@@ -581,10 +550,8 @@
 		width: 100%;
 	}
 
-	/* AuthForm's own <form> caps itself at max-width: 20rem for the
-	   narrower forms it's normally used in — override that here so the
-	   sign-out form matches the full width of its sibling Change
-	   password/email buttons instead of shrinking on its own. */
+	/* AuthForm's own <form> caps at 20rem for the narrower forms it's usually
+	   used in; the sign-out form should match its full-width siblings. */
 	.settings-list :global(form) {
 		max-width: none;
 	}

@@ -1,20 +1,6 @@
-/**
- * "I can't listen right now" (the drill's audio-question skip) suggests
- * muting audio questions for a while, matching Duolingo's handling of the
- * same problem — tapping skip once doesn't necessarily mean "forever," but
- * repeatedly hitting a question you can't answer without sound is worse
- * than just not asking for a bit. Backed by localStorage (not sessionStorage)
- * since "for the next N minutes" is a real wall-clock duration meant to
- * survive closing the tab, not just the current session.
- *
- * No separate cleanup pass is needed: `isAudioMuted()` removes its own key
- * the moment it notices the mute period has lapsed. It's only actually
- * called when the drill's type round-robin lands on an 'audio' slot (see
- * AlphabetTrainer.svelte's buildQuestionFor), not on every question — but
- * that round-robin is deterministic (sound, audio, case, ...), so every
- * real practice session hits an 'audio' slot at least once, which is
- * enough that a stale key never lingers past the next session.
- */
+// localStorage, not sessionStorage: the mute is a wall-clock duration meant
+// to outlive the tab. `isAudioMuted()` clears the key once it lapses, so no
+// separate cleanup pass is needed.
 
 const STORAGE_KEY = 'learn-armenian:audio-muted-until';
 

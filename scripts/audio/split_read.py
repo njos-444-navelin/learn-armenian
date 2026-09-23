@@ -1,21 +1,14 @@
 """Cut a speaker's whole-part read into line clips — the recipe in
 docs/DIALOGUES.md, "Record each speaker's whole part in ONE generation".
 
-Gaps are detected at -40dB/0.06s (two silences separated by a blip under
-50 ms are merged: that's a breath inside a pause). Which N-1 gaps are the
-line boundaries is found by brute force against expected line lengths —
-the shipped clip's length where the line already exists, letters x the
-speaker's seconds-per-letter otherwise — scored by per-segment *relative*
-error, rejecting any combination that puts a segment >45% off, and
-requiring every two-sentence line to contain an unused gap (its sentence
-break). Then each line is cut from just before its first sound to the
-start of the following pause, faded, and given one gain for the whole read
-so the speaker's lines land at their shipped mean level.
-
     python3 scripts/audio/split_read.py <lines.json> <read.mp3> <out_dir> <target_db>
 
-<lines.json> is a list of [lineNumber, spokenText, shippedClipOrNull]; the
-shipped clip is a path used only for its duration.
+<lines.json> is a list of [lineNumber, spokenText, shippedClipOrNull], where the
+shipped clip is used only for its duration.
+
+Which of the detected gaps are line boundaries is found by brute force against
+expected line lengths, scored by per-segment relative error. One gain is applied
+to the whole read, so the speaker's lines land at their shipped mean level.
 """
 import itertools
 import json

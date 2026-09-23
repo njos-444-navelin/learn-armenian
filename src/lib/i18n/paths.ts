@@ -3,13 +3,9 @@ import type { Pathname, ResolvedPathname } from '$app/types';
 import { isLocale, LOCALES, type Locale } from './locale';
 
 /**
- * Every locale-scoped route in the app, keyed by the locale-stripped path
- * `withLocale()`'s callers already use — mapped to the actual SvelteKit
- * route ID `resolve()` needs. Keeping the `[lang=locale]` route-id prefix
- * here, once, is what lets call sites keep writing `withLocale(locale,
- * '/account')` instead of spelling out the route id themselves, while still
- * getting resolve()'s compile-time route-typo protection — add a route here
- * (not just under `src/routes/`) for it to be reachable via `withLocale()`.
+ * Every locale-scoped route, keyed by the locale-stripped path callers use
+ * and mapped to the route ID `resolve()` needs. Add a route here as well as
+ * under `src/routes/` for it to be reachable via `withLocale()`.
  */
 const ROUTES = {
 	'/': '/[lang=locale]',
@@ -37,11 +33,9 @@ export function withLocale(locale: Locale, pathname: LocaleRoutePath): ResolvedP
 }
 
 /**
- * Same as `withLocale()`, for the routes resolve() needs a dynamic segment
- * for. Separate exported functions rather than widening `withLocale()`'s
- * type to cover them — every other route in `ROUTES` takes only the `lang`
- * param, so folding these in would weaken the type of every other call site
- * just to accommodate two.
+ * Same as `withLocale()`, for the routes that take a dynamic segment. Kept
+ * separate rather than widening `withLocale()`'s type, which would weaken
+ * every other call site to accommodate two.
  */
 export function withLocaleDeck(locale: Locale, deckId: string): ResolvedPathname {
 	return resolve('/[lang=locale]/learn/vocabulary/[deckId]', { lang: locale, deckId });
@@ -51,8 +45,7 @@ export function withLocaleDialogue(locale: Locale, dialogueId: string): Resolved
 	return resolve('/[lang=locale]/learn/dialogues/[dialogueId]', { lang: locale, dialogueId });
 }
 
-/** Same as `withLocale()`, with a query string appended (e.g. `next` on the
- * sign-in redirect — see AlphabetTrainer.svelte's `clickPractice()`). */
+/** Same as `withLocale()`, with a query string appended. */
 export function withLocaleQuery(
 	locale: Locale,
 	pathname: LocaleRoutePath,
@@ -65,18 +58,11 @@ export function withLocaleQuery(
 }
 
 /**
- * `withLocale()`'s escape hatch for the couple of call sites that rebuild a
- * path *computed at runtime* — the current page's own pathname, or one
- * derived from it (going up a level, switching locale on whatever page the
- * visitor is already on) — rather than one of `ROUTES`'s fixed literals.
- * That value can't be checked against the route list at compile time the
- * way a literal can, so this still calls `resolve()` (getting its base-path
- * handling, and satisfying eslint's `svelte/no-navigation-without-resolve`
- * structurally, not by suppressing it) but takes the cast `resolve()` itself
- * can't avoid here. Safe in practice because every caller derives `pathname`
- * from `page.url.pathname` — an already-valid pathname for a page this app
- * is currently rendering — via `withoutLocale()`/`parentPath()`, not from
- * unvalidated input; never call this with a path from outside the app.
+ * For the few call sites that rebuild a path computed at runtime — the
+ * current pathname, or one derived from it — rather than a `ROUTES` literal.
+ * Such a value can't be checked against the route list at compile time, so
+ * this takes the cast `resolve()` can't avoid. Only ever call it with a path
+ * derived from `page.url.pathname`, never with unvalidated input.
  */
 export function resolveRuntimePath(locale: Locale, pathname: string): ResolvedPathname {
 	const normalized = pathname.startsWith('/') ? pathname : `/${pathname}`;
@@ -99,12 +85,9 @@ export function withoutLocale(pathname: string): string {
 }
 
 /**
- * True for a same-origin, locale-prefixed app path (`/en/...`, `/ru/...`) —
- * never for an absolute URL, a protocol-relative `//host/...` path, or a
- * bare `/account` with no locale segment. Use this to validate any path
- * that arrives as user-controllable input (e.g. a `next` query param) before
- * redirecting to it — see `requireSignedIn()`'s `resume` option in
- * [`authGuard.ts`](../server/authGuard.ts), the only current caller.
+ * True only for a same-origin, locale-prefixed app path — not an absolute
+ * URL, a protocol-relative `//host/...`, or a bare `/account`. Validate any
+ * user-controllable path (e.g. a `next` param) with this before redirecting.
  */
 export function isSafeInternalPath(path: string): boolean {
 	if (!path.startsWith('/') || path.startsWith('//')) return false;
@@ -112,11 +95,8 @@ export function isSafeInternalPath(path: string): boolean {
 	return lang !== undefined && isLocale(lang);
 }
 
-/**
- * The path one level up in the app's route hierarchy, given a locale-stripped
- * pathname (e.g. `/learn/vocabulary/train` -> `/learn/vocabulary`). `undefined`
- * at the locale root (`/`) — there's nowhere further up to go.
- */
+/** One level up, given a locale-stripped pathname. `undefined` at the locale
+ * root, where there's nowhere further to go. */
 export function parentPath(pathname: string): string | undefined {
 	if (pathname === '/') return undefined;
 	const segments = pathname.split('/').filter((segment) => segment.length > 0);

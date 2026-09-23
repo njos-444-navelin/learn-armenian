@@ -3,13 +3,9 @@
 	import { stepCounterLabel } from '$lib/i18n/dictionaries/alphabetTrainer';
 	import type { Translated } from '$lib/i18n/types';
 
-	/** 'filled' and 'current' are deliberately two different colors (see
-	 * .dot.filled/.dot.current below) — a caller with no "already done vs.
-	 * currently on" distinction to make (the learn step) just never emits
-	 * 'filled', using 'current' alone for every dot up to and including the
-	 * active one. A caller that does have that distinction (the drill,
-	 * where "done" and "the question you're on" are genuinely different
-	 * states) uses all three. */
+	/** A caller with no "already done vs currently on" distinction (the learn
+	 * step) never emits 'filled' and uses 'current' for every dot up to the
+	 * active one; the drill, which has that distinction, uses all three. */
 	export type DotState = 'filled' | 'current' | 'empty';
 
 	interface Props {

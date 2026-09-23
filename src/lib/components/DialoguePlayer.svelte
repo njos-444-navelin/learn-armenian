@@ -38,9 +38,8 @@
 	import FloatingActionBar from './FloatingActionBar.svelte';
 	import Modal from './Modal.svelte';
 
-	/** A word the learner opened during the dialogue — collected for the done
-	 * screen's recap. Keyed by library word, so tapping հացը and հա՞ցը counts
-	 * `hats` once. */
+	/** A word the learner opened, for the done screen's recap. Keyed by library
+	 * word, so tapping հացը and հա՞ցը counts `hats` once. */
 	export interface TappedWord {
 		wordId: string;
 		armenian: string;
@@ -51,9 +50,8 @@
 		dialogue: Dialogue;
 		/** 1-based position in the catalog, for the "Dialogue 1" kicker. */
 		number: number;
-		/** Whether the learner has already marked this dialogue done. Flips
-		 * the commit button from the soft "mark it done" into the solid
-		 * "Already done", which offers to undo instead of re-marking. */
+		/** Flips the commit button from the soft "mark it done" to the solid
+		 * "Already done", which offers to undo instead. */
 		completed: boolean;
 		/** Bound so the route can replay the completion form after a
 		 * signed-out learner comes back from signing in (see the route). */
@@ -74,19 +72,17 @@
 	let removing = $state(false);
 	let showRemoveModal = $state(false);
 
-	// Read once, at mount, on purpose: the route remounts this component
-	// (via {#key}) whenever the dialogue changes, so playback never has to
-	// follow a prop change — same pattern as VocabularyTrainer's queue.
+	// Read once at mount: the route remounts this component (via {#key}) when
+	// the dialogue changes, so playback never has to follow a prop change.
 	const playback = untrack(
 		() => new DialoguePlayback(dialogue.lines.length, (index) => lineAudioSrc(dialogue.id, index))
 	);
-	// On the client, fetch every line's clip right away, and warm the clips
-	// of the words a learner can tap — the line clips are what a tap has to
-	// start instantly (see DialoguePlayback); the word clips just need to be
-	// in the HTTP cache for SpeakerButton, so a low-priority fetch is enough.
+	// Line clips are what a tap must start instantly (see DialoguePlayback);
+	// the word clips only need to be in the HTTP cache for SpeakerButton, so a
+	// low-priority fetch is enough.
 	$effect(() => {
 		playback.preload();
-		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- a local accumulator, not state: this Set is built and drained in one synchronous pass inside this effect and never escapes it, so there is no later read for a mutation to invalidate. A SvelteSet behaves identically here (checked in the browser: same one fetch per distinct word, no extra effect runs), so swapping it in would only allocate signals nothing observes — and, in a file where `revealed`/`translated` are SvelteSets precisely because the markup reads them, it would tell the next reader this one is watched too.
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- a local accumulator, not state: built and drained in one synchronous pass inside this effect and never read again, so there is nothing for a mutation to invalidate.
 		const wordIds = new Set<string>();
 		for (const line of dialogue.lines) for (const token of line.tokens) if (token.wordId !== undefined) wordIds.add(token.wordId);
 		for (const wordId of wordIds) void fetch(wordAudioSrc(wordId), { priority: 'low' }).catch(() => undefined);
@@ -94,12 +90,8 @@
 	});
 
 	let lineCount = $derived(dialogue.lines.length);
-	/** A line above the transcript says the words are tappable — nothing
-	 * else on the page does, since tappable words carry no resting mark
-	 * (see DialogueLineBubble). Which version depends on whether anything
-	 * is readable yet; it never empties — clearing it on the first tap
-	 * shifted the whole transcript right as the learner was reading a
-	 * popover. */
+	/** Never empties: clearing it on the first tap shifted the whole transcript
+	 * right while the learner was reading a popover. */
 	let wordHint = $derived(mode === 'read' || revealed.size > 0 ? tapWordHint : revealThenTapHint);
 	let inProgress = $derived(playback.started);
 	let progressPercent = $derived(inProgress ? ((playback.cursor + 1) / lineCount) * 100 : 0);
@@ -118,10 +110,8 @@
 		tapped = [...tapped, { wordId: word.id, armenian: word.armenian, gloss: t(token.gloss ?? word.translation) }];
 	}
 
-	/** Closes the open popover on a click anywhere outside it or its word,
-	 * and on Escape. Token buttons toggle themselves in `tapToken`, so a
-	 * click on the open word is excluded here rather than closing and
-	 * immediately re-opening. */
+	/** Closes the open popover on an outside click or Escape. A click on the
+	 * open word is excluded, since `tapToken` toggles it itself. */
 	function onWindowClick(event: MouseEvent): void {
 		if (openToken === null) return;
 		const target = event.target;
@@ -133,9 +123,8 @@
 		if (event.key === 'Escape') openToken = null;
 	}
 
-	/** Listen re-blurs every line, including ones the learner revealed
-	 * with the eye button — tapping it means "hide the text again", so
-	 * it's a reset, not just a mode switch. */
+	/** Listen re-blurs every line, including ones revealed with the eye button:
+	 * tapping it means "hide the text again", so it's a reset. */
 	function setMode(next: Mode): void {
 		mode = next;
 		if (next === 'listen') {
@@ -161,9 +150,8 @@
 		};
 	};
 
-	// The route's `data.completed` is what actually flips the button back:
-	// `update()` re-runs the page load, and the parent passes the fresh
-	// value down. Closing the modal is the only local state to settle.
+	// `data.completed` is what flips the button back — `update()` re-runs the
+	// load and the parent passes the fresh value down.
 	const submitRemove: SubmitFunction = () => {
 		removing = true;
 		return async ({ update, result }) => {
@@ -211,10 +199,9 @@
 		{/each}
 	</div>
 
-	<!-- Passed as Button's `icon`, not inline in its label, so the spinner
-	     stands in for the checkmark while `complete` posts instead of
-	     queueing up beside it (Conventions #15). No width/height: the
-	     button's icon slot sizes it. -->
+	<!-- Passed as Button's `icon` so the spinner stands in for the checkmark
+	     rather than queueing up beside it (see Button.svelte). No width/height:
+	     the icon slot sizes it. -->
 	{#snippet doneIcon()}
 		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 			<circle cx="12" cy="12" r="9.5" />
@@ -222,11 +209,8 @@
 		</svg>
 	{/snippet}
 
-	<!-- One slot, two states. Not done: the soft sage commit button that
-	     posts `complete` (and lifts — it's the screen's one commit action).
-	     Done: the solid sage of the success state itself, no lift, and
-	     tapping it offers to undo rather than re-marking; there's nothing
-	     left to commit. -->
+	<!-- One slot, two states: the soft commit button that posts `complete`, or,
+	     once done, the solid success state, which offers to undo. -->
 	<div class="complete">
 		{#if completed}
 			<Button type="button" variant="success" icon={doneIcon} onclick={() => (showRemoveModal = true)}>
@@ -247,9 +231,8 @@
 			<div class="seg" role="radiogroup" aria-label={t(modeAriaLabel)}>
 				<label class="seg-opt" class:checked={mode === 'listen'}>
 					<!-- onclick, not onchange: a radio's change event doesn't fire when it's
-					     already checked, and Listen has to reset revealed lines even when the
-					     learner is already in Listen mode. Keyboard selection (arrows/Space)
-					     dispatches click on radios too, so nothing is lost. -->
+					     already checked, and Listen has to reset revealed lines even from
+					     inside Listen mode. Keyboard selection dispatches click too. -->
 					<input type="radio" name="dialogue-mode" value="listen" checked={mode === 'listen'} onclick={() => setMode('listen')} />
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14">
 						<path d="M4 15v-3a8 8 0 0 1 16 0v3" />
@@ -374,11 +357,9 @@
 		flex: 1;
 	}
 
-	/* The whole pill, not just its buttons, must take pointer events —
-	   FloatingActionBar deliberately makes its own box inert (see its
-	   comment), and the segmented control's labels aren't on its list of
-	   real controls. Capped narrower than the (invisible, `bare`) bar
-	   around it to line up with the chat column above. */
+	/* The whole pill takes pointer events: FloatingActionBar makes its own box
+	   inert, and these labels aren't on its list of real controls. Capped
+	   narrower than the bar to line up with the chat column above. */
 	.player-bar {
 		position: relative;
 		display: flex;
@@ -454,12 +435,9 @@
 		outline-offset: -3px;
 	}
 
-	/* On a narrow phone (360 CSS px is common — a Fairphone 6, most
-	   Android mid-rangers) the bar can't fit two labelled mode options, a
-	   stop button and the play-all counter: the Russian labels alone need
-	   ~200px and "Читать" was clipped mid-word. Below 420px the mode
-	   options are icons only, a little larger, with the labels kept for
-	   assistive tech (the same sr-only pattern as app.css). */
+	/* Below 420px the bar can't fit two labelled mode options, a stop button and
+	   the counter — the Russian labels alone need ~200px — so the options become
+	   icons only, with the labels kept for assistive tech. */
 	@media (max-width: 420px) {
 		.seg-opt {
 			padding: 0 var(--space-3);

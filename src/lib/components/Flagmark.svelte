@@ -1,8 +1,6 @@
-<!-- Decorative brand mark — a rounded three-stripe rectangle echoing the
-     Armenian flag, muted to sit inside the warm palette (the accent token
-     stands in for the flag's own orange). Always paired with a real
-     translated wordmark/heading next to it, per Conventions #1 — it is
-     aria-hidden and carries no meaning on its own. -->
+<!-- Decorative brand mark echoing the Armenian flag, muted for the warm
+     palette. Always paired with a real translated wordmark (Conventions #1);
+     aria-hidden and meaningless on its own. -->
 <span class="flagmark" aria-hidden="true">
 	<span class="stripe r"></span>
 	<span class="stripe b"></span>

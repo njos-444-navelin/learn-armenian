@@ -89,15 +89,10 @@
 
 	.badge-dot {
 		position: absolute;
-		/* Centers the dot on the ring itself at its top-right (45°) point —
-		   the button has no border now, so its visual edge is exactly its
-		   padding-box edge, which is what `top`/`right` are relative to. For
-		   a circle of diameter --tap-target-min (2.75rem), that point sits
-		   0.4rem in from the button's edge on both axes. `top`/`right`
-		   position the dot's own edge, not its center, so they're offset
-		   back by half the dot's size to keep that center fixed as the dot's
-		   size changes — here that pushes them negative, letting the dot
-		   overhang the ring slightly. */
+		/* Centres the dot on the ring's top-right (45°) point: for a circle of
+		   diameter --tap-target-min that point is 0.4rem in from the edge on both
+		   axes. `top`/`right` position the dot's own edge, so they're offset back by
+		   half its size to keep that centre fixed as the dot resizes. */
 		top: calc(0.4rem - 0.38125rem);
 		right: calc(0.4rem - 0.38125rem);
 		width: 0.7625rem;

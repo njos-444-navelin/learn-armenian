@@ -36,17 +36,12 @@
 
 	interface Props {
 		initialQueue: readonly TrainingCard[];
-		/** What this round's two caps kept out of `initialQueue` (see
-		 * NEW_CARDS_PER_SESSION and DUE_CARDS_PER_ROUND in the training
-		 * page's server load). Turns the caught-up screen into "that round's
-		 * done, here's what's left" rather than letting a capped session
-		 * look like the end of the collection. Both are counts the server
-		 * knows without building either list. */
+		/** What this round's two caps kept out of `initialQueue`, so the caught-up
+		 * screen can say "that round's done, here's what's left". */
 		newCardsHeldBack: number;
 		dueCardsHeldBack: number;
-		/** Fetches the next round. The page owns this (and the pending flag
-		 * below) because delivering the new queue means remounting this
-		 * component — see the `{#key}` it sits in. */
+		/** Fetches the next round. The page owns this because delivering the new
+		 * queue means remounting this component — see the `{#key}` it sits in. */
 		onNextRound: () => void;
 		nextRoundPending: boolean;
 	}
@@ -59,62 +54,36 @@
 		nextRoundPending
 	}: Props = $props();
 
-	// `initialQueue` is only ever meant to be read once, at mount — this
-	// component owns advancing through it locally afterwards (see
-	// AlphabetTrainer.svelte for the same pattern with its own `levels` prop).
+	// Read once at mount; this component owns advancing through it afterwards.
 	let activeQueue = $state<TrainingCard[]>(untrack(() => [...initialQueue]));
-	// Cards graded this session that aren't due yet — a periodic check (see
-	// the `$effect` below) moves each one into `activeQueue` the moment its
-	// new due time arrives, so a short "Again"/"Hard" wait can resurface
-	// without a page reload. Never a source of truth by itself: each grade
-	// still round-trips to the server, which re-reads the DB row fresh and
-	// persists the authoritative result — this array only mirrors what we
-	// expect that result to be, purely to drive local resurfacing.
+	// Cards graded this session that aren't due yet; the `$effect` below moves
+	// each one back into `activeQueue` when its due time arrives. Mirrors what
+	// we expect the server to persist, never a source of truth.
 	let waiting = $state<TrainingCard[]>([]);
 	let flipped = $state(false);
-	// True once the translation has been shown for the *current* card —
-	// unlike `flipped`, this doesn't reset when flipping back to the front,
-	// so the grade buttons (and the "tap to reveal" hint) stay in whichever
-	// state they reached on first reveal instead of toggling with the card.
+	// Sticky, unlike `flipped`: the grade buttons stay as they were on first
+	// reveal instead of toggling with the card.
 	let revealed = $state(false);
 	let now = $state(new Date());
 
 	let locale = $derived(getLocale());
 	let current = $derived(activeQueue[0]);
 	let remainingNew = $derived(activeQueue.filter((card) => card.isNew).length);
-	// Deliberately `activeQueue` only, not `+ waiting.length` — this should
-	// read as "how many are in front of you right now", so it drops the
-	// instant a due card is graded (even if that same card comes right back
-	// via `waiting` a few minutes later, at which point it re-appears here
-	// too). Summing both would leave the count unchanged across a
-	// due-card→waiting move, which reads as if grading it did nothing.
+	// `activeQueue` only: the count should drop the instant a card is graded.
 	let remainingDue = $derived(activeQueue.length - remainingNew);
-	// Whether this round is one of several — see `todaysCountLabel`, which
-	// only calls it a round when there's another to reach.
+	// See `todaysCountLabel`, which only calls it a round when there's another.
 	let moreWaiting = $derived(dueCardsHeldBack > 0 || newCardsHeldBack > 0);
 	let previews = $derived(current !== undefined ? previewGrades(current.state, now) : undefined);
 	let soonestWaitMinutes = $derived(
 		waiting.length > 0 ? Math.min(...waiting.map((card) => minutesUntilDue(card.state, now))) : 0
 	);
 
-	// Left-to-right: hardest to easiest — matches the standard SRS reviewer
-	// convention (Anki and the design reference both run "Again, Hard, Good,
-	// Easy"), and lines up with the grade tokens' own escalating tint
-	// (neutral → terracotta → sage → deep sage).
+	// Hardest to easiest, the standard SRS reviewer order.
 	const GRADE_ORDER: readonly Grade[] = ['again', 'hard', 'good', 'easy'];
 
-	/** A new card slides in from the right with a slight clockwise tilt,
-	 * fading in as it settles — deliberately distinct from the flip
-	 * transform so a fresh card reads as a new card, not as the previous one
-	 * un-flipping back to its front face. 60% of the card's own width reads
-	 * as a clear, deliberate arrival rather than a small nudge (confirmed by
-	 * screenshotting mid-transition: the card sits well off to the right,
-	 * clearly still arriving, not just settling) — a percentage rather than
-	 * a fixed distance so it stays proportional if the card's own size ever
-	 * changes. Only safe to go this large because `.card-clip` below no
-	 * longer has to be the thing preventing page overflow — PageShell's
-	 * `<main>` clips at the real viewport edge now, so this can travel
-	 * however far looks right. */
+	/** Slides in from the right with a slight tilt, deliberately distinct from
+	 * the flip transform so a fresh card doesn't read as the previous one
+	 * un-flipping. A percentage, so it scales with the card. */
 	function cardEnter(_node: Element, params: { duration?: number } = {}) {
 		const duration = params.duration ?? 380;
 		return {
@@ -130,20 +99,16 @@
 		now = new Date();
 	}
 
-	/** The card is a `div[role=button]`, not a native `<button>`, precisely so
-	 * it can contain a real nested `<button>` (the speaker) — a `<button>`
-	 * can't validly contain interactive content. That trades away the
-	 * native element's built-in Enter/Space activation, so it's replicated
-	 * here. */
+	/** The card is a `div[role=button]` so it can contain the speaker `<button>`,
+	 * which a real `<button>` may not — hence the hand-rolled activation. */
 	function handleCardKeydown(event: KeyboardEvent): void {
 		if (event.key !== 'Enter' && event.key !== ' ') return;
 		event.preventDefault();
 		flip();
 	}
 
-	/** Moves any `waiting` card whose due time has arrived into `activeQueue`,
-	 * soonest-due first, and refreshes `now` regardless (keeps the "next card
-	 * in Xmin" countdown and the flipped card's interval previews live). */
+	/** Moves due `waiting` cards into `activeQueue`, and refreshes `now` either
+	 * way to keep the countdown and the interval previews live. */
 	function tick(): void {
 		const at = new Date();
 		now = at;
@@ -161,13 +126,9 @@
 	});
 
 	/**
-	 * Optimistic by design — see Conventions §8's exception note. The queue
-	 * advances immediately, before the `POST` even resolves: grading is a
-	 * low-stakes, idempotent write (regrading the same word just upserts the
-	 * same row again), so waiting on a round-trip for every single card
-	 * would make a fast flashcard session feel like it's stalling on the
-	 * network for no real benefit. A failed write surfaces as a toast
-	 * instead of a spinner, and doesn't roll the UI back.
+	 * Optimistic by design — see Conventions §8's exception note. Grading is a
+	 * low-stakes idempotent write, so a failure surfaces as a toast rather than
+	 * blocking the queue or rolling the UI back.
 	 */
 	function submitGrade(): SubmitFunction {
 		return ({ submitter }) => {
@@ -181,13 +142,8 @@
 				activeQueue = activeQueue.slice(1);
 				flipped = false;
 				revealed = false;
-				// Only 'learning'/'relearning' cards run on short (minutes)
-				// steps and can plausibly come back up this session. A card
-				// that graduated to 'review' has an interval of at least a
-				// day (see scheduler.ts) — it's done for today, so it's
-				// dropped here rather than left in `waiting` forever, both
-				// so it stops being polled and so it stops being counted as
-				// part of today's remaining work below.
+				// Only learning/relearning cards run on short steps and can come
+				// back this session; a graduated one is a day out (scheduler.ts).
 				if (next.phase !== 'review') {
 					waiting = [...waiting, { ...gradedCard, state: next, isNew: false }];
 				}
@@ -198,15 +154,10 @@
 				if (result.type === 'failure' || result.type === 'error') {
 					pushToast(gradeSaveFailedMessage, 'error');
 				}
-				// Deliberately not calling `update()` — all UI state is already
-				// handled optimistically above, and the default
-				// `invalidateAll()` would refetch the whole training queue from
-				// the server mid-session for no benefit. Still refreshes the
-				// account-menu practice badge specifically, so it's already
-				// correct by the time the learner navigates away instead of
-				// showing stale "words to practice" after they just cleared
-				// them — see the `depends()` call this key matches in the
-				// locale layout's load.
+				// Deliberately no `update()`: the UI is handled optimistically above,
+				// and `invalidateAll()` would refetch the whole queue mid-session.
+				// Only the practice badge is refreshed — see the matching
+				// `depends()` in the locale layout's load.
 				await invalidate('vocabulary:practice-status');
 			};
 		};
@@ -214,10 +165,9 @@
 </script>
 
 {#if current !== undefined}
-	<!-- Only while there are cards in hand: on the end-of-round screens this
-	     line can only ever say "0 new · 0 due for review", which reads as a
-	     flat contradiction directly above a message naming the dozens of
-	     words still waiting. -->
+	<!-- Only while cards are in hand: on the end-of-round screens this could
+	     only ever say "0 new · 0 due", right above a message naming the words
+	     still waiting. -->
 	<p class="summary">{t(todaysCountLabel(remainingDue, remainingNew, moreWaiting))}</p>
 
 	<div class="trainer">
@@ -244,18 +194,10 @@
 								</span>
 							</div>
 							<div class="face back">
-								<!-- Gated on `revealed`, not just always rendered — see the
-								     comment on `.card-inner` below: a WebKit/GPU-compositing
-								     timing race can briefly paint this face unrotated before
-								     `backface-visibility` takes effect. That's tolerable once
-								     it's genuinely empty (nothing readable to flash), which is
-								     what actually stops the "wrong word for a split second"
-								     bug — the vendor-prefixed CSS below is a real fix too, but
-								     this is the one that can't fail regardless of the browser's
-								     GPU-layer timing. `revealed` flips true in the same
-								     synchronous tick `flipped` does (see `flip()`), so a real
-								     flip still shows the translation immediately — nothing here
-								     delays the actual animation. -->
+								<!-- Gated on `revealed` so there's nothing readable to flash if the
+								     compositing race described on `.card-inner` paints this face
+								     unrotated. `revealed` flips in the same tick as `flipped`, so a real
+								     flip is still immediate. -->
 								{#if revealed}
 									<span class="word" use:fitText>{t(current.word.translation)}</span>
 									{#if current.word.register !== undefined}
@@ -302,20 +244,13 @@
 		</form>
 	</div>
 {:else if moreWaiting}
-	<!-- Deliberately ahead of the `waiting` branch below, not after it: a
-	     round that put a dozen cards on a ten-minute step ends with
-	     `activeQueue` empty and `waiting` full, and checking `waiting` first
-	     meant that learner got a bare countdown while the next round — which
-	     may hold hundreds of reviews — sat behind it, unreachable until every
-	     straggler had been graded back out. Those short steps are the one
-	     thing that shouldn't gate the next round: putting a card off is a
-	     decision to see it later, not a reason to sit and wait for it. -->
+	<!-- Ahead of the `waiting` branch on purpose: otherwise a round that put
+	     cards on a ten-minute step leaves the next round unreachable behind a
+	     bare countdown. -->
 	<h2>{t(roundDoneHeading)}</h2>
 	<p>{t(roundRemainingMessage(dueCardsHeldBack, newCardsHeldBack))}</p>
 	{#if waiting.length > 0}
-		<!-- Demoted to a footnote: the stragglers are still coming if the
-		     learner stays, but they're no longer the only thing on offer, so
-		     they don't get to be the headline. -->
+		<!-- A footnote: the stragglers are no longer the only thing on offer. -->
 		<p class="stragglers" aria-live="polite">
 			{t(stragglersReturnLabel(waiting.length, soonestWaitMinutes))}
 		</p>
@@ -327,10 +262,8 @@
 		<Button href={withLocale(locale, '/learn')} variant="secondary">{t(backToLessonsLabel)}</Button>
 	</div>
 {:else if waiting.length > 0}
-	<!-- Nothing held back, so the stragglers genuinely are all that's left
-	     and the countdown is the whole screen. Still carries a way out —
-	     without one this was the app's only screen offering the learner
-	     nothing at all to do for up to ten minutes. -->
+	<!-- Nothing held back, so the countdown is the whole screen. Still carries
+	     a way out — otherwise there's nothing to do for up to ten minutes. -->
 	<h2>{t(nearlyThereHeading)}</h2>
 	<p aria-live="polite">{t(nextCardInLabel(soonestWaitMinutes))}</p>
 	<Button href={withLocale(locale, '/learn')} variant="secondary">{t(backToLessonsLabel)}</Button>
@@ -341,10 +274,8 @@
 {/if}
 
 <style>
-	/* Centred rather than stretched, so the pair reads the same as the
-	   single button the other end-of-session screen shows — the tighter
-	   gap is what groups them as one block of actions inside PageShell's
-	   own, much airier, page-wide gap. */
+	/* Centred rather than stretched, so the pair reads as one block of actions
+	   inside PageShell's much airier page-wide gap. */
 	.actions {
 		display: flex;
 		flex-direction: column;
@@ -352,9 +283,7 @@
 		gap: var(--space-2);
 	}
 
-	/* Same demotion as `.summary` — see the markup comment on this line: it's
-	   a footnote under the round's remaining count, not a heading of its
-	   own. */
+	/* A footnote under the round's remaining count, not a heading of its own. */
 	.summary,
 	.stragglers {
 		color: var(--color-text-secondary);
@@ -366,13 +295,9 @@
 		font-size: var(--font-size-lg);
 	}
 
-	/* Its own (tighter-than-PageShell's-default) gap between the card, the
-	   flip hint and the grade buttons — the card alone runs tall, and on a
-	   phone with Safari's address bar still expanded (the common case: this
-	   page never needs a scroll gesture that would auto-collapse it), the
-	   default page-wide gap left the grade buttons clipped under the bar.
-	   Scoped to this wrapper rather than shrinking PageShell's shared gap,
-	   which every other page also relies on. */
+	/* Tighter than PageShell's default gap: the card runs tall, and with a
+	   phone's address bar expanded the default left the grade buttons clipped
+	   under it. Scoped here rather than shrinking the shared gap. */
 	.trainer {
 		display: flex;
 		width: 100%;
@@ -381,15 +306,10 @@
 		gap: var(--space-3);
 	}
 
-	/* Gives the outgoing and incoming `.card` (see the `{#key}` block above)
-	   a shared box to sit absolutely within, so the two overlap exactly
-	   during the crossfade instead of stacking in normal flow and shoving
-	   the hint/grade buttons below down for the transition's duration.
-	   Capped narrower than the other `--measure`-derived widths on this page
-	   (see `.trainer` above) — the card's height follows its width via
-	   `aspect-ratio`, and this is the main lever for keeping the whole
-	   card+hint+buttons stack short enough to fit above a phone's address
-	   bar without scrolling. */
+	/* A shared box for the outgoing and incoming `.card` to sit absolutely
+	   within, so they overlap during the crossfade instead of shoving the rest
+	   of the stack down. Its max-width is the main lever for keeping the whole
+	   card+hint+buttons stack above a phone's address bar. */
 	.card-slot {
 		position: relative;
 		width: 100%;
@@ -397,24 +317,10 @@
 		aspect-ratio: 3 / 4;
 	}
 
-	/* Frames the incoming card's slide-in to a generous but still bounded
-	   area — not the thing preventing page overflow anymore (that's
-	   PageShell's `<main>`, which clips at the real viewport edge
-	   app-wide), just keeping the animation visually contained to
-	   "somewhere around the card" rather than technically free to render
-	   anywhere on the page. Extends 1rem past `.card-slot` on the top/
-	   bottom/left — and `.card` pulls back in by the same 1rem on those
-	   three sides — purely so the card's resting box-shadow has room to
-	   render instead of being clipped flush against its own edge. The right
-	   side extends 11rem, to comfortably cover `cardEnter()`'s
-	   60%-of-own-width slide (at most 10.2rem, for a card at
-	   `.card-slot`'s own max-width:17rem — `.card`'s insets below cancel
-	   this element's exactly on every other side, so `.card`'s actual width
-	   equals `.card-slot`'s, not something smaller) plus a little shadow
-	   room. `.card`'s own inset must mirror these exact numbers — see its
-	   comment. Being generous here no longer risks page overflow the way it
-	   used to (see git history for the version of this comment from before
-	   PageShell's `<main>` took over that job). */
+	/* Bounds the incoming card's slide-in. Extends 1rem past `.card-slot` on
+	   three sides to give the resting box-shadow room, and 11rem on the right
+	   to cover `cardEnter()`'s slide. `.card`'s inset must mirror these numbers
+	   exactly — see its comment. */
 	.card-clip {
 		position: absolute;
 		inset: -1rem -11rem -1rem -1rem;
@@ -423,25 +329,13 @@
 
 	.card {
 		position: absolute;
-		/* Not a plain `1rem` on every side — `.card`'s positioning ancestor
-		   is `.card-clip` (the nearest `position` ancestor CSS actually uses
-		   for `inset`, regardless of `.card-slot` being the box this is
-		   conceptually "supposed to" sit within), so this has to cancel out
-		   `.card-clip`'s own asymmetric inset exactly, side for side, or
-		   `.card` itself ends up shifted/stretched by whatever gap is left
-		   over — which is exactly what happened here: widening
-		   `.card-clip`'s right inset to fit the entrance slide, without
-		   updating this to match, made the resting (non-animating) card
-		   itself 10rem too wide on the right, not just its animation's clip
-		   region. These two rules' numbers must mirror each other exactly;
-		   don't change one without the other. */
+		/* Must cancel out `.card-clip`'s asymmetric inset side for side, since
+		   that's the positioning ancestor — otherwise the resting card itself is
+		   stretched, not just its animation's clip region. Mirror any change to
+		   `.card-clip` here. */
 		inset: 1rem 11rem 1rem 1rem;
-		/* -webkit- prefix kept alongside the unprefixed property (not just on
-		   -webkit-transform-style below) — see the .card-inner comment: the
-		   plain properties alone weren't enough to stop the first-paint
-		   mirrored-face flash in practice, so this is now consistently
-		   prefixed everywhere in this 3D stack rather than assuming any one
-		   of these is "safe" to leave unprefixed. */
+		/* Prefixed consistently across this 3D stack: the unprefixed properties
+		   alone didn't stop the first-paint mirrored-face flash. */
 		-webkit-perspective: 1200px;
 		perspective: 1200px;
 		cursor: pointer;
@@ -454,17 +348,10 @@
 		transition: transform 0.5s;
 		-webkit-transform-style: preserve-3d;
 		transform-style: preserve-3d;
-		/* Promotes the card to its own compositing layer as soon as it
-		   mounts — without this, WebKit/Blink can briefly render the mirrored
-		   back face on first paint of a freshly mounted card before
-		   self-correcting (a GPU-compositing-layer timing race, not specific
-		   to one engine). This alone turned out not to be reliable enough on
-		   its own (reported still happening after this landed) — the real
-		   belt-and-suspenders fix is gating the back face's actual content on
-		   `revealed` in the markup above, so there's nothing readable to
-		   flash even if this race still happens. Kept anyway: it's still the
-		   right hint for the browser, and it's what makes the *animated* flip
-		   itself composite smoothly once a card has been revealed once. */
+		/* Own compositing layer, or WebKit/Blink can briefly paint the mirrored
+		   back face on a freshly mounted card. Not reliable on its own — gating
+		   the back face's content on `revealed` is what actually fixes that — but
+		   it's what makes the flip itself composite smoothly. */
 		transform: translateZ(0);
 	}
 
@@ -509,14 +396,9 @@
 		display: inline-block;
 		max-width: 100%;
 		overflow: hidden;
-		/* Heading font is safe here on both faces — the front face is
-		   Armenian script, which falls through to Noto Serif Armenian, the
-		   literal companion face to --font-heading's Noto Serif. Unlike the
-		   earlier Comfortaa/Nunito pairing (where Armenian's fallback looked
-		   nothing like the Latin face itself, making the flip read as two
-		   unrelated typefaces), both faces now render from the same
-		   coordinated Noto Serif system, so flipping the card stays
-		   visually coherent. */
+		/* Safe on both faces: the Armenian front falls through to Noto Serif
+		   Armenian, the companion face to --font-heading's Noto Serif, so the flip
+		   stays typographically coherent. */
 		font-family: var(--font-heading);
 		font-weight: var(--font-heading-weight);
 		font-size: var(--font-size-xl);
@@ -530,10 +412,9 @@
 		font-style: italic;
 	}
 
-	/* Same demotion as the deck list's note: a gap from the translation, a
-	   step smaller, the same secondary ink (it can't go paler — see
-	   --font-size-xs in tokens.css). On the card's back the translation is
-	   the answer; this is the footnote. */
+	/* A footnote to the translation, not a second answer: a step smaller and
+	   in secondary ink, which can't go paler (see --font-size-xs in
+	   tokens.css). */
 	.note {
 		max-width: 100%;
 		margin: var(--space-2) 0 0;
@@ -576,9 +457,8 @@
 			opacity var(--transition-fast);
 	}
 
-	/* Reserves the row's height and position before the card is flipped, so
-	   revealing the translation never shifts anything else on the page —
-	   the buttons fade in and become interactive, they don't appear. */
+	/* Reserves the row's height before the flip, so revealing the translation
+	   never shifts the page — the buttons fade in, they don't appear. */
 	.grades:not(.revealed) .grade-button {
 		visibility: hidden;
 	}

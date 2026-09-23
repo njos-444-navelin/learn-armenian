@@ -8,11 +8,8 @@
 	   reads better with a touch of glass than fully flat — not the
 	   near-opaque overlay --color-backdrop is for. */
 	--color-background-translucent: color-mix(in srgb, var(--color-background) 94%, transparent);
-	/* A touch softer still — for a panel that wraps several floating
-	   pieces into one card (see AlphabetDrillQuestion.svelte's
-	   .footer-card), where a little more glass reads as one cohesive
-	   surface rather than competing with the button(s) sitting on top of
-	   it. */
+	/* Softer still, for a panel that wraps several floating pieces into one
+	   card (AlphabetDrillQuestion.svelte's .footer-card). */
 	--color-background-translucent-soft: color-mix(in srgb, var(--color-background) 86%, transparent);
 	/* The fully transparent end of a fade *into* the background — the same
 	   hue at 0% alpha, so a gradient from --color-background to it doesn't
@@ -24,12 +21,9 @@
 	--color-text-primary: #201e1d;
 	--color-text-secondary: #645c50;
 	--color-border: color-mix(in srgb, #201e1d 16%, transparent);
-	/* A lighter, more translucent step of --color-border — for a control
-	   that wants a softer, less assertive outline than the standard one,
-	   whether that's because it sits on something already glassy itself
-	   (AlphabetDrillQuestion.svelte's .footer-card) or just because a
-	   heavier border reads as too strong against it (that component's own
-	   answer options). */
+	/* A lighter step of --color-border, for a control that wants a less
+	   assertive outline — one sitting on something already glassy, or where a
+	   heavier border reads as too strong. */
 	--color-border-soft: color-mix(in srgb, #201e1d 10%, transparent);
 
 	/* Tonal ramps — neutral (ink), accent (terracotta) and accent-2 (sage),
@@ -74,16 +68,11 @@
 	--color-primary-hover: #b2622d;
 	--color-on-primary: var(--color-text-primary);
 
-	/* Color — secondary actions: an outline on the ground, not a filled
-	   chip, per the Organic button spec. Hover is its own subtle darkened
-	   step of the page's own warm cream, not the achromatic
-	   --color-neutral-200 the ramp would suggest (next to the saturated
-	   warm tones everywhere else on the page, a plain neutral gray read as
-	   noticeably cooler/"blueish" by contrast, even though it isn't blue in
-	   isolation) and lighter than --color-background-hover's own 8% mix
-	   (tuned for a bigger tap target elsewhere) — this is a comparatively
-	   thin outline button, so the same darkening read as too strong a jump
-	   from its resting transparent fill. */
+	/* Color — secondary actions: an outline on the ground, not a filled chip.
+	   Hover is a darkened step of the page's warm cream rather than the
+	   achromatic --color-neutral-200, which reads cool beside the warm tones,
+	   and lighter than --color-background-hover, which is tuned for a bigger
+	   target than this thin outline button. */
 	--color-secondary: transparent;
 	--color-secondary-hover: color-mix(in srgb, var(--color-background) 96%, var(--color-neutral-900) 4%);
 	--color-on-secondary: var(--color-text-primary);
@@ -103,34 +92,27 @@
 	--color-error-hover: #7c2a1d;
 	--color-error-glow: rgb(154 51 36 / 0.5);
 	--color-on-error: var(--color-neutral-100);
-	/* A soft tinted surface for error content that isn't a solid alarm-red
-	   fill (a toast, an inline notice) — mirrors --color-success-surface's
-	   role below, just without a ramp to draw from (--color-error is
-	   hand-picked, not a ramp step — see the comment above), so it's mixed
-	   from --color-error itself instead of aliased to one. */
+	/* A soft tinted surface for error content that isn't a solid fill. Mixed
+	   from --color-error rather than aliased to a ramp step, since that colour
+	   is hand-picked and has no ramp. */
 	--color-error-surface: color-mix(in srgb, var(--color-error) 14%, var(--color-background));
 	--color-on-error-surface: var(--color-error-hover);
 	--color-success: var(--color-accent-2-700);
 	--color-success-hover: var(--color-accent-2-800);
 	--color-on-success: var(--color-accent-2-100);
 	--color-success-surface: var(--color-accent-2-100);
-	/* A quieter, tinted take on the success fill for a button that *leads
-	   to* the success state rather than announcing it — the dialogue
-	   player's "mark it done" before the dialogue is done, which then flips
-	   to the full --color-success once it is. Same shades as the trainer's
-	   "good" grade, kept as their own tokens for the same reason the grade
-	   tokens are (see below). */
+	/* A quieter take on the success fill for a button that leads to the success
+	   state rather than announcing it — the dialogue player's "mark it done".
+	   Same shades as the trainer's "good" grade, kept as their own tokens. */
 	--color-success-soft: var(--color-accent-2-200);
 	--color-success-soft-hover: var(--color-accent-2-300);
 	--color-on-success-soft: var(--color-accent-2-800);
 	--color-focus-ring: var(--color-primary);
 
-	/* Color — the Armenian flag's own red and blue, muted to sit inside the
-	   warm palette. Fixed by the flag, not retuned with the theme — these
-	   are not ramp steps and have no hover/tint siblings. The flag's orange
-	   is --color-primary itself, which is why the brand mark and the
-	   loading ornament both read as "the flag, in this app's palette".
-	   Used by Flagmark.svelte and NavigationProgress.svelte only. */
+	/* Color — the Armenian flag's red and blue, muted for the warm palette.
+	   Fixed by the flag, not retuned with the theme, and with no hover or tint
+	   siblings. The flag's orange is --color-primary itself. Used by
+	   Flagmark.svelte and NavigationProgress.svelte only. */
 	--color-flag-red: #b5504a;
 	--color-flag-blue: #5b6f96;
 
@@ -139,12 +121,10 @@
 	   reserved for calm/success states, so the dot deliberately isn't sage. */
 	--color-notification: var(--color-accent-500);
 
-	/* Color — vocabulary trainer grade buttons. Tonal neutral/accent/accent-2
-	   fills (not literal red/amber/green/blue) per the design reference:
-	   easiest reads as the deepest sage, hardest as a terracotta tint,
-	   "again" as plain neutral. Kept as their own tokens rather than aliased
-	   to error/success, so a future change to form-validation colors can't
-	   silently reshade these. */
+	/* Color — vocabulary trainer grade buttons. Tonal fills rather than literal
+	   red/amber/green, per the design reference. Their own tokens rather than
+	   aliases of error/success, so a change to form-validation colours can't
+	   silently reshade them. */
 	--color-grade-again: var(--color-neutral-200);
 	--color-grade-again-hover: var(--color-neutral-300);
 	--color-on-grade-again: var(--color-neutral-800);
@@ -158,24 +138,18 @@
 	--color-grade-easy-hover: var(--color-accent-2-500);
 	--color-on-grade-easy: var(--color-accent-2-900);
 
-	/* Color — a tappable word in a dialogue bubble, hovered / with its
-	   popover open. Translucent ink washes rather than tints: the word sits
-	   on either bubble fill (--color-surface or --color-accent-100) and
-	   these darken whichever it's on by the same step — the "darken the
-	   element's own color" hover rule from DESIGN.md, done as an overlay
-	   because the word itself is transparent. An accent-200 fill here read
-	   as a harsh reddish flash against the bubble. */
+	/* Color — a tappable word in a dialogue bubble, hovered and with its popover
+	   open. Translucent ink washes, not tints, so the word darkens whichever
+	   bubble fill it sits on by the same step; an accent-200 fill read as a
+	   harsh reddish flash. */
 	--color-word-hover: color-mix(in srgb, var(--color-neutral-900) 7%, transparent);
 	--color-word-open: color-mix(in srgb, var(--color-neutral-900) 11%, transparent);
 
-	/* Layering — every z-index in the app comes from this scale, ordered by
-	   role, so two components never pick numbers independently and collide
-	   (which is how the word popover, at 8, ended up under the floating
-	   action bar, at 10). Bottom to top: persistent chrome inside the page
-	   (the floating bar), then transient UI the user just opened and expects
-	   on top of it (the word popover), then the corner bubble links, then
-	   toasts, then the skip link and the top progress line. Native <dialog>
-	   modals sit in the browser's top layer and need no entry. */
+	/* Layering — every z-index comes from this scale, so two components can't
+	   pick numbers independently and collide. Bottom to top: persistent chrome
+	   in the page, transient UI opened on top of it, the corner bubbles, toasts,
+	   then the skip link and progress line. Native <dialog> modals sit in the
+	   browser's top layer and need no entry. */
 	--z-floating-bar: 10;
 	--z-popover: 15;
 	--z-bubble-link: 20;
@@ -200,28 +174,19 @@
 	--radius-lg: 1.75rem;
 	--radius-pill: 999px;
 
-	/* Typography — Noto Serif for Latin/Cyrillic paired with Noto Serif
-	   Armenian, its literal companion face from the same coordinated Google
-	   Noto project: the two are drawn together to match, so Armenian text
-	   sits naturally alongside English/Russian instead of reading as an
-	   unrelated typeface bolted on for one script. One family serves both
-	   the heading and body role (weight does the differentiating), and both
-	   go up to a true 900 (Black), so — unlike the previous Comfortaa/Nunito
-	   pairing, which capped at 700 and needed a synthetic text-stroke to
-	   read as bold — headings get a real heavy weight, no stroke hack
-	   required. The browser picks the first font in the list with a glyph
-	   for each character, so one stack quietly serves all three of the
-	   app's languages without any lang-specific override. */
+	/* Typography — Noto Serif paired with Noto Serif Armenian, its companion
+	   face from the same Noto project, so Armenian sits naturally beside
+	   English and Russian. One family serves heading and body, both reaching a
+	   true 900, so headings need no synthetic stroke. The browser picks the
+	   first font with a glyph for each character, so one stack serves all three
+	   languages with no lang-specific override. */
 	--font-heading: 'Noto Serif', 'Noto Serif Armenian', system-ui, serif;
 	--font-heading-weight: 700;
 	--font-family-body: 'Noto Serif', 'Noto Serif Armenian', system-ui, serif;
-	/* xs is for the one role that must sit *below* supporting text — a
-	   word card's note/usage, which is there for the curious and must not
-	   compete with the word and its translation. 13px is the floor: it's
-	   still body copy, so it keeps --color-text-secondary (the next lighter
-	   neutral step fails 4.5:1 on --color-surface) and gets its demotion
-	   from size and spacing, not from a paler ink. Don't use it for
-	   anything a learner has to read to proceed. */
+	/* For the one role that must sit below supporting text: a word card's note,
+	   there for the curious. 13px is the floor, and it keeps
+	   --color-text-secondary (the next step fails 4.5:1 on --color-surface), so
+	   its demotion comes from size, not paler ink. */
 	--font-size-xs: 0.8125rem;
 	--font-size-sm: 0.875rem;
 	--font-size-md: 1rem;

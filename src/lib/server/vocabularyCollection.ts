@@ -5,10 +5,9 @@ import { VOCABULARY_CATALOG } from '$lib/content/vocabulary/catalog';
 type CollectionActionResult = { success: true } | ReturnType<typeof fail<{ errorCode: string }>>;
 
 /**
- * Shared by the deck list page's and the deck page's own `addToCollection`/
- * `removeFromCollection` actions (see Conventions §3) — the list page can
- * add/remove any deck inline, the deck page only ever acts on its own, but
- * the underlying writes are identical either way.
+ * Shared by the list page's and the deck page's `addToCollection`/
+ * `removeFromCollection` actions (Conventions §3): the writes are identical,
+ * only the set of decks each page can act on differs.
  */
 export async function addDeckToCollection(
 	supabase: SupabaseClient,
@@ -45,12 +44,10 @@ export async function removeDeckFromCollection(
 		return fail(404, { errorCode: 'deck_not_found' });
 	}
 
-	// Clears this deck's per-word SRS progress first — removing a deck is
-	// meant to be a real reset, not just hiding it, so re-adding it later
-	// starts every word "new" again rather than resurrecting old due dates.
-	// Done before the membership row so a failure here leaves the deck fully
-	// in place (still added, still tracked) rather than silently orphaning
-	// progress the user can no longer see.
+	// Clears this deck's per-word SRS progress first: removing a deck is a real
+	// reset, so re-adding it starts every word new. Before the membership row,
+	// so a failure here leaves the deck fully in place rather than orphaning
+	// progress the learner can no longer see.
 	const { error: progressDeleteError } = await supabase
 		.from('user_vocabulary_progress')
 		.delete()

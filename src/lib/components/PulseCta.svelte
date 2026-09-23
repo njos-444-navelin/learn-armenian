@@ -5,21 +5,16 @@
 
 	/**
 	 * The one attention-grabbing call to action a screen gets: a full-width
-	 * primary pill that pings outward once every couple of seconds, with a
-	 * heading-weight label (and an optional one-line subtitle) on the left
-	 * and an icon on the right — the alphabet trainer's "Practice", the
-	 * vocabulary "Train vocabulary" link, a deck's "Add to my collection".
-	 * Meant to sit inside `<FloatingActionBar bare>`; see DESIGN.md's Motion
-	 * section for the pulse and the reasoning.
+	 * primary pill that pings outward every couple of seconds. Meant to sit
+	 * inside `<FloatingActionBar bare>`; see DESIGN.md's Motion section.
 	 */
 	interface BaseProps {
 		/** Already translated — pass `t(label)`, not the dictionary entry. */
 		label: string;
 		subtitle?: string | undefined;
-		/** Trailing icon, an inline SVG with no width/height of its own — the
-		 * slot sizes it. Defaults to the "go" arrow, which is what a CTA that
-		 * navigates gets (DESIGN.md's Icons section); pass something else for
-		 * an in-place action, e.g. the plus on "Add to my collection". */
+		/** Trailing icon, an inline SVG with no width/height — the slot sizes it.
+		 * Defaults to the "go" arrow a navigating CTA gets (DESIGN.md, Icons); pass
+		 * something else for an in-place action. */
 		icon?: Snippet | undefined;
 	}
 
@@ -31,9 +26,8 @@
 		href?: undefined;
 		type?: 'button' | 'submit' | undefined;
 		onclick?: (() => void) | undefined;
-		/** Shows a spinner in place of the icon and disables the button —
-		 * Conventions #8 and #15: the spinner takes the icon's slot, so the
-		 * label doesn't move, and the pulse pauses while busy. */
+		/** Conventions #8. The spinner takes the icon's slot (see Button.svelte) and
+		 * the pulse pauses while busy. */
 		loading?: boolean | undefined;
 	}
 
@@ -50,7 +44,7 @@
 		{/if}
 	</span>
 	<!-- A fixed-size box whatever is in it: the icon, or the spinner
-	     standing in for it (Conventions #15). -->
+	     standing in for it (see Button.svelte). -->
 	<span class="icon-slot" aria-hidden="true">
 		{#if loading}
 			<Spinner />
@@ -116,9 +110,8 @@
 		animation: none;
 	}
 
-	/* Pings outward once, then holds still for the rest of the cycle rather
-	   than breathing in and out continuously — a single attention pulse that
-	   repeats every couple of seconds, not a constant throb. */
+	/* A 14px ring of the primary colour pings outward once every 2.6s and fades:
+	   one attention pulse per cycle, not a continuous breath. */
 	@keyframes cta-pulse {
 		0% {
 			box-shadow: var(--shadow-md), 0 0 0 0 color-mix(in srgb, var(--color-primary) 35%, transparent);

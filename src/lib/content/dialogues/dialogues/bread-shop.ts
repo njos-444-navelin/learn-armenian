@@ -3,20 +3,16 @@ import type { DialogueLine, DialogueRule, DialogueToken } from '../types';
 /**
  * Dialogue 1 — Dmitrii buys bread, milk, cheese, eggs, fish and coffee from
  * Tereza. Built around the three demonstratives (այս · այդ · այն) and the
- * definite -ը.
- * Loaded lazily by `loadDialogue.ts`; never import this file directly.
+ * definite -ը. Loaded lazily by `loadDialogue.ts`; never import it directly.
  *
- * Every token links to the shared word library by id — `ուզում` to `uzel`
- * (the verbs deck's "to want"), `հա՞ցը` to `hats` (the alphabet's example
- * for Հ) — so its popover plays the one clip that word already has. Tokens
- * only carry a `gloss`/`here` where the in-context meaning differs from the
- * library entry's; otherwise the library's own translation and global comment show.
+ * Every token links to the shared word library by id, so its popover plays the
+ * clip that word already has. A `gloss`/`here` is only set where the in-context
+ * meaning differs from the library entry.
  */
 
-/** Shorthand for the many tokens that are just a form of a library word.
- * The fourth argument is the occurrence's own remark (`here`), shown under
- * the library word's global comment — a general point belongs on the entry
- * in words/entries.ts, not repeated per line. */
+/** Shorthand for the many tokens that are just a form of a library word. The
+ * fourth argument is the occurrence's own `here` remark — a general point
+ * belongs on the entry in words/entries.ts. */
 function tok(
 	text: string,
 	wordId: string,
@@ -74,11 +70,9 @@ export const LINES: readonly DialogueLine[] = [
 				ru: 'Բարև ձեզ — буквально «привет вам»; именно это ձեզ делает приветствие вежливым.'
 			}),
 			tok('Ես', 'yes'),
-			// The participle + auxiliary explanation lives on this first
-			// ուզում, not on the library entry: it's how *every* verb works,
-			// so it isn't about Ուզել, and the later remarks on ուզում (line
-			// 14's "the auxiliary moved ahead", line 25's "negation lands on
-			// the auxiliary") are follow-ons to this one.
+			// On this first ուզում rather than the library entry: it's how every
+			// verb works, so it isn't about Ուզել. The later remarks on ուզում
+			// are follow-ons to this one.
 			tok('ուզում', 'uzel', { en: 'want', ru: 'хочу' }, {
 				en: 'A verb in speech: the participle ուզում (“wanting”) plus an auxiliary — here եմ — that says who wants. Every verb works this way.',
 				ru: 'Глагол в речи: причастие ուզում («хотящий») плюс вспомогательный глагол — здесь եմ, — который показывает, кто именно хочет. Так устроен любой глагол.'

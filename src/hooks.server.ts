@@ -24,13 +24,10 @@ const supabaseHandle: Handle = async ({ event, resolve }) => {
 					cookiesToSet.forEach(({ name, value, options }) => {
 						event.cookies.set(name, value, { ...options, path: '/' });
 					});
-					// @supabase/ssr can invoke this handler more than once per
-					// request (e.g. once for the PKCE code verifier, again for the
-					// session), each time resupplying the same Cache-Control/
-					// Expires/Pragma headers — but SvelteKit's `event.setHeaders`
-					// throws if a header name is set more than once per request.
-					// Safe to ignore: SvelteKit already sends its own
-					// `Cache-Control: private, no-store` on action/data responses.
+					// @supabase/ssr can invoke this more than once per request, each time
+					// resupplying the same headers, but `event.setHeaders` throws on a
+					// repeated header name. Safe to ignore: SvelteKit already sends its
+					// own `Cache-Control: private, no-store` on action/data responses.
 					if (Object.keys(headers).length > 0) {
 						try {
 							event.setHeaders(headers);

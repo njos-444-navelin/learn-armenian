@@ -32,14 +32,8 @@ svg {
 	height: auto;
 }
 
-/* Browsers don't inherit font-family/color into form controls by default —
-   button/input/select/textarea fall back to the OS's own UI font instead
-   of the page's, which reads as visibly "off" against this app's
-   deliberately distinctive Noto Serif everywhere else (see DESIGN.md's
-   Typography section). Without this, every single button has to
-   remember to redeclare its own font-family or it silently falls back —
-   exactly what happened to the alphabet drill's option buttons before
-   this rule existed. */
+/* Form controls don't inherit font-family/color by default, so without this
+   every button falls back to the OS UI font unless it redeclares one. */
 button,
 input,
 select,
@@ -48,15 +42,10 @@ textarea {
 	color: inherit;
 }
 
-/* Deliberately not animated — see docs/DESIGN.md's Motion section ("Focus
-   rings are not animated") for why. A previous version gave every element
-   an always-present, transparent outline plus a `transition: outline-color`
-   so the ring would fade in/out instead of snapping; that made a real
-   Firefox/Chrome bug (a stale-but-unfocused element's :focus-visible match
-   spuriously recomputed for one style-recalc pass after a later, unrelated
-   interaction) visible as an animated flash instead of an imperceptible
-   single-frame flicker. Plain instant show/hide, straight from
-   :focus-visible, has no duration for that flicker to play out over. */
+/* Not animated — see docs/DESIGN.md's Motion section. An always-present
+   transparent outline with a transition turned a Firefox/Chrome
+   :focus-visible recalc bug into a visible flash rather than a single-frame
+   flicker; an instant show/hide has no duration to play out over. */
 :focus {
 	outline: none;
 }

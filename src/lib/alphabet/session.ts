@@ -13,10 +13,9 @@ export interface PracticeSession {
 	drillLetters: readonly AlphabetLetter[];
 }
 
-/** Never mutates `items`. Repeated splice, not a swap-based Fisher-Yates —
- * the alphabet is small enough (39 letters) that splice's O(n) shift per
- * pick doesn't matter, and it sidesteps `noUncheckedIndexedAccess` flagging
- * every `arr[i]` in a swap as possibly `undefined`. */
+/** Never mutates `items`. Repeated splice rather than a swap-based
+ * Fisher-Yates: 39 letters make the O(n) shift irrelevant, and it avoids
+ * `noUncheckedIndexedAccess` flagging every `arr[i]` in a swap. */
 function shuffled<T>(items: readonly T[]): T[] {
 	const pool = items.slice();
 	const result: T[] = [];
@@ -28,14 +27,11 @@ function shuffled<T>(items: readonly T[]): T[] {
 }
 
 /**
- * Builds one adaptive practice session: up to 5 never-met letters get
- * introduced, then drilled alongside the 3 weakest already-met letters;
- * once nothing is unmet, a session is just the 8 weakest letters straight
- * to drill. Not pure — see the shuffle below — so the Practice button's
- * subtitle preview and an actually-started session can (and normally do)
- * land on different specific letters; that's fine, since the preview only
- * ever displays a *count* (`sessionPreview.learnLetters.length` etc. in
- * AlphabetTrainer.svelte), never a specific letter.
+ * One adaptive practice session: up to 5 never-met letters are introduced and
+ * then drilled with the 3 weakest already-met ones; once nothing is unmet, a
+ * session is the 8 weakest letters straight to drill. Not pure — see the
+ * shuffle below — so a preview and the real session pick different letters.
+ * Only the counts are ever displayed.
  */
 export function buildSession(
 	letters: readonly AlphabetLetter[],
@@ -43,11 +39,9 @@ export function buildSession(
 ): PracticeSession {
 	const levelOf = (letter: AlphabetLetter): number => levelByLetterId[letter.id] ?? LEVEL_MIN;
 
-	// Shuffled once, up front, rather than per tier: `.sort()` is guaranteed
-	// stable (ES2019+), so sorting this shuffled order by level below keeps
-	// same-level letters in their (already random) relative order instead
-	// of snapping back to canonical alphabet order — "weakest genuinely
-	// first" and "random among a tie" for free from one shuffle.
+	// Shuffled once up front rather than per tier: `.sort()` is stable, so
+	// sorting by level keeps same-level letters in random relative order
+	// instead of snapping back to alphabet order.
 	const pool = shuffled(letters);
 
 	const unmet = pool.filter((letter) => levelOf(letter) === LEVEL_MIN).slice(0, MAX_NEW_LETTERS);
